@@ -6,7 +6,6 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <cctype>
 #include <daedalus/common/types.h>
 #include <daedalus/lexer/Lexer.h>
 namespace deadalus {
