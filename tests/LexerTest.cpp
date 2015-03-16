@@ -7,6 +7,7 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <cstdio>
+#include <daedalus/lexer/FileStream.h>
 #include <daedalus/lexer/Lexer.h>
 
 namespace daedalus {
@@ -173,11 +174,11 @@ void printTokenInfo(Token& token)
 	case KEYWORD(string):
 		msg += "tok_identifier(";
 identifier_info:
-		s += token.getData();
+		msg += token.getData();
 	default:
 		break;
 	}
-	printf("%s), ", s.c_str());
+	printf("%s), ", msg.c_str());
 }
 } // namespace daedalus
 

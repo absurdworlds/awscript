@@ -17,7 +17,7 @@ namespace daedalus {
 template <typename T>
 class Stream {
 public:
-	typedef primitive_type T;
+	typedef T primitive_type;
 
 	/*!
 	 * Get currently extracted primitive.

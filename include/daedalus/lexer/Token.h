@@ -8,9 +8,10 @@
  */
 #ifndef _daedalus_token_
 #define _daedalus_token_
-namespace deadalus {
+#include <string>
+namespace daedalus {
 #define TOKEN(x) tok_ ## x
-#define PUNCT(x y) TOKEN(x)
+#define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x
 enum TokenType {
 	TOKEN(illegal),
@@ -92,6 +93,6 @@ private:
 	char* dataPtr;
 	size_t dataSize;
 #endif
-}
+};
 } // namespace daedalus
 #endif//_daedalus_token_

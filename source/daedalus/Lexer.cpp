@@ -8,7 +8,7 @@
  */
 #include <daedalus/common/types.h>
 #include <daedalus/lexer/Lexer.h>
-namespace deadalus {
+namespace daedalus {
 
 void Lexer::init ()
 {

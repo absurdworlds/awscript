@@ -10,7 +10,7 @@
 #define _daedalus_lexer_
 #include <daedalus/lexer/OctetStream.h>
 #include <daedalus/lexer/Token.h>
-namespace deadalus {
+namespace daedalus {
 class Lexer {
 public:
 	Lexer(OctetStream& stream)

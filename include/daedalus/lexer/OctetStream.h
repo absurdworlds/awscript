@@ -6,23 +6,23 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_stream_
-#define _daedalus_stream_
+#ifndef _daedalus_OctetStream_
+#define _daedalus_OctetStream_
 #include <daedalus/lexer/Stream.h>
 
 namespace daedalus {
 /*! Interface for octet-based streams. */
-class OctetStream : Stream<char> {
+class OctetStream : public Stream<char> {
 public:
-	typedef primitive_type char;
+	typedef Stream<char>::primitive_type primitive_type;
 
 	/*!
-	 * Get currently extracted primitive.
+	 * Get currently extracted octet.
 	 */
 	virtual i32 getCurrent(primitive_type& out) = 0;
 
 	/*!
-	 * Extract next primitive from stream.
+	 * Extract next octet from stream.
 	 */
 	virtual i32 getNext(primitive_type& out) = 0;
 
@@ -32,4 +32,4 @@ public:
 	virtual size_t position() const = 0;
 };
 } // namespace daedalus
-#endif//_daedalus_stream_
+#endif//_daedalus_OctetStream_
