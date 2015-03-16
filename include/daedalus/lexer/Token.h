@@ -6,6 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#ifndef _daedalus_token_
+#define _daedalus_token_
 namespace deadalus {
 #define TOKEN(x) tok_ ## x
 #define PUNCT(x y) TOKEN(x)
@@ -92,3 +94,4 @@ private:
 #endif
 }
 } // namespace daedalus
+#endif//_daedalus_token_
