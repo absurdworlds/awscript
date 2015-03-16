@@ -19,6 +19,39 @@ Token Lexer::getCurrentToken()
 	return curToken;
 }
 
+/*! Temporary (TODO) helper function to recognize identifier */
+void processIdentifier(Token& identifier)
+{
+	if (id == "const")
+		identifier.setType(KEYWORD(const));
+	else if (id == "var")
+		identifier.setType(KEYWORD(var));
+	else if (id == "func")
+		identifier.setType(KEYWORD(func));
+	else if (id == "if")
+		identifier.setType(KEYWORD(if));
+	else if (id == "else")
+		identifier.setType(KEYWORD(else));
+	else if (id == "class")
+		identifier.setType(KEYWORD(class));
+	else if (id == "prototype")
+		identifier.setType(KEYWORD(prototype));
+	else if (id == "instance")
+		identifier.setType(KEYWORD(instance));
+	else if (id == "return")
+		identifier.setType(KEYWORD(return));
+	else if (id == "void")
+		identifier.setType(KEYWORD(void));
+	else if (id == "float")
+		identifier.setType(KEYWORD(float));
+	else if (id == "int")
+		identifier.setType(KEYWORD(int));
+	else if (id == "string")
+		identifier.setType(KEYWORD(string));
+	else
+		identifier.setType(TOKEN(identifier));
+}
+
 Token Lexer::lexIdentifier()
 {
 	Token tok;
@@ -32,38 +65,11 @@ Token Lexer::lexIdentifier()
 		stream.getNext(c);
 	}
 
-	//FIXME: use map
-	if (id == "const")
-		tok.setType(KEYWORD(const));
-	else if (id == "var")
-		tok.setType(KEYWORD(var));
-	else if (id == "func")
-		tok.setType(KEYWORD(func));
-	else if (id == "if")
-		tok.setType(KEYWORD(if));
-	else if (id == "else")
-		tok.setType(KEYWORD(else));
-	else if (id == "class")
-		tok.setType(KEYWORD(class));
-	else if (id == "prototype")
-		tok.setType(KEYWORD(prototype));
-	else if (id == "instance")
-		tok.setType(KEYWORD(instance));
-	else if (id == "return")
-		tok.setType(KEYWORD(return));
-	else if (id == "void")
-		tok.setType(KEYWORD(void));
-	else if (id == "float")
-		tok.setType(KEYWORD(float));
-	else if (id == "int")
-		tok.setType(KEYWORD(int));
-	else if (id == "string")
-		tok.setType(KEYWORD(string));
-	else
-		tok.setType(TOKEN(identifier));
-	
 	tok.setData(id);
 
+	//FIXME: use map
+	processIdentifier(tok);
+	
 	return tok;
 }
 
