@@ -7,44 +7,47 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 namespace deadalus {
-#define TOKEN(x) x
-#define PUNCT(x y) p_ ## x
+#define TOKEN(x) tok_ ## x
+#define PUNCT(x y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x
 enum TokenType {
+	TOKEN(illegal),
 	TOKEN(eof),
 	TOKEN(identifier),
-	PUNCT(comma,		","),
-	PUNCT(dot,		"."),
-	PUNCT(l_brace,		"{"),
-	PUNCT(r_brace,		"}"),
-	PUNCT(l_square,		"["),
-	PUNCT(r_square,		"]"),
-	PUNCT(l_paren,		"("),
-	PUNCT(r_paren,		")"),
-	PUNCT(amp,		"&"),
-	PUNCT(damp,		"&&"),
-	PUNCT(pipe,		"|"),
-	PUNCT(dpipe,		"||"),
-	PUNCT(ast,		"*"),
-	PUNCT(ast_equal,	"*="),
-	PUNCT(plus,		"+"),
-	PUNCT(plus_equal,	"+="),
-	PUNCT(minus,		"-"),
-	PUNCT(minus_equal,	"-="),
-	PUNCT(slash,		"/"),
-	PUNCT(slash_equal,	"/="),
-	PUNCT(percent,		"%"),
-	PUNCT(less,		"<"),
-	PUNCT(less_equal,	"<="),
-	PUNCT(dless,		"<<"),
-	PUNCT(greater,		">"),
-	PUNCT(greater_equal,	">="),
-	PUNCT(dgreater,		">>"),
-	PUNCT(exclam,		"!"),
-	PUNCT(tilde,		"~"),
-	PUNCT(caret,		"^"),
-	PUNCT(equal,		"="),
-	PUNCT(dequal,		"=="),
+	PUNCT(comma,            ","),
+	PUNCT(dot,              "."),
+	PUNCT(l_brace,          "{"),
+	PUNCT(r_brace,          "}"),
+	PUNCT(l_square,         "["),
+	PUNCT(r_square,         "]"),
+	PUNCT(l_paren,          "("),
+	PUNCT(r_paren,          ")"),
+	PUNCT(amp,              "&"),
+	PUNCT(amp_amp,          "&&"),
+	PUNCT(pipe,             "|"),
+	PUNCT(pipe_pipe,        "||"),
+	PUNCT(ast,              "*"),
+	PUNCT(ast_equal,        "*="),
+	PUNCT(plus,	        "+"),
+	PUNCT(plus_equal,       "+="),
+	PUNCT(plus_plus,        "++"),
+	PUNCT(minus,	        "-"),
+	PUNCT(minus_equal,      "-="),
+	PUNCT(minus_minus,      "--"),
+	PUNCT(slash,	        "/"),
+	PUNCT(slash_equal,      "/="),
+	PUNCT(percent,	        "%"),
+	PUNCT(less,	        "<"),
+	PUNCT(less_equal,       "<="),
+	PUNCT(less_less,        "<<"),
+	PUNCT(greater,          ">"),
+	PUNCT(greater_equal,    ">="),
+	PUNCT(greater_greater,  ">>"),
+	PUNCT(exclamation,      "!"),
+	PUNCT(tilde,            "~"),
+	PUNCT(caret,            "^"),
+	PUNCT(equal,            "="),
+	PUNCT(equal_equal,      "=="),
 	KEYWORD(const),
 	KEYWORD(var),
 	KEYWORD(func),
@@ -63,12 +66,14 @@ enum TokenType {
 class Token {
 public:
 	TokenType getType() const;
-	void setType(TokenType type)
+	void setType(TokenType newType)
 	{
-		type_ = type;
+		type = type;
 	}
+
+
 private:
-	TokenType type_;
-	
+	TokenType type;
+	std::string data;
 }
 } // namespace daedalus
