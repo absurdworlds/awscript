@@ -71,9 +71,21 @@ public:
 		type = type;
 	}
 
+	std::string getData() const
+	{
+		return data;
+	}
 
+	void setData(std::string newData)
+	{
+		data = newData;
+	}
 private:
 	TokenType type;
 	std::string data;
+#if 0
+	char* dataPtr;
+	size_t dataSize;
+#endif
 }
 } // namespace daedalus
