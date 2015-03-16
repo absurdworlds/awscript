@@ -14,6 +14,8 @@ enum TokenType {
 	TOKEN(illegal),
 	TOKEN(eof),
 	TOKEN(identifier),
+	TOKEN(numeric_constant),
+	TOKEN(string_literal),
 	PUNCT(comma,            ","),
 	PUNCT(dot,              "."),
 	PUNCT(l_brace,          "{"),
