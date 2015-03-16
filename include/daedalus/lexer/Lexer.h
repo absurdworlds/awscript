@@ -23,8 +23,12 @@ public:
 	Token getNextToken();
 
 private:
-	Token curToken;
+	Token lexIllegalToken();
+	Token lexIdentifier();
+	Token lexStringLiteral();
+	Token lexNumericConstant();
 
+	Token curToken;
 	OctetStream& stream;
 };
 } // namespace daedalus
