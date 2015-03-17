@@ -66,6 +66,7 @@ Token Lexer::lexIdentifier()
 		stream.getNext(c);
 	}
 
+	fprintf(stderr,"%s\n",id.c_str());
 	tok.setData(id);
 
 	//FIXME: use map
@@ -177,16 +178,16 @@ Token Lexer::getNextToken()
 	switch (c) {
 	case 0:
 		tok.setType(tok_eof);
-		break;
+		return tok;
 	/* Numeric constants */
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
-		tok = lexNumericConstant();
+		return lexNumericConstant();
 		break;
 	/* String literal */
 	case '"':
 		stream.getNext(c); // consume '"'
-		tok = lexStringLiteral();
+		return lexStringLiteral();
 		break;
 	/* Identifier */
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
@@ -198,46 +199,58 @@ Token Lexer::getNextToken()
 	case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
 	case 'v': case 'w': case 'x': case 'y': case 'z':
 	case '_':
-		tok = lexIdentifier();
+		return lexIdentifier();
 		break;
 	/* Operators */
 	case '^':
 		tok.setType(tok_caret);
+		stream.getNext(c);
 		break;
 	case '~':
 		tok.setType(tok_tilde);
+		stream.getNext(c);
 		break;
 	case ',':
 		tok.setType(tok_comma);
+		stream.getNext(c);
 		break;
 	case '.':
 		tok.setType(tok_dot);
+		stream.getNext(c);
 		break;
 	case '%':
 		tok.setType(tok_percent);
+		stream.getNext(c);
 		break;
 	case '{':
 		tok.setType(tok_l_brace);
+		stream.getNext(c);
 		break;
 	case '}':
 		tok.setType(tok_r_brace);
+		stream.getNext(c);
 		break;
 	case '[':
 		tok.setType(tok_l_square);
+		stream.getNext(c);
 		break;
 	case ']':
 		tok.setType(tok_r_square);
+		stream.getNext(c);
 		break;
 	case '(':
 		tok.setType(tok_l_paren);
+		stream.getNext(c);
 		break;
 	case ')':
 		tok.setType(tok_r_paren);
+		stream.getNext(c);
 		break;
 	case '&':
 		stream.getNext(c);
 		if (c == '&') {
 			tok.setType(tok_amp_amp);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_amp);	
 		}
@@ -247,6 +260,7 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '|') {
 			tok.setType(tok_pipe_pipe);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_pipe);
 		}
@@ -255,6 +269,7 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '=') {
 			tok.setType(tok_bang_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_bang);
 		}
@@ -263,6 +278,7 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '=') {
 			tok.setType(tok_ast_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_ast);
 		}
@@ -271,6 +287,7 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_slash);
 		}
@@ -279,6 +296,7 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '=') {
 			tok.setType(tok_equal_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_equal);
 		}
@@ -287,8 +305,10 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '+') {
 			tok.setType(tok_plus_plus);
+			stream.getNext(c);
 		} else if (c == '=') {
 			tok.setType(tok_plus_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_plus);
 		}
@@ -297,8 +317,10 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '-') {
 			tok.setType(tok_minus_minus);
+			stream.getNext(c);
 		} else if (c == '=') {
 			tok.setType(tok_minus_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_minus);
 		}
@@ -307,8 +329,10 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '<') {
 			tok.setType(tok_less_less);
+			stream.getNext(c);
 		} else if (c == '=') {
 			tok.setType(tok_less_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_less);
 		}
@@ -317,15 +341,17 @@ Token Lexer::getNextToken()
 		stream.getNext(c);
 		if (c == '>') {
 			tok.setType(tok_greater_greater);
+			stream.getNext(c);
 		} else if (c == '=') {
 			tok.setType(tok_less_equal);
+			stream.getNext(c);
 		} else {
 			tok.setType(tok_less);
 		}
 		break;
 	/* Illegal token */
 	default:
-		tok = lexIllegalToken();
+		return lexIllegalToken();
 		break;
 	}
 
