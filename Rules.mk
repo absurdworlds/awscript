@@ -54,9 +54,9 @@ Build: $(Objects)
 	$(CXX) $(EXTRAFLAGS) -o $(BuildDir)/$(OutputName) \
 	$(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(Objects)
 	cp $(BuildDir)/$(OutputName) $(InstallDir)/$(OutputName)
-# Kinda ugly solution
-	@[ $(Executable) != true ] && \
-		ln -sf $(OutputName) $(InstallDir)/$(OutputShortName) || true
+ifeq ($(Executable),false)
+	ln -sf $(OutputName) $(InstallDir)/$(OutputShortName)
+endif
 
 .PHONY : clean
 clean:
