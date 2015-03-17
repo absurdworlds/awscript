@@ -21,6 +21,7 @@ enum TokenType {
 	TOKEN(string_literal),
 	PUNCT(comma,            ","),
 	PUNCT(dot,              "."),
+	PUNCT(semicolon,        ";"),
 	PUNCT(l_brace,          "{"),
 	PUNCT(r_brace,          "}"),
 	PUNCT(l_square,         "["),
@@ -78,7 +79,7 @@ public:
 	
 	void setType(TokenType newType)
 	{
-		type = type;
+		type = newType;
 	}
 
 	std::string getData() const
