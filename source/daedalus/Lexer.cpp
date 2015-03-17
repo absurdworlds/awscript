@@ -22,6 +22,7 @@ Token Lexer::getCurrentToken()
 /*! Temporary (TODO) helper function to recognize identifier */
 void processIdentifier(Token& identifier)
 {
+	std::string const id = identifier.getData();
 	if (id == "const")
 		identifier.setType(KEYWORD(const));
 	else if (id == "var")
@@ -57,7 +58,7 @@ Token Lexer::lexIdentifier()
 	Token tok;
 
 	char c;
-	std::string id = c;
+	std::string id(1, c);
 
 	stream.getCurrent(c);
 	while (isalnum(c) || c == '_') {
@@ -124,20 +125,23 @@ Token Lexer::lexNumericConstant()
 
 Token Lexer::lexStringLiteral()
 {
-	std::string num;
+	Token token;
+	std::string str;
 	char c;
-	char prev;
 	stream.getCurrent(c);
 
 	while (c != '"') {
 		if (c == '\\') {
-			stream_->getNext(c);
+			stream.getNext(c);
 		}
-		val += c;
+		str += c;
 		stream.getNext(c);
 	}
 
 	stream.getNext(c); // consume '"'
+
+	token.setData(str);
+	token.setType(tok_string_literal);
 
 	return token;
 }
@@ -153,7 +157,7 @@ Token Lexer::lexIllegalToken()
 	}
 
 	Token token;
-	token.setData(num);
+	token.setData(str);
 	token.setType(tok_illegal);
 
 	return token;

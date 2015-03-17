@@ -71,7 +71,11 @@ enum TokenType {
 
 class Token {
 public:
-	TokenType getType() const;
+	TokenType getType() const
+	{
+		return type;
+	}
+	
 	void setType(TokenType newType)
 	{
 		type = type;
