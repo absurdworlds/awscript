@@ -23,10 +23,15 @@ public:
 	Token getNextToken();
 
 private:
-	Token lexIllegalToken();
-	Token lexIdentifier();
-	Token lexStringLiteral();
-	Token lexNumericConstant();
+	bool lexIllegalToken(Token& token);
+	bool lexIdentifier(Token& token);
+	bool lexStringLiteral(Token& token);
+	bool lexNumericConstant(Token& token);
+	bool lexNextToken(Token& token);
+	void skipLineComment();
+	void skipBlockComment();
+
+
 
 	Token curToken;
 	OctetStream& stream;

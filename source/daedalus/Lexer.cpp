@@ -19,6 +19,13 @@ Token Lexer::getCurrentToken()
 	return curToken;
 }
 
+/*! Extract next token from stream */
+Token Lexer::getNextToken()
+{
+	lexNextToken(curToken);
+	return getCurrentToken();
+}
+
 /*! Temporary (TODO) helper function to recognize identifier */
 void processIdentifier(Token& identifier)
 {
@@ -53,10 +60,8 @@ void processIdentifier(Token& identifier)
 		identifier.setType(TOKEN(identifier));
 }
 
-Token Lexer::lexIdentifier()
+bool Lexer::lexIdentifier(Token& token)
 {
-	Token tok;
-
 	char c;
 	std::string id;
 
@@ -66,37 +71,15 @@ Token Lexer::lexIdentifier()
 		stream.getNext(c);
 	}
 
-	tok.setData(id);
+	token.setData(id);
 
 	//FIXME: use map
-	processIdentifier(tok);
+	processIdentifier(token);
 	
-	return tok;
+	return true;
 }
 
-#if 0 // started write it for the second time
-      // am I falling into dementia?
-Token Lexer::lexIdentifier()
-{
-	std::string str;
-	char c;
-	char prev;
-	stream.getCurrent(c);
-
-	while (isalnum(c) || c == '_') {
-		num += c;
-		stream.getNext(c);
-	}
-
-	Token token;
-	token.setData(str);
-	token.setType(tok_identifier);
-
-	return token;
-}
-#endif
-
-Token Lexer::lexNumericConstant()
+bool Lexer::lexNumericConstant(Token& token)
 {
 	std::string num;
 	char c;
@@ -116,16 +99,14 @@ Token Lexer::lexNumericConstant()
 		} while (isalnum(c) || c == '.');
 	}
 
-	Token token;
 	token.setData(num);
 	token.setType(tok_numeric_constant);
 
-	return token;
+	return true;
 }
 
-Token Lexer::lexStringLiteral()
+bool Lexer::lexStringLiteral(Token& token)
 {
-	Token token;
 	std::string str;
 	char c;
 	stream.getCurrent(c);
@@ -143,10 +124,10 @@ Token Lexer::lexStringLiteral()
 	token.setData(str);
 	token.setType(tok_string_literal);
 
-	return token;
+	return true;
 }
 
-Token Lexer::lexIllegalToken()
+bool Lexer::lexIllegalToken(Token& token)
 {
 	std::string str;
 	char c;
@@ -156,20 +137,46 @@ Token Lexer::lexIllegalToken()
 		stream.getNext(c);
 	}
 
-	Token token;
 	token.setData(str);
 	token.setType(tok_illegal);
 
-	return token;
+	return true;
 }
 
-/*! Extract next token from stream */
-Token Lexer::getNextToken()
+void Lexer::skipLineComment()
 {
-get_next_token:
-	Token tok;
-
 	char c;
+	// crude comment handlin
+	while (c != '\n')
+		stream.getNext(c);
+}
+
+void Lexer::skipBlockComment()
+{
+	for(;;) {
+		char c;
+		char prev;
+		// TODO: Inefficient! Check multiple chars at once
+		while (c != '/' && c != 0) {
+			prev = c;
+			stream.getNext(c);
+		}
+		if (prev == '*') {
+			stream.getNext(c);
+			break;
+		}
+	}
+}
+
+/*!
+ * This function is an actual lexer implementation.
+ * It reads characters from stream and produces tokens
+ */
+bool Lexer::lexNextToken(Token& tok)
+{
+	char c;
+
+lex_next_token:
 	stream.getCurrent(c);
 
 	while(isspace(c))
@@ -178,17 +185,15 @@ get_next_token:
 	switch (c) {
 	case 0:
 		tok.setType(tok_eof);
-		return tok;
+		return true;
 	/* Numeric constants */
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
-		return lexNumericConstant();
-		break;
+		return lexNumericConstant(tok);
 	/* String literal */
 	case '"':
 		stream.getNext(c); // consume '"'
-		return lexStringLiteral();
-		break;
+		return lexStringLiteral(tok);
 	/* Identifier */
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
 	case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
@@ -199,56 +204,43 @@ get_next_token:
 	case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
 	case 'v': case 'w': case 'x': case 'y': case 'z':
 	case '_':
-		return lexIdentifier();
-		break;
+		return lexIdentifier(tok);
 	/* Operators */
 	case '^':
 		tok.setType(tok_caret);
-		stream.getNext(c);
 		break;
 	case '~':
 		tok.setType(tok_tilde);
-		stream.getNext(c);
 		break;
 	case ',':
 		tok.setType(tok_comma);
-		stream.getNext(c);
 		break;
 	case '.':
 		tok.setType(tok_dot);
-		stream.getNext(c);
 		break;
 	case ';':
 		tok.setType(tok_semicolon);
-		stream.getNext(c);
 		break;
 	case '%':
 		tok.setType(tok_percent);
-		stream.getNext(c);
 		break;
 	case '{':
 		tok.setType(tok_l_brace);
-		stream.getNext(c);
 		break;
 	case '}':
 		tok.setType(tok_r_brace);
-		stream.getNext(c);
 		break;
 	case '[':
 		tok.setType(tok_l_square);
-		stream.getNext(c);
 		break;
 	case ']':
 		tok.setType(tok_r_square);
-		stream.getNext(c);
 		break;
 	case '(':
 		tok.setType(tok_l_paren);
-		stream.getNext(c);
 		break;
 	case ')':
 		tok.setType(tok_r_paren);
-		stream.getNext(c);
 		break;
 	case '&':
 		stream.getNext(c);
@@ -289,25 +281,17 @@ get_next_token:
 		break;
 	case '/':
 		stream.getNext(c);
+		// TODO: efficiently process muliple line comments
+		// (currently we go through the whole switch again)
 		if (c == '/') {
-			// crude comment handling
-			while (c != '\n')
-				stream.getNext(c);
-			goto get_next_token;
+			skipLineComment();
+			goto lex_next_token;
 		}
 		if (c == '*') {
-			for(;;) {
-				char prev;
-				while (c != '/') {
-					prev = c;
-					stream.getNext(c);
-				}
-				if (prev == '*') {
-					stream.getNext(c);
-					break;
-				}
-			}
-			goto get_next_token;
+			skipBlockComment();
+			// Restart lexer - we didn't get anything
+			// Using goto to avoid recursion
+			goto lex_next_token;
 		}
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
@@ -317,7 +301,7 @@ get_next_token:
 		}
 		break;
 	case '=':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_equal_equal);
 			stream.getNext(c);
@@ -326,7 +310,7 @@ get_next_token:
 		}
 		break;
 	case '+':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '+') {
 			tok.setType(tok_plus_plus);
 			stream.getNext(c);
@@ -338,7 +322,7 @@ get_next_token:
 		}
 		break;
 	case '-':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '-') {
 			tok.setType(tok_minus_minus);
 			stream.getNext(c);
@@ -350,7 +334,7 @@ get_next_token:
 		}
 		break;
 	case '<':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '<') {
 			tok.setType(tok_less_less);
 			stream.getNext(c);
@@ -362,7 +346,7 @@ get_next_token:
 		}
 		break;
 	case '>':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '>') {
 			tok.setType(tok_greater_greater);
 			stream.getNext(c);
@@ -375,11 +359,10 @@ get_next_token:
 		break;
 	/* Illegal token */
 	default:
-		return lexIllegalToken();
-		break;
+		return lexIllegalToken(tok);
 	}
 
-	curToken = tok;
-	return curToken;
+	stream.getNext(c);
+	return true;
 }
 } // namespace daedalus
