@@ -24,9 +24,7 @@ public:
 	 */
 	virtual i32 getCurrent(primitive_type& out) = 0;
 
-	/*!
-	 * Extract next primitive from stream.
-	 */
+	/*! Extract next primitive from stream. */
 	virtual i32 getNext(primitive_type& out) = 0;
 
 	/*!

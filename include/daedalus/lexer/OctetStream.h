@@ -26,6 +26,9 @@ public:
 	 */
 	virtual i32 getNext(primitive_type& out) = 0;
 
+	/*! Peek at next octet. */
+	virtual i32 peek(primitive_type& out) = 0;
+
 	/*!
 	 * Get current position in the stream.
 	 */

@@ -24,9 +24,8 @@ public:
 	{
 		size = istream.tellg();
 		istream.seekg(0);
-
-		istream.read(&cur,sizeof(primitive_type));
-		++pos;
+		
+		extract();
 	}
 
 	FileStream() = delete;
@@ -35,9 +34,16 @@ public:
 	/*! Get currently extracted octet. */
 	virtual i32 getCurrent(primitive_type& out)
 	{
-		printf("\e[1;35m%c\e[0m",cur);
-		out = cur;
-		return 1;
+		fprintf(stderr,"%c",cur);
+		return convert(cur, out);
+	}
+ 
+	/*! Peek at next octet */
+	virtual i32 peek(primitive_type& out)
+	{
+		std::ifstream::int_type tmp;
+		tmp = istream.peek();
+		return convert(tmp, out);
 	}
 
 	/*! Extract next octet from stream. */
@@ -48,13 +54,13 @@ public:
 			out = 0;
 			return 0;
 		}
-
-		istream.read(&cur,sizeof(primitive_type));
-		++pos;
-
-		out = cur;
-		printf("\e[1m%c\e[0m",cur);
-		return 1;
+		extract();
+#ifdef DEBUG
+		fprintf(stderr,"%c",cur);
+		if(cur == '\n')
+			printf("\n");
+#endif // DEBUG
+		return convert(cur, out);
 	}
 
 	/*! Get current position in the stream. */
@@ -63,6 +69,23 @@ public:
 		return pos;
 	}
 private:
+	std::ifstream::int_type extract()
+	{
+		cur = istream.get();
+		++pos;
+	}
+
+	i32 convert(std::ifstream::int_type in, primitive_type& out)
+	{
+		if (in == std::ifstream::traits_type::eof()) {
+			out = 0;
+			return 0;
+		}
+
+		out = in & 0xFF;
+		return 1;		
+	}
+
 	primitive_type cur;
 	size_t pos;
 	size_t size;
