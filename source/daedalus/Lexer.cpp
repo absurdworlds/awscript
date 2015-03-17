@@ -167,6 +167,7 @@ Token Lexer::lexIllegalToken()
 /*! Extract next token from stream */
 Token Lexer::getNextToken()
 {
+get_next_token:
 	Token tok;
 
 	char c;
@@ -216,6 +217,10 @@ Token Lexer::getNextToken()
 		break;
 	case '.':
 		tok.setType(tok_dot);
+		stream.getNext(c);
+		break;
+	case ';':
+		tok.setType(tok_semicolon);
 		stream.getNext(c);
 		break;
 	case '%':
@@ -285,6 +290,26 @@ Token Lexer::getNextToken()
 		break;
 	case '/':
 		stream.getNext(c);
+		if (c == '/') {
+			// crude comment handling
+			while (c != '\n')
+				stream.getNext(c);
+			goto get_next_token;
+		}
+		if (c == '*') {
+			for(;;) {
+				char prev;
+				while (c != '/') {
+					prev = c;
+					stream.getNext(c);
+				}
+				if (prev == '*') {
+					stream.getNext(c);
+					break;
+				}
+			}
+			goto get_next_token;
+		}
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
 			stream.getNext(c);
