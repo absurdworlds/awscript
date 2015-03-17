@@ -27,7 +27,7 @@ Objects = $(patsubst %.cpp, $(BuildDir)/%.o, $(Sources))
 CXXFLAGS  = -std=c++14
 CXXFLAGS += -fPIC
 CXXFLAGS += -fno-exceptions
-CXXFLAGS += -fvisibility=hidden
+CXXFLAGS += -fvisibility=default
 CXXFLAGS += -fdiagnostics-color=auto
 CXXFLAGS_DEBUG   = -g -DDEBUG -D_DEBUG
 CXXFLAGS_RELEASE = -O3 -DNDEBUG
