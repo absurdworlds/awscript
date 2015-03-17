@@ -58,7 +58,7 @@ Token Lexer::lexIdentifier()
 	Token tok;
 
 	char c;
-	std::string id(1, c);
+	std::string id;
 
 	stream.getCurrent(c);
 	while (isalnum(c) || c == '_') {
@@ -66,7 +66,6 @@ Token Lexer::lexIdentifier()
 		stream.getNext(c);
 	}
 
-	fprintf(stderr,"%s\n",id.c_str());
 	tok.setData(id);
 
 	//FIXME: use map
