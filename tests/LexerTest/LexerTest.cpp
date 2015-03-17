@@ -13,7 +13,7 @@
 namespace daedalus {
 void printTokenInfo(Token& token)
 {
-	std::string msg;
+	std::string msg = " ‹";
 	switch (token.getType()) {
 	case tok_illegal:
 		msg += "tok_illegal(";
@@ -181,7 +181,7 @@ identifier_info:
 	default:
 		break;
 	}
-	printf("%s), ", msg.c_str());
+	printf("%s)› ", msg.c_str());
 }
 
 } // namespace daedalus
