@@ -156,12 +156,13 @@ void Lexer::skipBlockComment()
 	for(;;) {
 		char c;
 		char prev;
+		stream.getCurrent(c);
 		// TODO: Inefficient! Check multiple chars at once
 		while (c != '/' && c != 0) {
 			prev = c;
 			stream.getNext(c);
 		}
-		if (prev == '*') {
+		if (prev == '*' || c == 0) {
 			stream.getNext(c);
 			break;
 		}
