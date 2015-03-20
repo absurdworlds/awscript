@@ -170,33 +170,27 @@ void Lexer::skipBlockComment()
 	}
 }
 
-bool Lexer::handleComment()
+void Lexer::handleComment()
 {
-	char current;
-	char next;
+	char c;
 
 check_for_comment:
-	stream.getCurrent(current);
-	stream.peek(next);
+	stream.peek(c);
 
-	if (next == '*') {
+	if (c == '*') {
 		skipBlockComment();
-	} else if (next == '/') {
+	} else if (c == '/') {
 		skipLineComment();
 	} else {
 		// Not a comment - we're done.
-		// This piece of code is probably not very obvious, so I'll
-		// explain: if we have '/', then we return false, and the
-		// caller code continues handling the "case '/'". Otherwise, we
-		// return true, and caller code jumps to the beginning.
-		return (current == '/') ? false : true;
+		return;
 	}
 	
 	// Instead of going through everything again, we do everything here.
 	// Skip whitespace and check for more comments
-	stream.getCurrent(current);
-	while(isspace(current))
-		stream.getNext(current);
+	stream.getCurrent(c);
+	while(isspace(c))
+		stream.getNext(c);
 
 	// Manually optimise tail call
 	goto check_for_comment;
@@ -314,11 +308,17 @@ lex_next_token:
 		}
 		break;
 	case '/':
-		if (handleComment()) {
-			goto lex_next_token;
-		}
+		// Look for comments first
+		handleComment();
 
-		stream.getNext(c);
+		// Check what we have, after we're done with comments
+		// If we have '/', continue handling this case.
+		// If we have something different, restart lexer.
+		stream.getCurrent(c);
+		if (c != '/')
+			goto lex_next_token;
+
+		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
 			stream.getNext(c);

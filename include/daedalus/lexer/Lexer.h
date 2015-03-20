@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	void init ();
+	void init();
 	Token getCurrentToken();
 	Token getNextToken();
 
@@ -30,8 +30,7 @@ private:
 	bool lexNextToken(Token& token);
 	void skipLineComment();
 	void skipBlockComment();
-
-
+	void handleComment();
 
 	Token curToken;
 	OctetStream& stream;
