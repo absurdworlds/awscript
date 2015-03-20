@@ -319,12 +319,6 @@ lex_next_token:
 		}
 
 		stream.getNext(c);
-		if (c == '*') {
-			skipBlockComment();
-			// Restart lexer - we didn't get anything
-			// Using goto to avoid recursion
-			goto lex_next_token;
-		}
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
 			stream.getNext(c);
