@@ -146,9 +146,10 @@ bool Lexer::lexIllegalToken(Token& token)
 void Lexer::skipLineComment()
 {
 	char c;
-	// crude comment handlin
-	while (c != '\n')
+	// crude comment handling
+	do {
 		stream.getNext(c);
+	} while (c != '\n');
 }
 
 void Lexer::skipBlockComment()
