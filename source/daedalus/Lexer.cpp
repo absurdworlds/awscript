@@ -157,7 +157,7 @@ void Lexer::skipBlockComment()
 	for(;;) {
 		char c;
 		char prev;
-		stream.getCurrent(c);
+		stream.getNext(c);
 		// TODO: Inefficient! Check multiple chars at once
 		while (c != '/' && c != 0) {
 			prev = c;
@@ -168,6 +168,38 @@ void Lexer::skipBlockComment()
 			break;
 		}
 	}
+}
+
+bool Lexer::handleComment()
+{
+	char current;
+	char next;
+
+check_for_comment:
+	stream.getCurrent(current);
+	stream.peek(next);
+
+	if (next == '*') {
+		skipBlockComment();
+	} else if (next == '/') {
+		skipLineComment();
+	} else {
+		// Not a comment - we're done.
+		// This piece of code is probably not very obvious, so I'll
+		// explain: if we have '/', then we return false, and the
+		// caller code continues handling the "case '/'". Otherwise, we
+		// return true, and caller code jumps to the beginning.
+		return (current == '/') ? false : true;
+	}
+	
+	// Instead of going through everything again, we do everything here.
+	// Skip whitespace and check for more comments
+	stream.getCurrent(current);
+	while(isspace(current))
+		stream.getNext(current);
+
+	// Manually optimise tail call
+	goto check_for_comment;
 }
 
 /*!
@@ -282,13 +314,11 @@ lex_next_token:
 		}
 		break;
 	case '/':
-		stream.getNext(c);
-		// TODO: efficiently process muliple line comments
-		// (currently we go through the whole switch again)
-		if (c == '/') {
-			skipLineComment();
+		if (handleComment()) {
 			goto lex_next_token;
 		}
+
+		stream.getNext(c);
 		if (c == '*') {
 			skipBlockComment();
 			// Restart lexer - we didn't get anything
