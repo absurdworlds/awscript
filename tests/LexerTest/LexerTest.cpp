@@ -11,177 +11,186 @@
 #include <daedalus/lexer/Lexer.h>
 
 namespace daedalus {
+std::string getTokenName(TokenType type)
+{
+	switch (type) {
+	case tok_illegal:
+		return "tok_illegal";
+	case tok_eof:
+		return "tok_eof";
+	case tok_identifier:
+		return "tok_identifier";
+	case tok_numeric_constant:
+		return "tok_numeric_constant";
+	case tok_string_literal:
+		return "tok_string_literal";
+	case tok_comma:
+		return "tok_comma";
+	case tok_dot:
+		return "tok_dot";
+	case tok_semicolon:
+		return "tok_semicolon";
+	case tok_l_brace:
+		return "tok_l_brace";
+	case tok_r_brace:
+		return "tok_r_brace";
+	case tok_l_square:
+		return "tok_l_square";
+	case tok_r_square:
+		return "tok_r_square";
+	case tok_l_paren:
+		return "tok_l_paren";
+	case tok_r_paren:
+		return "tok_r_paren";
+	case tok_amp:
+		return "tok_amp";
+	case tok_amp_amp:
+		return "tok_amp_amp";
+	case tok_pipe:
+		return "tok_pipe";
+	case tok_pipe_pipe:
+		return "tok_pipe_pipe";
+	case tok_ast:
+		return "tok_ast";
+	case tok_ast_equal:
+		return "tok_ast_equal";
+	case tok_plus:
+		return "tok_plus";
+	case tok_plus_equal:
+		return "tok_plus_equal";
+	case tok_plus_plus:
+		return "tok_plus_plus";
+	case tok_minus:
+		return "tok_minus";
+	case tok_minus_equal:
+		return "tok_minus_equal";
+	case tok_minus_minus:
+		return "tok_minus_minus";
+	case tok_slash:
+		return "tok_slash";
+	case tok_slash_equal:
+		return "tok_slash_equal";
+	case tok_percent:
+		return "tok_percent";
+	case tok_less:
+		return "tok_less";
+	case tok_less_equal:
+		return "tok_less_equal";
+	case tok_less_less:
+		return "tok_less_less";
+	case tok_greater:
+		return "tok_greater";
+	case tok_greater_equal:
+		return "tok_greater_equal";
+	case tok_greater_greater:
+		return "tok_greater_greater";
+	case tok_bang:
+		return "tok_bang";
+	case tok_bang_equal:
+		return "tok_bang_equal";
+	case tok_tilde:
+		return "tok_tilde";
+	case tok_caret:
+		return "tok_caret";
+	case tok_equal:
+		return "tok_equal";
+	case tok_equal_equal:
+		return "tok_equal_equal";
+	case KEYWORD(const):
+		return "kw_const";
+	case KEYWORD(var):
+		return "kw_var";
+	case KEYWORD(func):
+		return "kw_func";
+	case KEYWORD(if):
+		return "kw_if";
+	case KEYWORD(else):
+		return "kw_else";
+	case KEYWORD(class):
+		return "kw_class";
+	case KEYWORD(prototype):
+		return "kw_prototype";
+	case KEYWORD(instance):
+		return "kw_instance";
+	case KEYWORD(return):
+		return "kw_return";
+	case KEYWORD(void):
+		return "kw_void";
+	case KEYWORD(float):
+		return "kw_float";
+	case KEYWORD(int):
+		return "kw_int";
+	case KEYWORD(string):
+		return "kw_string";
+	}
+}
+
 void printTokenInfo(Token& token)
 {
-	std::string msg = " ‹";
+	std::string msg;
 	switch (token.getType()) {
 	case tok_illegal:
-		msg += "tok_illegal(";
-		break;
 	case tok_eof:
-		msg += "tok_eof(";
+	case tok_comma:
+	case tok_dot:
+	case tok_semicolon:
+	case tok_l_brace:
+	case tok_r_brace:
+	case tok_l_square:
+	case tok_r_square:
+	case tok_l_paren:
+	case tok_r_paren:
+	case tok_amp:
+	case tok_amp_amp:
+	case tok_pipe:
+	case tok_pipe_pipe:
+	case tok_ast:
+	case tok_ast_equal:
+	case tok_plus:
+	case tok_plus_equal:
+	case tok_plus_plus:
+	case tok_minus:
+	case tok_minus_equal:
+	case tok_minus_minus:
+	case tok_slash:
+	case tok_slash_equal:
+	case tok_percent:
+	case tok_less:
+	case tok_less_equal:
+	case tok_less_less:
+	case tok_greater:
+	case tok_greater_equal:
+	case tok_greater_greater:
+	case tok_bang:
+	case tok_bang_equal:
+	case tok_tilde:
+	case tok_caret:
+	case tok_equal:
+	case tok_equal_equal:
+	case KEYWORD(const):
+	case KEYWORD(var):
+	case KEYWORD(func):
+	case KEYWORD(if):
+	case KEYWORD(else):
+	case KEYWORD(class):
+	case KEYWORD(prototype):
+	case KEYWORD(instance):
+	case KEYWORD(return):
+	case KEYWORD(void):
+	case KEYWORD(float):
+	case KEYWORD(int):
+	case KEYWORD(string):
+		msg += getTokenName(token.getType());
 		break;
 	case tok_identifier:
-		msg += "tok_identifier(";
-		goto identifier_info;
 	case tok_numeric_constant:
-		msg += "tok_numeric_constant(";
-		goto identifier_info;
 	case tok_string_literal:
-		msg += "tok_string_literal(";
-		goto identifier_info;
-	case tok_comma:
-		msg += "tok_comma(";
-		break;
-	case tok_dot:
-		msg += "tok_dot(";
-		break;
-	case tok_semicolon:
-		msg += "tok_semicolon(";
-		break;
-	case tok_l_brace:
-		msg += "tok_l_brace(";
-		break;
-	case tok_r_brace:
-		msg += "tok_r_brace(";
-		break;
-	case tok_l_square:
-		msg += "tok_l_square(";
-		break;
-	case tok_r_square:
-		msg += "tok_r_square(";
-		break;
-	case tok_l_paren:
-		msg += "tok_l_paren(";
-		break;
-	case tok_r_paren:
-		msg += "tok_r_paren(";
-		break;
-	case tok_amp:
-		msg += "tok_amp(";
-		break;
-	case tok_amp_amp:
-		msg += "tok_amp_amp(";
-		break;
-	case tok_pipe:
-		msg += "tok_pipe(";
-		break;
-	case tok_pipe_pipe:
-		msg += "tok_pipe_pipe(";
-		break;
-	case tok_ast:
-		msg += "tok_ast(";
-		break;
-	case tok_ast_equal:
-		msg += "tok_ast_equal(";
-		break;
-	case tok_plus:
-		msg += "tok_plus(";
-		break;
-	case tok_plus_equal:
-		msg += "tok_plus_equal(";
-		break;
-	case tok_plus_plus:
-		msg += "tok_plus_plus(";
-		break;
-	case tok_minus:
-		msg += "tok_minus(";
-		break;
-	case tok_minus_equal:
-		msg += "tok_minus_equal(";
-		break;
-	case tok_minus_minus:
-		msg += "tok_minus_minus(";
-		break;
-	case tok_slash:
-		msg += "tok_slash(";
-		break;
-	case tok_slash_equal:
-		msg += "tok_slash_equal(";
-		break;
-	case tok_percent:
-		msg += "tok_percent(";
-		break;
-	case tok_less:
-		msg += "tok_less(";
-		break;
-	case tok_less_equal:
-		msg += "tok_less_equal(";
-		break;
-	case tok_less_less:
-		msg += "tok_less_less(";
-		break;
-	case tok_greater:
-		msg += "tok_greater(";
-		break;
-	case tok_greater_equal:
-		msg += "tok_greater_equal(";
-		break;
-	case tok_greater_greater:
-		msg += "tok_greater_greater(";
-		break;
-	case tok_bang:
-		msg += "tok_bang(";
-		break;
-	case tok_bang_equal:
-		msg += "tok_bang_equal(";
-		break;
-	case tok_tilde:
-		msg += "tok_tilde(";
-		break;
-	case tok_caret:
-		msg += "tok_caret(";
-		break;
-	case tok_equal:
-		msg += "tok_equal(";
-		break;
-	case tok_equal_equal:
-		msg += "tok_equal_equal(";
-		break;
-	case KEYWORD(const):
-		msg += "kw_const(";
-		goto identifier_info;
-	case KEYWORD(var):
-		msg += "kw_var(";
-		goto identifier_info;
-	case KEYWORD(func):
-		msg += "kw_func(";
-		goto identifier_info;
-	case KEYWORD(if):
-		msg += "kw_if(";
-		goto identifier_info;
-	case KEYWORD(else):
-		msg += "kw_else(";
-		goto identifier_info;
-	case KEYWORD(class):
-		msg += "kw_class(";
-		goto identifier_info;
-	case KEYWORD(prototype):
-		msg += "kw_prototype(";
-		goto identifier_info;
-	case KEYWORD(instance):
-		msg += "kw_instance(";
-		goto identifier_info;
-	case KEYWORD(return):
-		msg += "kw_return(";
-		goto identifier_info;
-	case KEYWORD(void):
-		msg += "kw_void(";
-		goto identifier_info;
-	case KEYWORD(float):
-		msg += "kw_float(";
-		goto identifier_info;
-	case KEYWORD(int):
-		msg += "kw_int(";
-		goto identifier_info;
-	case KEYWORD(string):
-		msg += "kw_string(";
-identifier_info:
+		msg += getTokenName(token.getType());
+		msg += ", ";
 		msg += token.getData();
-	default:
-		break;
 	}
-	printf("%s)› ", msg.c_str());
+
+	printf("⟨%s⟩ ", msg.c_str());
 }
 
 } // namespace daedalus
