@@ -190,7 +190,7 @@ void printTokenInfo(Token& token)
 		msg += token.getData();
 	}
 
-	printf("⟨%s⟩ ", msg.c_str());
+	printf("〈%s〉 ", msg.c_str());
 }
 
 } // namespace daedalus
