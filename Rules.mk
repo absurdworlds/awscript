@@ -4,10 +4,21 @@
 # Objects
 # Executable
 
+#
+# Global configuration {
 Version = 0
+
+# 
+comma = ,
+space :=
+space +=
+# } end global configuration
+#
+
 EXTRAFLAGS=
 
-# Project-dependant settings {
+#
+# Per-project settings {
 ifeq ($(Executable),true)
 	InstallDir = $(RootPath)/bin
 	OutputName = $(ProjectName)
@@ -20,10 +31,20 @@ endif
 BuildDir = $(RootPath)/build/$(ProjectName)
 Includes = -I$(RootPath)/include
 Objects = $(patsubst %.cpp, $(BuildDir)/%.o, $(Sources))
-# end project-dependent settings }
+# end per-dependent settings }
+#
 
+#
+# User configuration {
+include $(RootPath)/Config.mk
 
-# Tool settings {
+ExtraIncludePaths = $(addprefix -I,$(CONFIG_INCLUDE_PATHS))
+ExtraLibraryPaths = $(addprefix -L,$(CONFIG_LIBRARY_PATHS))
+# } end user configuration
+#
+
+#
+# Tool configuration {
 CXXFLAGS  = -std=c++14
 CXXFLAGS += -fPIC
 CXXFLAGS += -fno-exceptions
@@ -35,7 +56,8 @@ CXXFLAGS_RELEASE = -O3 -DNDEBUG
 CCFLAGS  = -std=c11
 CPPFLAGS = $(Defines) $(Includes)
 LDFLAGS  =  -Wl,-rpath-link,../../lib,-R,'$$ORIGIN/../lib' -L../../lib $(Libraries)
-# end tool settings }
+# } end tool configuration
+#
 
 all: debug
 
