@@ -6,11 +6,20 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#ifndef _daedalus_AST_Statement_
+#define _daedalus_AST_Statement_
+#include <daedalus/ast/Node.h>
+
 namespace daedalus {
-class Statement {
+namespace ast {
+
+class Statement : public Node {
 public:
 	virtual ~Statement();
-	// TODO
+
+	virtual accept(ast::Visitor& visitor);
 };
 
+} // namespace ast
 } // namespace deadalus
+#endif//_daedalus_AST_Statement_
