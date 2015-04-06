@@ -19,7 +19,7 @@ protected:
 	std::vector<Declaration*> body;
 };
 
-class PrototypeDeclaration : public ClassDeclaration {
+class PrototypeDeclaration : public Declaration {
 public:
 	virtual ~ClassDeclaration();
 
