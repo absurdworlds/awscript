@@ -8,15 +8,18 @@
  */
 #ifndef _daedalus_AST_AssignmentExpr_
 #define _daedalus_AST_AssignmentExpr_
-#include <daedalus/ast/Node.h>
+#include <daedalus/ast/Expression.h>
 
 namespace daedalus {
 namespace ast {
-class AssignmentExpr : public Expression {
+class BinaryExpr : public Expression {
 public:
-	virtual ~AssignmentExpr();
+	virtual ~BinaryExpr();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual Expression* getLHS();
+	virtual Expression* getRHS();
+
+	virtual accept(ast::Visitor& visitor);
 private:
 	Expression* LHS;
 	Expression* RHS;
