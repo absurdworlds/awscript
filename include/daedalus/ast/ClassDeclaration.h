@@ -11,11 +11,13 @@
 #include <daedalus/ast/Declaration.h>
 #include <daedalus/ast/Statement.h>
 namespace daedalus {
+namespace ast {
 /* TODO: give this class a more suitable name
  * (prototype is not a new type, but rather just a template for
  * an instance, or at least it seemes to be so)
  */
 class TypeDeclaration : public Declaration {
+public:
 	virtual ~TypeDeclaration();
 
 	virtual accept(ast::Visitor& visitor) = 0;
@@ -51,5 +53,6 @@ private:
 	TypeDeclaration* base;
 	std::vector<Statement*> stmts;
 };
+} // namespace ast
 } // namespace daedalus
 #endif//_daedalus_AST_ClassDeclaration_
