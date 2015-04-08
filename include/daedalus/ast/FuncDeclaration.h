@@ -9,27 +9,30 @@
 #ifndef _daedalus_AST_FuncDeclaration_
 #define _daedalus_AST_FuncDeclaration_
 #include <daedalus/ast/Declaration.h>
-#include <daedalus/ast/Statement.h>
+#include <daedalus/ast/StatementBlock.h>
 namespace daedalus {
 namespace ast {
 class FuncDeclaration : public Declaration {
 public:
+	FuncDeclaration(std::string id, std::vector<VariableDeclaration*> argList);
 	virtual ~FuncDeclaration();
 
 	virtual accept(ast::Visitor& visitor) = 0;
 private:
 	Function* func;
-}
+	std::vector<VariableDeclaration*> args;
+};
 
 class FuncDefinition : public Declaration {
 public:
+	FuncDefinition(FuncDeclaration* proto);
 	virtual ~FuncDefinition();
 
 	virtual accept(ast::Visitor& visitor) = 0;
 private:
 	FuncDeclaration* prototype;
-	std::vector<Statement*> body;
-}
+	StatementBlock* body;
+};
 } // namespace ast
 } // namespace daedalus
 #endif//_daedalus_AST_FuncDeclaration_
