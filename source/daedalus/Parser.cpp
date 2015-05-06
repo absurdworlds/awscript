@@ -10,7 +10,7 @@
 
 namespace deadalus {
 
-Declaration* Parser::parseTopLevelDeclaration()
+Declaration* Parser::parseDeclaration()
 {
 	switch(token.getType()) {
 	case kw_var:
@@ -77,4 +77,8 @@ Declaration* parseConstantDeclaration()
 	return new ConstantDeclaration(name, initializer);
 }
 
+Declaration* parseFunctionDeclaration()
+{
+
+}
 } // namespace daedalus

@@ -21,7 +21,7 @@ public:
 	/*!
 	 * Parse next top-level declaration.
 	 */
-	Declaration* parseTopLevelDeclaration();
+	Declaration* parseDeclaration();
 
 	/*!
 	 * Consume peek token and extract next token.
@@ -31,12 +31,20 @@ public:
 		token = lexer.getNextToken();
 	}
 private:
-
 	/*! Current lookahead (peek) token. */
 	Token token;
 
 	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
+
+	Declaration* parseClassDeclaration();
+	Declaration* parsePrototypeDeclaration();
+	Declaration* parseInstanceDeclaration();
+	Declaration* parseFunctionDeclaration();
+	Declaration* parseVariableDeclaration();
+	Declaration* parseVariableDeclaration();
+	Expression* parseExpression();
+
 };
 
 } // namespace daedalus
