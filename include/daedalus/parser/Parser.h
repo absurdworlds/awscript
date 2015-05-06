@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <daedalus/Lexer/Lexer.h>
-#include <daedalus/AST/Declaration.h>
+#include <daedalus/lexer/Lexer.h>
+#include <daedalus/ast/Declaration.h>
 
 namespace daedalus {
 class Parser {
@@ -19,12 +19,12 @@ public:
 	}
 
 	/*!
-	 * Parse one top-level declaration.
+	 * Parse next top-level declaration.
 	 */
-	bool parseTopLevelDeclaration(Declaration& result);
+	Declaration* parseTopLevelDeclaration();
 
 	/*!
-	 * Consume last token.
+	 * Consume peek token and extract next token.
 	 */
 	void consumeToken()
 	{
@@ -32,10 +32,10 @@ public:
 	}
 private:
 
-	//! Current extracted token
+	/*! Current lookahead (peek) token. */
 	Token token;
 
-	//! Lexer which provides the stream of tokens
+	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
 };
 
