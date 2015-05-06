@@ -28,18 +28,17 @@ Declaration* Parser::parseDeclaration()
 	}
 }
 
+/*
+ * variableDecl ::= 'var' id id
+ */
 Declaration* parseVariableDeclaration()
 {
-	getNextToken();
-
-	// Read variable type: var [type] id
-	if (!isTypeName(token))
+	// Read variable type
+	if (!isTypeName(getNextToken()))
 		return 0;
 
-	getNextToken();
-
-	// Read variable name: var type [id]
-	if (!isIdentifier(token))
+	// Read variable name
+	if (!isIdentifier(getNextToken()))
 		return 0;
 	
 	// TODO: symbol table lookup
@@ -50,23 +49,23 @@ Declaration* parseVariableDeclaration()
 	return new VariableDeclaration(name);
 }
 
+/*
+ * constantDecl ::= 'const' id id '=' expr
+ */
 Declaration* parseConstantDeclaration()
 {
-	getNextToken();
-
-	// Read variable type: const [type] id
-	if (!isTypeName(token))
+	// Read variable type
+	if (!isTypeName(getNextToken()))
 		return 0;
 
-	getNextToken();
-
-	// Read variable name: const type [id]
-	if (!isIdentifier(token))
+	// Read variable name
+	if (!isIdentifier(getNextToken()))
 		return 0;
 
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
+	// Read constant initializer
 	if (getNextToken().getType() != tok_equals)
 		return 0;
 
@@ -77,17 +76,20 @@ Declaration* parseConstantDeclaration()
 	return new ConstantDeclaration(name, initializer);
 }
 
+/*
+ * functionDecl ::= 'func' id id '(' args ')'
+ *         args ::= arg (',' args)?
+ *          arg ::= variableDecl
+ */
 Declaration* parseFunctionDeclaration()
 {
-	Token getNextToken();
-
-	// Return type: func [type] id (args*)
+	// Return type
 	if (!isTypeName(tok))
 		return 0;
 
 	std::string ret = token.getData();
 
-	// Function name: func type [id] (args*)
+	// Function name
 	if (!isIdentifier(getNextToken()))
 		return 0;
 
@@ -97,6 +99,7 @@ Declaration* parseFunctionDeclaration()
 	if (getNextToken() != tok_lparen)
 		return 0;
 
+	// Argument list
 	getNextToken();
 
 	std::vector<VariableDeclaration*> args;
