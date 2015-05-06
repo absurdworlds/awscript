@@ -99,5 +99,16 @@ private:
 	size_t dataSize;
 #endif
 };
+
+bool isIdentifier(Token tok)
+{
+	return tok.getType() == tok_identifier;
+}
+
+bool isTypeName(token tok)
+{
+	return isIdentifier(tok) || tok.getType() >= tok_kw_void;
+}
+
 } // namespace daedalus
 #endif//_daedalus_token_
