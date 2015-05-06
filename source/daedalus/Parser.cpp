@@ -30,20 +30,20 @@ Declaration* Parser::parseDeclaration()
 
 Declaration* parseVariableDeclaration()
 {
-	Token tok = lex->getNextToken();
+	getNextToken();
 
 	// Read variable type: var [type] id
-	if (!tok.isIdentifier()) // TODO: build-in types
+	if (!isTypeName(token))
 		return 0;
 
-	tok = lex->getNextToken();
+	getNextToken();
 
 	// Read variable name: var type [id]
-	if (!tok.isIdentifier())
+	if (!isIdentifier(token))
 		return 0;
 	
 	// TODO: symbol table lookup
-	std::string name = tok.getData();
+	std::string name = token.getData();
 
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
@@ -52,22 +52,22 @@ Declaration* parseVariableDeclaration()
 
 Declaration* parseConstantDeclaration()
 {
-	Token tok = lex->getNextToken();
+	getNextToken();
 
 	// Read variable type: const [type] id
-	if (!(tok.isIdentifier() || isTypeName(tok))
+	if (!isTypeName(token))
 		return 0;
 
-	tok = lex->getNextToken();
+	getNextToken();
 
 	// Read variable name: const type [id]
-	if (!tok.isIdentifier())
+	if (!isIdentifier(token))
 		return 0;
 
 	// TODO: symbol table lookup
-	std::string name = tok.getData();
+	std::string name = token.getData();
 
-	if (tok.getType() != tok_equals)
+	if (getNextToken().getType() != tok_equals)
 		return 0;
 
 	Expression* initializer = parseExpression();
@@ -79,39 +79,38 @@ Declaration* parseConstantDeclaration()
 
 Declaration* parseFunctionDeclaration()
 {
-	Token tok = lex->getNextToken();
+	Token getNextToken();
 
 	// Return type: func [type] id (args*)
-	if (!(tok.isIdentifier() || isTypeName(tok))
+	if (!isTypeName(tok))
 		return 0;
 
-	tok = lex->getNextToken();
-	std::string ret = tok.getData();
+	std::string ret = token.getData();
 
 	// Function name: func type [id] (args*)
-	if (!tok.isIdentifier())
+	if (!isIdentifier(getNextToken()))
 		return 0;
 
 	// TODO: symbol table lookup
-	std::string name = tok.getData();
+	std::string name = token.getData();
 
-	if (lex->getNextToken() != tok_lparen)
+	if (getNextToken() != tok_lparen)
 		return 0;
 
-	tok = lex->getNextToken();
+	getNextToken();
 
 	std::vector<VariableDeclaration*> args;
-	while (tok.getType == tok_kw_var) {
+	while (token.getType() == tok_kw_var) {
 		VariableDeclaration* arg = parseVariableDeclaration();
 		args.push_back(arg);
 
-		tok = lex->getNextToken();
+		getNextToken();
 	}
 
-	if (lex->getNextToken() != tok_rparen)
+	if (getNextToken() != tok_rparen)
 		return 0;
 
-	tok = lex->getNextToken();
+	getNextToken();
 
 	return new FunctionDeclaration(name, ret, args);
 }
