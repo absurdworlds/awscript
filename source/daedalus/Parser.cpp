@@ -12,20 +12,33 @@ namespace deadalus {
 
 Declaration* Parser::parseDeclaration()
 {
+	Declaration* decl = 0;
+
 	switch(token.getType()) {
 	case kw_var:
-		return parseVariableDeclaration();
+		decl = parseVariableDeclaration();
+		break;
 	case kw_const:
-		return parseConstantDeclaration();
+		decl = parseConstantDeclaration();
+		break;
 	case kw_func:
-		return parseFunctionDeclaration();
+		decl = parseFunctionDeclaration();
+		break;
 	case kw_class:
-		return parseClassDeclaration();
+		decl = parseClassDeclaration();
+		break;
 	case kw_prototype:
-		return parsePrototypeDeclaration();
+		decl = parsePrototypeDeclaration();
+		break;
 	case kw_instance:
-		return parseInstanceDeclaration();
+		decl = parseInstanceDeclaration();
+		break;
 	}
+
+	if (getNextToken() != tok_semicolon)
+		return 0;
+
+	return decl;
 }
 
 /*
@@ -119,8 +132,6 @@ Declaration* parseFunctionDeclaration()
 	
 	if (token != tok_rparen)
 		return 0;
-
-	getNextToken();
 
 	return new FunctionDeclaration(name, ret, args);
 }
