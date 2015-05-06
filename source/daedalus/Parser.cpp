@@ -100,17 +100,24 @@ Declaration* parseFunctionDeclaration()
 		return 0;
 
 	// Argument list
-	getNextToken();
-
 	std::vector<VariableDeclaration*> args;
-	while (token.getType() == tok_kw_var) {
-		VariableDeclaration* arg = parseVariableDeclaration();
+	while (getNextToken().getType() == tok_kw_var) {
+		auto arg = parseVariableDeclaration();
+		if (arg == 0)
+			return 0;
+
 		args.push_back(arg);
 
 		getNextToken();
-	}
 
-	if (getNextToken() != tok_rparen)
+		if (token == tok_rparen)
+			break;
+
+		if (token != tok_comma)
+			return 0;
+	}
+	
+	if (token != tok_rparen)
 		return 0;
 
 	getNextToken();
