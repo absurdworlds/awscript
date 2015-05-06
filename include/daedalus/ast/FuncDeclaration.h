@@ -14,12 +14,14 @@ namespace daedalus {
 namespace ast {
 class FuncDeclaration : public Declaration {
 public:
-	FuncDeclaration(std::string id, std::vector<VariableDeclaration*> argList);
+	FuncDeclaration(std::string id, /* TODO */ std::string returnType,
+	                std::vector<VariableDeclaration*> args);
 	virtual ~FuncDeclaration();
 
 	virtual accept(ast::Visitor& visitor) = 0;
 private:
-	Function* func;
+	std::string name;
+	std::string returnType;
 	std::vector<VariableDeclaration*> args;
 };
 

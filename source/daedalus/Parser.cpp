@@ -79,6 +79,40 @@ Declaration* parseConstantDeclaration()
 
 Declaration* parseFunctionDeclaration()
 {
+	Token tok = lex->getNextToken();
 
+	// Return type: func [type] id (args*)
+	if (!(tok.isIdentifier() || isTypeName(tok))
+		return 0;
+
+	tok = lex->getNextToken();
+	std::string ret = tok.getData();
+
+	// Function name: func type [id] (args*)
+	if (!tok.isIdentifier())
+		return 0;
+
+	// TODO: symbol table lookup
+	std::string name = tok.getData();
+
+	if (lex->getNextToken() != tok_lparen)
+		return 0;
+
+	tok = lex->getNextToken();
+
+	std::vector<VariableDeclaration*> args;
+	while (tok.getType == tok_kw_var) {
+		VariableDeclaration* arg = parseVariableDeclaration();
+		args.push_back(arg);
+
+		tok = lex->getNextToken();
+	}
+
+	if (lex->getNextToken() != tok_rparen)
+		return 0;
+
+	tok = lex->getNextToken();
+
+	return new FunctionDeclaration(name, ret, args);
 }
 } // namespace daedalus
