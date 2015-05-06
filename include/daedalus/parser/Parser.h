@@ -26,9 +26,9 @@ public:
 	/*!
 	 * Consume peek token and extract next token.
 	 */
-	void consumeToken()
+	Token getNextToken()
 	{
-		token = lexer.getNextToken();
+		return token = lexer.getNextToken();
 	}
 private:
 	/*! Current lookahead (peek) token. */
