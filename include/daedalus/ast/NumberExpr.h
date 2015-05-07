@@ -15,9 +15,13 @@ namespace ast {
 /*! Expression for numeric literals */
 class NumberExpr : public Expression {
 public:
+	NumberExpr(std::string value);
+
 	virtual ~NumberExpr();
 
 	virtual accept(ast::Visitor& visitor) = 0;
+private:
+	std::string value;
 };
 
 class FPNumberExpr : NumberExpr {
