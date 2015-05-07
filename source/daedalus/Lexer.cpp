@@ -154,7 +154,7 @@ void Lexer::skipLineComment()
 
 void Lexer::skipBlockComment()
 {
-	for(;;) {
+	while (true) {
 		char c;
 		char prev;
 		stream.getNext(c);
@@ -170,11 +170,23 @@ void Lexer::skipBlockComment()
 	}
 }
 
+#if 0
 void Lexer::handleComment()
 {
 	char c;
 
-check_for_comment:
+	stream.peek(c);
+
+	assert((c == '*' || c == '/')
+	       && "Lexer::handleComment called without a comment");
+}
+#endif
+
+void Lexer::handleComment()
+{
+	char c;
+
+checkForComment:
 	stream.peek(c);
 
 	if (c == '*') {
@@ -193,7 +205,7 @@ check_for_comment:
 		stream.getNext(c);
 
 	// Manually optimise tail call
-	goto check_for_comment;
+	goto checkForComment;
 }
 
 /*!
@@ -204,7 +216,7 @@ bool Lexer::lexNextToken(Token& tok)
 {
 	char c;
 
-lex_next_token:
+lexNextToken:
 	stream.getCurrent(c);
 
 	while(isspace(c))
@@ -314,9 +326,12 @@ lex_next_token:
 		// Check what we have, after we're done with comments
 		// If we have '/', continue handling this case.
 		// If we have something different, restart lexer.
+		// TODO: I could've just restarted the lexer regardless,
+		// is this optimization necessary?
 		stream.getCurrent(c);
 		if (c != '/')
-			goto lex_next_token;
+			// We didn't lex anything, restart the lexer.
+			goto lexNextToken;
 
 		stream.peek(c);
 		if (c == '=') {
