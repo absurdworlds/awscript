@@ -29,7 +29,7 @@ public:
 
 	virtual accept(ast::Visitor& visitor);
 private:
-	std::vector<Declaration*> body;
+	std::vector<VariableDeclaration*> body;
 };
 
 class PrototypeDeclaration : public TypeDeclaration {
