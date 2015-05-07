@@ -29,6 +29,7 @@ public:
 
 	virtual accept(ast::Visitor& visitor);
 private:
+	std::string name;
 	std::vector<VariableDeclaration*> body;
 };
 
@@ -38,6 +39,7 @@ public:
 
 	virtual accept(ast::Visitor& visitor);
 protected:
+	std::string name;
 	TypeDeclaration* base;
 	// It seems like prototype allows only assignments inside it,
 	// while instance additionally allows at least function calls
@@ -50,6 +52,7 @@ public:
 
 	virtual accept(ast::Visitor& visitor);
 private:
+	std::string name;
 	TypeDeclaration* base;
 	std::vector<Statement*> stmts;
 };
