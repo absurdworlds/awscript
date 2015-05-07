@@ -135,4 +135,102 @@ Declaration* parseFunctionDeclaration()
 
 	return new FunctionDeclaration(name, ret, args);
 }
+
+/*
+ *     classDecl ::= 'class' id
+ *         class ::= classDecl '{' variableDecls '}'
+ * variableDecls ::= variableDecl ';' variableDecls?
+ */
+Declaration* parseClassDeclaration()
+{
+	// Class name
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string name = token.getData();
+
+	if (!getNextToken().getType() != tok_lbrace)
+		return new ClassDeclaration(name);
+
+	// Class members
+	std::vector<VariableDeclaration*> members;
+	while (getNextToken().getType() == tok_kw_var) {
+		auto var = parseVariableDeclaration();
+		if (var == 0)
+			return 0;
+
+		members.push_back(var);
+
+		getNextToken();
+
+		if (token != tok_semicolon)
+			return 0;
+	}
+
+	if (!getNextToken().getType() != tok_rbrace)
+		return 0;
+
+	return new ClassDeclaration(name, members);
+}
+
+/*
+ * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
+ */
+Declaration* parsePrototypeDeclaration()
+{
+	// Prototype name
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string name = token.getData();
+
+	if (!getNextToken().getType() != tok_lparen)
+		return 0;
+
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string base = token.getData();
+
+	if (!getNextToken().getType() != tok_rparen)
+		return 0;
+	
+	if (!getNextToken().getType() != tok_lbrace)
+		return 0;
+
+	StatementBlock* body = parseStatementBlock();
+
+	return new PrototypeDeclaration(name, base, body);
+}
+
+/*
+ * instanceDecl ::= 'instance' id '(' id ')' 
+ *     instance ::= instanceDecl '{' stmts '}'
+ */
+Declaration* parseInstanceDeclaration()
+{
+	// Instance name
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string name = token.getData();
+
+	if (!getNextToken().getType() != tok_lparen)
+		return 0;
+
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string base = token.getData();
+
+	if (!getNextToken().getType() != tok_rparen)
+		return 0;
+
+	if (!getNextToken().getType() != tok_lbrace)
+		return InstanceDeclaration(name, base);
+
+	StatementBlock* body = parseStatementBlock();
+
+	return new InstanceDeclaration(name, base, body);
+}
 } // namespace daedalus

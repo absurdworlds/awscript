@@ -44,7 +44,8 @@ private:
 	Declaration* parseVariableDeclaration();
 	Declaration* parseVariableDeclaration();
 	Expression* parseExpression();
-
+	StatementBlock* parseStatementBlock();
+	Statement* parseStatement();
 };
 
 } // namespace daedalus
