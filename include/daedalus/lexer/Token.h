@@ -100,15 +100,20 @@ private:
 #endif
 };
 
+/*! Returns true if token is an identifier */
 bool isIdentifier(Token tok)
 {
 	return tok.getType() == tok_identifier;
 }
 
+/*! Returns true if token is a type name (in other words, can appear
+ * after ‘var’)
+ */
 bool isTypeName(token tok)
 {
-	return isIdentifier(tok) || tok.getType() >= tok_kw_void;
+	return tok.getType() == tok_kw_func ||
+	       tok.getType() >= tok_kw_void ||
+	       isIdentifier(tok);
 }
-
 } // namespace daedalus
 #endif//_daedalus_token_
