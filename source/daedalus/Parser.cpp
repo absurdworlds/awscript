@@ -44,7 +44,7 @@ Declaration* Parser::parseDeclaration()
 /*
  * variableDecl ::= 'var' id id
  */
-Declaration* parseVariableDeclaration()
+Declaration* Parser::parseVariableDeclaration()
 {
 	// Read variable type
 	if (!isTypeName(getNextToken()))
@@ -65,7 +65,7 @@ Declaration* parseVariableDeclaration()
 /*
  * constantDecl ::= 'const' id id '=' expr
  */
-Declaration* parseConstantDeclaration()
+Declaration* Parser::parseConstantDeclaration()
 {
 	// Read variable type
 	if (!isTypeName(getNextToken()))
@@ -94,7 +94,7 @@ Declaration* parseConstantDeclaration()
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-Declaration* parseFunctionDeclaration()
+Declaration* Parser::parseFunctionDeclaration()
 {
 	// Return type
 	if (!isTypeName(tok))
@@ -141,7 +141,7 @@ Declaration* parseFunctionDeclaration()
  *         class ::= classDecl '{' variableDecls '}'
  * variableDecls ::= variableDecl ';' variableDecls?
  */
-Declaration* parseClassDeclaration()
+Declaration* Parser::parseClassDeclaration()
 {
 	// Class name
 	if (!isIdentifier(getNextToken()))
@@ -176,7 +176,7 @@ Declaration* parseClassDeclaration()
 /*
  * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
  */
-Declaration* parsePrototypeDeclaration()
+Declaration* Parser::parsePrototypeDeclaration()
 {
 	// Prototype name
 	if (!isIdentifier(getNextToken()))
@@ -207,7 +207,7 @@ Declaration* parsePrototypeDeclaration()
  * instanceDecl ::= 'instance' id '(' id ')' 
  *     instance ::= instanceDecl '{' stmts '}'
  */
-Declaration* parseInstanceDeclaration()
+Declaration* Parser::parseInstanceDeclaration()
 {
 	// Instance name
 	if (!isIdentifier(getNextToken()))
