@@ -300,26 +300,20 @@ Expression* Parser::parseIdentifierExpr()
 
 Expression* Parser::parseCallExpr(std::string func)
 {
-	if (getNextToken().getType() == tok_r_paren)
-		return new CallExpr(func);
-
 	std::vector<Expression*> Args;
-	while (token.getType() != tok_r_paren) {
+	while (true) {
 		Expression* arg = parseExpression();
 		if (!arg)
 			return 0;
 
 		Args.push_back(arg);
 
-		if ()
+		if (getNextToken().getType() == tok_r_paren)
 			break;
 
 		if (getNextToken().getType() != tok_comma)
 			return 0; // expected ,
 	}
-
-	if (getNextToken().getType() != tok_r_paren)
-		return 0;
 
 	// TODO: std::move
 	return new CallExpr(func, args);
