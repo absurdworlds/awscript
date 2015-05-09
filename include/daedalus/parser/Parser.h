@@ -43,9 +43,15 @@ private:
 	Declaration* parseFunctionDeclaration();
 	Declaration* parseVariableDeclaration();
 	Declaration* parseVariableDeclaration();
-	Expression* parseExpression();
 	StatementBlock* parseStatementBlock();
 	Statement* parseStatement();
+
+	Expression* parseExpression();
+	Expression* parseIdentifierExpr();
+	Expression* parseNumberExpr();
+	Expression* parseStringExpr();
+	Expression* parseUnaryExpr();
+	Expression* parseBinaryExpr();
 };
 
 } // namespace daedalus
