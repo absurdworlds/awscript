@@ -271,6 +271,10 @@ Expression* Parser::parseIdentifierExpr()
 
 Expression* Parser::parseStringExpr()
 {
+	if (!getNextToken().getType() != tok_string_literal)
+		return 0;
+
+	return new StringExpr(token.getData());
 }
 
 Expression* Parser::parseNumberExpr()
