@@ -233,4 +233,48 @@ Declaration* Parser::parseInstanceDeclaration()
 
 	return new InstanceDeclaration(name, base, body);
 }
+
+StatementBlock* Parser::parseStatementBlock()
+{
+	
+}
+
+Statement* Parser::parseVariableStatement()
+{
+
+}
+
+Statement* Parser::parseAssignmentStatement()
+{
+}
+
+Statement* Parser::parseBranchStatement()
+{
+}
+
+Expression* Parser::parseExpression()
+{
+
+}
+
+Expression* Parser::parseBinaryExpr()
+{
+}
+
+Expression* Parser::parseUnaryExpr()
+{
+}
+
+Expression* Parser::parseIdentifierExpr()
+{
+}
+
+Expression* Parser::parseStringExpr()
+{
+}
+
+Expression* Parser::parseNumberExpr()
+{
+}
+
 } // namespace daedalus
