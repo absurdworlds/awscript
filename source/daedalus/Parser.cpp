@@ -275,6 +275,11 @@ Expression* Parser::parseStringExpr()
 
 Expression* Parser::parseNumberExpr()
 {
+	if (!getNextToken().getType() != tok_numeric_constant)
+		return 0;
+
+	return new NumberExpr(token.getData());
+
 }
 
 } // namespace daedalus
