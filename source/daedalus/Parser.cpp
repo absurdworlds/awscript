@@ -254,7 +254,28 @@ Statement* Parser::parseBranchStatement()
 
 Expression* Parser::parseExpression()
 {
+	getNextToken(); // might be unncecessary
 
+	switch(token.getType()) {
+	case tok_l_paren:
+		parseParenExpr();
+		break;
+	}
+}
+
+Expression* Parser::parseParenExpr()
+{
+#if 0 // not needed
+	if (!getNextToken().getType() != tok_l_paren)
+		return 0; // Expected (
+#endif
+
+	Expression* expr = parseExpression();
+
+	if (!getNextToken().getType() != tok_r_paren)
+		return 0; // Expected )
+
+	return expr;
 }
 
 Expression* Parser::parseBinaryExpr()
