@@ -254,7 +254,9 @@ Statement* Parser::parseBranchStatement()
 
 Expression* Parser::parseExpression()
 {
-	getNextToken(); // might be unncecessary
+	// make sure that it does not get called
+	// before parseExpression()
+	getNextToken();
 
 	switch(token.getType()) {
 	case tok_l_paren:
@@ -288,6 +290,39 @@ Expression* Parser::parseUnaryExpr()
 
 Expression* Parser::parseIdentifierExpr()
 {
+	std::string name = token.getData();
+
+	if (!getNextToken().getType() == tok_l_paren)
+		return parseCallExpr(name);
+
+	return new IdentifierExpr(name);
+}
+
+Expression* Parser::parseCallExpr(std::string func)
+{
+	if (getNextToken().getType() == tok_r_paren)
+		return new CallExpr(func);
+
+	std::vector<Expression*> Args;
+	while (token.getType() != tok_r_paren) {
+		Expression* arg = parseExpression();
+		if (!arg)
+			return 0;
+
+		Args.push_back(arg);
+
+		if ()
+			break;
+
+		if (getNextToken().getType() != tok_comma)
+			return 0; // expected ,
+	}
+
+	if (getNextToken().getType() != tok_r_paren)
+		return 0;
+
+	// TODO: std::move
+	return new CallExpr(func, args);
 }
 
 Expression* Parser::parseStringExpr()
