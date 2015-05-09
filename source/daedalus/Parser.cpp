@@ -260,8 +260,15 @@ Expression* Parser::parseExpression()
 
 	switch(token.getType()) {
 	case tok_l_paren:
-		parseParenExpr();
-		break;
+		return parseParenExpr();
+	case tok_identifier:
+		return parseIdentifierExpr();
+	case tok_numeric_constant:
+		return parseNumberExpr();
+	case tok_string_literal:
+		return parseStringExpr();
+	default:
+		return 0; // expected expression
 	}
 }
 
