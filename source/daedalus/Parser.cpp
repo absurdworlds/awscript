@@ -254,8 +254,12 @@ Statement* Parser::parseBranchStatement()
 
 Expression* Parser::parseExpression()
 {
+}
+
+Expression* Parser::parsePrimaryExpr()
+{
 	// make sure that it does not get called
-	// before parseExpression()
+	// before parsePrimaryExpr()
 	getNextToken();
 
 	switch(token.getType()) {
