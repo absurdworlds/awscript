@@ -252,8 +252,16 @@ Statement* Parser::parseBranchStatement()
 {
 }
 
+// TODO: separate expression parser
 Expression* Parser::parseExpression()
 {
+	// Parse left hand-side
+	Expression* LHS = parsePrimaryExpr();
+
+	if (!LHS)
+		return 0;
+
+	return parseBinaryExpr(LHS, 0);
 }
 
 Expression* Parser::parsePrimaryExpr()
@@ -291,8 +299,42 @@ Expression* Parser::parseParenExpr()
 	return expr;
 }
 
-Expression* Parser::parseBinaryExpr()
+int getBinOp(Token tok)
 {
+	// TODO
+	if (isOperator(tok))
+		return tok.getType();
+
+	return -1;
+}
+
+int getPrecedence(int op)
+{
+	// TODO: precedence table
+}
+
+Expression* Parser::parseBinaryExpr(Expression* LHS, int minPrec)
+{
+	while(1) {
+		int op = getBinOp(getNextToken());
+		int curPrec = getPrecedence(op);
+		if (curPrec < minPrec)
+			return LHS;
+
+		Expression* RHS = parsePrimaryExpr();
+		if(!RHS)
+			return 0;
+
+		int nextOp = getBinOp(getNextToken());
+		int nextPrec = getPrecedence(nextOp);
+		if(curPrec < nextPrec) {
+			RHS = parseBinaryExpr(RHS, curPrec + 1);
+			if (!RHS) // I'm tired of seeing if(!ret) return 0, TODO: make proper error checking
+				return 0;
+		}
+
+		LHS = new BinaryExpr(op, LHS, RHS);
+	}
 }
 
 Expression* Parser::parseUnaryExpr()

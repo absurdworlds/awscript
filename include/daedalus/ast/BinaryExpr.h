@@ -18,6 +18,7 @@ enum class Operator {
 
 class BinaryExpr : public Expression {
 public:
+	BinaryExpr(int op, Expression* LHS, Expression* RHS);
 	virtual ~BinaryExpr();
 
 	virtual Expression* getLHS();
