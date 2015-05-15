@@ -109,7 +109,7 @@ Declaration* Parser::parseFunctionDeclaration()
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
-	if (getNextToken() != tok_lparen)
+	if (getNextToken() != tok_l_paren)
 		return 0;
 
 	// Argument list
@@ -123,14 +123,14 @@ Declaration* Parser::parseFunctionDeclaration()
 
 		getNextToken();
 
-		if (token == tok_rparen)
+		if (token == tok_r_paren)
 			break;
 
 		if (token != tok_comma)
 			return 0;
 	}
 	
-	if (token != tok_rparen)
+	if (token != tok_r_paren)
 		return 0;
 
 	return new FunctionDeclaration(name, ret, args);
@@ -149,7 +149,7 @@ Declaration* Parser::parseClassDeclaration()
 
 	std::string name = token.getData();
 
-	if (!getNextToken().getType() != tok_lbrace)
+	if (!getNextToken().getType() != tok_l_brace)
 		return new ClassDeclaration(name);
 
 	// Class members
@@ -167,7 +167,7 @@ Declaration* Parser::parseClassDeclaration()
 			return 0;
 	}
 
-	if (!getNextToken().getType() != tok_rbrace)
+	if (!getNextToken().getType() != tok_r_brace)
 		return 0;
 
 	return new ClassDeclaration(name, members);
@@ -184,7 +184,7 @@ Declaration* Parser::parsePrototypeDeclaration()
 
 	std::string name = token.getData();
 
-	if (!getNextToken().getType() != tok_lparen)
+	if (!getNextToken().getType() != tok_l_paren)
 		return 0;
 
 	if (!isIdentifier(getNextToken()))
@@ -192,10 +192,10 @@ Declaration* Parser::parsePrototypeDeclaration()
 
 	std::string base = token.getData();
 
-	if (!getNextToken().getType() != tok_rparen)
+	if (!getNextToken().getType() != tok_r_paren)
 		return 0;
 	
-	if (!getNextToken().getType() != tok_lbrace)
+	if (!getNextToken().getType() != tok_l_brace)
 		return 0;
 
 	StatementBlock* body = parseStatementBlock();
@@ -215,7 +215,7 @@ Declaration* Parser::parseInstanceDeclaration()
 
 	std::string name = token.getData();
 
-	if (!getNextToken().getType() != tok_lparen)
+	if (!getNextToken().getType() != tok_l_paren)
 		return 0;
 
 	if (!isIdentifier(getNextToken()))
@@ -223,10 +223,10 @@ Declaration* Parser::parseInstanceDeclaration()
 
 	std::string base = token.getData();
 
-	if (!getNextToken().getType() != tok_rparen)
+	if (!getNextToken().getType() != tok_r_paren)
 		return 0;
 
-	if (!getNextToken().getType() != tok_lbrace)
+	if (!getNextToken().getType() != tok_l_brace)
 		return InstanceDeclaration(name, base);
 
 	StatementBlock* body = parseStatementBlock();
@@ -236,7 +236,6 @@ Declaration* Parser::parseInstanceDeclaration()
 
 StatementBlock* Parser::parseStatementBlock()
 {
-	
 }
 
 Statement* Parser::parseVariableStatement()
@@ -250,7 +249,7 @@ Statement* Parser::parseAssignmentStatement()
 
 Statement* Parser::parseBranchStatement()
 {
-	if (!getNextToken.getType != tok_kw_if)
+	if (!getNextToken().getType() != tok_kw_if)
 		return 0;
 	
 	if (!getNextToken().getType() != tok_l_paren)
@@ -380,13 +379,13 @@ Expression* Parser::parseIdentifierExpr()
 
 Expression* Parser::parseCallExpr(std::string func)
 {
-	std::vector<Expression*> Args;
+	std::vector<Expression*> args;
 	while (true) {
 		Expression* arg = parseExpression();
 		if (!arg)
 			return 0;
 
-		Args.push_back(arg);
+		args.push_back(arg);
 
 		if (getNextToken().getType() == tok_r_paren)
 			break;
