@@ -250,6 +250,24 @@ Statement* Parser::parseAssignmentStatement()
 
 Statement* Parser::parseBranchStatement()
 {
+	if (!getNextToken.getType != tok_kw_if)
+		return 0;
+	
+	if (!getNextToken().getType() != tok_l_paren)
+		return 0;
+
+	Expression ifExpr = parseExpression();
+	if (!ifExpr)
+		return 0;
+
+	if (!getNextToken.getType() != tok_r_paren)
+		return 0;
+
+	StatementBlock* ifBody = parseStatementBlock();
+	StatementBlock* elseBody;
+
+	if (getNextToken().getType() == tok_kw_else)
+		elseBody = parseStatementBlock();
 }
 
 // TODO: separate expression parser
