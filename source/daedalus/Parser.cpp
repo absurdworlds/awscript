@@ -256,7 +256,7 @@ Statement* Parser::parseBranchStatement()
 Expression* Parser::parseExpression()
 {
 	// Parse left hand-side
-	Expression* LHS = parsePrimaryExpr();
+	Expression* LHS = parseUnaryExpr();
 
 	if (!LHS)
 		return 0;
@@ -321,7 +321,7 @@ Expression* Parser::parseBinaryExpr(Expression* LHS, int minPrec)
 		if (curPrec < minPrec)
 			return LHS;
 
-		Expression* RHS = parsePrimaryExpr();
+		Expression* RHS = parseUnaryExpr();
 		if(!RHS)
 			return 0;
 
@@ -339,6 +339,15 @@ Expression* Parser::parseBinaryExpr(Expression* LHS, int minPrec)
 
 Expression* Parser::parseUnaryExpr()
 {
+	if (!isOperator(getNextToken()))
+		return parsePrimaryExpr();
+
+	int op = getBinOp(token);
+	Expression* operand = parseUnaryExpr();
+	if (!operand)
+		return 0;
+
+	return new UnaryExpr(op, LHS);
 }
 
 Expression* Parser::parseIdentifierExpr()
