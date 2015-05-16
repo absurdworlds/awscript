@@ -236,11 +236,28 @@ Declaration* Parser::parseInstanceDeclaration()
 
 StatementBlock* Parser::parseStatementBlock()
 {
+	std::vector<Statement*> statements;
+	while (true) {
+		auto statement = parseStatement();
+		if(!statement)
+			return 0;
+
+		statements.push_back(statement);
+
+		if (getNextToken().getType() == tok_r_brace)
+			break;
+
+		if (getNextToken().getType() != tok_semicolon)
+			return 0;
+	}
+
+	// TODO: std::move
+	return new StatementBlock(statements);
 }
 
 Statement* Parser::parseVariableStatement()
 {
-
+	
 }
 
 Statement* Parser::parseAssignmentStatement()
