@@ -234,6 +234,11 @@ Declaration* Parser::parseInstanceDeclaration()
 	return new InstanceDeclaration(name, base, body);
 }
 
+Statement* Parser::parseStatement()
+{
+
+}
+
 StatementBlock* Parser::parseStatementBlock()
 {
 	std::vector<Statement*> statements;
