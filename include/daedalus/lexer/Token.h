@@ -120,7 +120,9 @@ bool isOperator(token tok)
 {
 	// TODO: make table
 	return (tok.getType() == tok_dot) ||
-	       (tok.getType() >= tok_amp && tok.getType() <= tok_equal_equal)
+		// IIRC, Daedalus doesn't allow to use '=' in expressions
+	       (tok.getType() >= tok_amp && tok.getType() < tok_equal) ||
+	       (tok.getType() == tok_equal_equal);
 }
 } // namespace daedalus
 #endif//_daedalus_token_
