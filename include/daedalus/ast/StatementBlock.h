@@ -12,6 +12,14 @@
 
 namespace daedalus {
 namespace ast {
+/* TODO: Does Daedalus allow “freestanding” blocks?
+ * {
+ *    ...
+ * }
+ *
+ * My memory tells me it doesn't. If so, I probably should
+ * change base class
+ */
 class StatementBlock : public Statement {
 public:
 	StatementBlock();
