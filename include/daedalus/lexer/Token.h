@@ -115,5 +115,12 @@ bool isTypeName(token tok)
 	       tok.getType() >= tok_kw_void ||
 	       isIdentifier(tok);
 }
+
+bool isOperator(token tok)
+{
+	// TODO: make table
+	return (tok.getType() == tok_dot) ||
+	       (tok.getType() >= tok_amp && tok.getType() <= tok_equal_equal)
+}
 } // namespace daedalus
 #endif//_daedalus_token_
