@@ -22,7 +22,7 @@ namespace ast {
  */
 class StatementBlock : public Statement {
 public:
-	StatementBlock();
+	StatementBlock(std::vector<Statement*> statements);
 	virtual ~StatementBlock();
 
 	virtual accept(ast::Visitor& visitor) = 0;
