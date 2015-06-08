@@ -109,14 +109,14 @@ bool isIdentifier(Token tok)
 /*! Returns true if token is a type name (in other words, can appear
  * after ‘var’)
  */
-bool isTypeName(token tok)
+bool isTypeName(Token tok)
 {
 	return tok.getType() == tok_kw_func ||
 	       tok.getType() >= tok_kw_void ||
 	       isIdentifier(tok);
 }
 
-bool isOperator(token tok)
+bool isOperator(Token tok)
 {
 	// TODO: make table
 	return (tok.getType() == tok_dot) ||
