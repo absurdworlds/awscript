@@ -285,10 +285,12 @@ Statement* Parser::parseBranchStatement()
 		return 0;
 
 	StatementBlock* ifBody = parseStatementBlock();
-	StatementBlock* elseBody;
+	StatementBlock* elseBody = 0;
 
 	if (getNextToken().getType() == tok_kw_else)
 		elseBody = parseStatementBlock();
+
+	return new BranchStatement(ifExpr, ifBody, elseBody);
 }
 
 // TODO: separate expression parser
