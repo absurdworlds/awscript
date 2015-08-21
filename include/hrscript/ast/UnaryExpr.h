@@ -18,12 +18,12 @@ public:
 	UnaryExpr(int op, Expression* LHS);
 	virtual ~UnaryExpr();
 
-	virtual Expression* getLHS();
+	virtual Expression* getOperand();
 	virtual Operator getOperation();
 
 	virtual accept(ast::Visitor& visitor);
 private:
-	Expression* LHS;
+	Expression* expr;
 	Operator op;
 };
 
