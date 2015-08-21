@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_IdentifierExpr_
-#define _daedalus_AST_IdentifierExpr_
-#include <daedalus/ast/Expression.h>
+#ifndef _hrscript_AST_IdentifierExpr_
+#define _hrscript_AST_IdentifierExpr_
+#include <hrscript/ast/Expression.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 /*! Expression for identifier referencing */
 class IdentifierExpr : public Expression {
@@ -24,5 +24,5 @@ private:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_IdentifierExpr_
+} // namespace hrscript
+#endif//_hrscript_AST_IdentifierExpr_

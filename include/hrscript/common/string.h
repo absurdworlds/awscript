@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_string_
-#define _daedalus_string_
+#ifndef _hrscript_string_
+#define _hrscript_string_
 #include <string>
 
-#include <daedalus/common/types.h>
+#include <hrscript/common/types.h>
 namespace deadalus {
 namespace string {
 namespace impl_ {
@@ -57,5 +57,5 @@ bool toll(std::string const& in, long long& out, int base)
 	return strToIntHelper(in, out, base, strtoll);
 }
 } // namespace string
-} // namespace daedalus
-#endif//_daedalus_string_
+} // namespace hrscript
+#endif//_hrscript_string_

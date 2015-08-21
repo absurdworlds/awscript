@@ -1,6 +1,6 @@
 RootPath = ../..
 Sources = Lexer.cpp
-ProjectName = daedalus
+ProjectName = hrscript
 Executable = false
 
 include $(RootPath)/Rules.mk

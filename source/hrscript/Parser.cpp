@@ -6,7 +6,7 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <daedalus/parser/Parser.h>
+#include <hrscript/parser/Parser.h>
 
 namespace deadalus {
 
@@ -439,4 +439,4 @@ Expression* Parser::parseNumberExpr()
 
 }
 
-} // namespace daedalus
+} // namespace hrscript

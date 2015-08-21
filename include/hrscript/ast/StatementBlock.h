@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_StatementBlock_
-#define _daedalus_AST_StatementBlock_
-#include <daedalus/ast/Statement.h>
+#ifndef _hrscript_AST_StatementBlock_
+#define _hrscript_AST_StatementBlock_
+#include <hrscript/ast/Statement.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 /* TODO: Does Daedalus allow “freestanding” blocks?
  * {
@@ -30,5 +30,5 @@ private:
 	std::vector<Statement*> statements;
 };
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_StatementBlock_
+} // namespace hrscript
+#endif//_hrscript_AST_StatementBlock_

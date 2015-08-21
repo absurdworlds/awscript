@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_Visitor_
-#define _daedalus_AST_Visitor_
-namespace daedalus {
+#ifndef _hrscript_AST_Visitor_
+#define _hrscript_AST_Visitor_
+namespace hrscript {
 namespace ast {
 class Node;
 
@@ -21,4 +21,4 @@ public:
 
 } // namespace ast
 } // namespace deadalus
-#endif//_daedalus_AST_Visitor_
+#endif//_hrscript_AST_Visitor_

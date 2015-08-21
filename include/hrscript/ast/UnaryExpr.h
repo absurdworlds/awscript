@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_UnaryExpr_
-#define _daedalus_AST_UnaryExpr_
-#include <daedalus/ast/Expression.h>
+#ifndef _hrscript_AST_UnaryExpr_
+#define _hrscript_AST_UnaryExpr_
+#include <hrscript/ast/Expression.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 
 class UnaryExpr : public Expression {
@@ -28,5 +28,5 @@ private:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_UnaryExpr_
+} // namespace hrscript
+#endif//_hrscript_AST_UnaryExpr_

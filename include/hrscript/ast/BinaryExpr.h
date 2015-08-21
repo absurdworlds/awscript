@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_BinaryExpr_
-#define _daedalus_AST_BinaryExpr_
-#include <daedalus/ast/Expression.h>
+#ifndef _hrscript_AST_BinaryExpr_
+#define _hrscript_AST_BinaryExpr_
+#include <hrscript/ast/Expression.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 enum class Operator {
 
@@ -33,5 +33,5 @@ private:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_BinaryExpr_
+} // namespace hrscript
+#endif//_hrscript_AST_BinaryExpr_

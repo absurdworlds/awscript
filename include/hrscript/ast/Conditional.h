@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_Conditional_
-#define _daedalus_AST_Conditional_
-#include <daedalus/ast/Node.h>
+#ifndef _hrscript_AST_Conditional_
+#define _hrscript_AST_Conditional_
+#include <hrscript/ast/Node.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 class Exression;
 class Statement;
@@ -37,5 +37,5 @@ protected:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_Conditional_
+} // namespace hrscript
+#endif//_hrscript_AST_Conditional_

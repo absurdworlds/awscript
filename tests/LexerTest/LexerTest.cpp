@@ -7,10 +7,10 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <cstdio>
-#include <daedalus/lexer/FileStream.h>
-#include <daedalus/lexer/Lexer.h>
+#include <hrscript/lexer/FileStream.h>
+#include <hrscript/lexer/Lexer.h>
 
-namespace daedalus {
+namespace hrscript {
 std::string getTokenName(TokenType type)
 {
 	switch (type) {
@@ -193,11 +193,11 @@ void printTokenInfo(Token& token)
 	printf("〈%s〉 ", msg.c_str());
 }
 
-} // namespace daedalus
+} // namespace hrscript
 
 int main(int argc, char** arg)
 {
-	using namespace daedalus;
+	using namespace hrscript;
 	if (argc < 2)
 		return 2;
 

@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_lexer_
-#define _daedalus_lexer_
-#include <daedalus/lexer/OctetStream.h>
-#include <daedalus/lexer/Token.h>
-namespace daedalus {
+#ifndef _hrscript_lexer_
+#define _hrscript_lexer_
+#include <hrscript/lexer/OctetStream.h>
+#include <hrscript/lexer/Token.h>
+namespace hrscript {
 class Lexer {
 public:
 	Lexer(OctetStream& stream)
@@ -35,5 +35,5 @@ private:
 	Token curToken;
 	OctetStream& stream;
 };
-} // namespace daedalus
-#endif//_daedalus_lexer_
+} // namespace hrscript
+#endif//_hrscript_lexer_

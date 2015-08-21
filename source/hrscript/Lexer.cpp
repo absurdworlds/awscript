@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <daedalus/common/types.h>
-#include <daedalus/lexer/Lexer.h>
-namespace daedalus {
+#include <hrscript/common/types.h>
+#include <hrscript/lexer/Lexer.h>
+namespace hrscript {
 
 void Lexer::init ()
 {
@@ -406,4 +406,4 @@ lexNextToken:
 	stream.getNext(c);
 	return true;
 }
-} // namespace daedalus
+} // namespace hrscript

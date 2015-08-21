@@ -6,12 +6,12 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_types_
-#define _daedalus_types_
+#ifndef _hrscript_types_
+#define _hrscript_types_
 #include <cstddef>
 #include <cstdint>
 
-namespace daedalus {
+namespace hrscript {
 typedef uint8_t  u8;
 typedef  int8_t  i8;
 
@@ -26,5 +26,5 @@ typedef  int64_t i64;
 
 typedef float    f32;
 typedef double   f64;
-} // namespace daedalus
-#endif //_daedalus_types_
+} // namespace hrscript
+#endif //_hrscript_types_

@@ -6,12 +6,12 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_FuncDeclaration_
-#define _daedalus_AST_FuncDeclaration_
+#ifndef _hrscript_AST_FuncDeclaration_
+#define _hrscript_AST_FuncDeclaration_
 #include <string>
-#include <daedalus/ast/Declaration.h>
-#include <daedalus/ast/Expression.h>
-namespace daedalus {
+#include <hrscript/ast/Declaration.h>
+#include <hrscript/ast/Expression.h>
+namespace hrscript {
 namespace ast {
 class VariableDeclaration : public Declaration {
 public:
@@ -36,5 +36,5 @@ private:
 	Expression* val;
 }
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_FuncDeclaration_
+} // namespace hrscript
+#endif//_hrscript_AST_FuncDeclaration_

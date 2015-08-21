@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_stream_
-#define _daedalus_stream_
-#include <daedalus/common/types.h>
+#ifndef _hrscript_stream_
+#define _hrscript_stream_
+#include <hrscript/common/types.h>
 
-namespace daedalus {
+namespace hrscript {
 /*!
  * This class provides unified interface for sequential data access.
  */
@@ -33,5 +33,5 @@ public:
 	virtual size_t position() const = 0;
 };
 
-} // namespace daedalus
-#endif//_daedalus_stream_
+} // namespace hrscript
+#endif//_hrscript_stream_

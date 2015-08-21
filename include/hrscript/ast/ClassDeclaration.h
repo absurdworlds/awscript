@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_ClassDeclaration_
-#define _daedalus_AST_ClassDeclaration_
-#include <daedalus/ast/Declaration.h>
-#include <daedalus/ast/Statement.h>
-namespace daedalus {
+#ifndef _hrscript_AST_ClassDeclaration_
+#define _hrscript_AST_ClassDeclaration_
+#include <hrscript/ast/Declaration.h>
+#include <hrscript/ast/Statement.h>
+namespace hrscript {
 namespace ast {
 /* TODO: give this class a more suitable name
  * (prototype is not a new type, but rather just a template for
@@ -57,5 +57,5 @@ private:
 	std::vector<Statement*> stmts;
 };
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_ClassDeclaration_
+} // namespace hrscript
+#endif//_hrscript_AST_ClassDeclaration_

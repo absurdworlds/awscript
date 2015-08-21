@@ -6,10 +6,10 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_token_
-#define _daedalus_token_
+#ifndef _hrscript_token_
+#define _hrscript_token_
 #include <string>
-namespace daedalus {
+namespace hrscript {
 #define TOKEN(x) tok_ ## x
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x
@@ -124,5 +124,5 @@ bool isOperator(Token tok)
 	       (tok.getType() >= tok_amp && tok.getType() < tok_equal) ||
 	       (tok.getType() == tok_equal_equal);
 }
-} // namespace daedalus
-#endif//_daedalus_token_
+} // namespace hrscript
+#endif//_hrscript_token_

@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_OctetStream_
-#define _daedalus_OctetStream_
-#include <daedalus/lexer/Stream.h>
+#ifndef _hrscript_OctetStream_
+#define _hrscript_OctetStream_
+#include <hrscript/lexer/Stream.h>
 
-namespace daedalus {
+namespace hrscript {
 /*! Interface for octet-based streams. */
 class OctetStream : public Stream<char> {
 public:
@@ -34,5 +34,5 @@ public:
 	 */
 	virtual size_t position() const = 0;
 };
-} // namespace daedalus
-#endif//_daedalus_OctetStream_
+} // namespace hrscript
+#endif//_hrscript_OctetStream_

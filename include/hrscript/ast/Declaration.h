@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_Declaration_
-#define _daedalus_AST_Declaration_
-#include <daedalus/ast/Statement.h>
+#ifndef _hrscript_AST_Declaration_
+#define _hrscript_AST_Declaration_
+#include <hrscript/ast/Statement.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 class Declaration : public Statement {
 public:
@@ -20,5 +20,5 @@ public:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_Declaration_
+} // namespace hrscript
+#endif//_hrscript_AST_Declaration_

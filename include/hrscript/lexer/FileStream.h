@@ -6,14 +6,14 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_FileStream_
-#define _daedalus_FileStream_
+#ifndef _hrscript_FileStream_
+#define _hrscript_FileStream_
 #include <string>
 #include <fstream>
 
-#include <daedalus/lexer/OctetStream.h>
+#include <hrscript/lexer/OctetStream.h>
 
-namespace daedalus {
+namespace hrscript {
 /*! Implements OctetStream as a file stream. */
 class FileStream : public OctetStream {
 public:
@@ -91,5 +91,5 @@ private:
 	size_t size;
 	std::ifstream istream;
 };
-} // namespace daedalus
-#endif//_daedalus_FileStream_
+} // namespace hrscript
+#endif//_hrscript_FileStream_

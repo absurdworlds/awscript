@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _daedalus_AST_StringExpr_
-#define _daedalus_AST_StringExpr_
-#include <daedalus/ast/Expression.h>
+#ifndef _hrscript_AST_StringExpr_
+#define _hrscript_AST_StringExpr_
+#include <hrscript/ast/Expression.h>
 
-namespace daedalus {
+namespace hrscript {
 namespace ast {
 /*! Expression for numeric literals */
 class StringExpr : public Expression {
@@ -25,5 +25,5 @@ private:
 };
 
 } // namespace ast
-} // namespace daedalus
-#endif//_daedalus_AST_StringExpr_
+} // namespace hrscript
+#endif//_hrscript_AST_StringExpr_

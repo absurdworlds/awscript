@@ -6,10 +6,10 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <daedalus/lexer/Lexer.h>
-#include <daedalus/ast/Declaration.h>
+#include <hrscript/lexer/Lexer.h>
+#include <hrscript/ast/Declaration.h>
 
-namespace daedalus {
+namespace hrscript {
 class Parser {
 public:
 	Parser(Lexer& lexer)
@@ -54,4 +54,4 @@ private:
 	Expression* parseBinaryExpr();
 };
 
-} // namespace daedalus
+} // namespace hrscript
