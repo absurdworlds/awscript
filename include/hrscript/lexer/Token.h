@@ -13,7 +13,7 @@ namespace hrscript {
 #define TOKEN(x) tok_ ## x
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x
-enum TokenType {
+enum TokenType : u8 {
 	TOKEN(illegal),
 	TOKEN(eof),
 	TOKEN(identifier),
@@ -111,18 +111,9 @@ bool isIdentifier(Token tok)
  */
 bool isTypeName(Token tok)
 {
-	return tok.getType() == tok_kw_func ||
-	       tok.getType() >= tok_kw_void ||
+	return tok.getType() == kw_func ||
+	       tok.getType() >= kw_void ||
 	       isIdentifier(tok);
-}
-
-bool isOperator(Token tok)
-{
-	// TODO: make table
-	return (tok.getType() == tok_dot) ||
-		// IIRC, Daedalus doesn't allow to use '=' in expressions
-	       (tok.getType() >= tok_amp && tok.getType() < tok_equal) ||
-	       (tok.getType() == tok_equal_equal);
 }
 } // namespace hrscript
 #endif//_hrscript_token_
