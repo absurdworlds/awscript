@@ -45,6 +45,8 @@ ExtraLibraryPaths = $(addprefix -L,$(CONFIG_LIBRARY_PATHS))
 
 #
 # Tool configuration {
+MKDIR_P = mkdir -p
+
 CXXFLAGS  = -std=c++14
 CXXFLAGS += -fPIC
 CXXFLAGS += -fno-exceptions
@@ -72,7 +74,16 @@ release: Build
 $(BuildDir)/%.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-Build: $(Objects)
+.PHONY: directories
+directories: BuildDir InstallDir
+
+BuildDir:
+	$(MKDIR_P) $(BuildDir)
+
+InstallDir:
+	$(MKDIR_P) $(InstallDir)
+
+Build: directories $(Objects)
 	$(CXX) $(EXTRAFLAGS) -o $(BuildDir)/$(OutputName) \
 	$(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(Objects)
 	cp $(BuildDir)/$(OutputName) $(InstallDir)/$(OutputName)
