@@ -6,6 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#ifndef _hrscript_parser_
+#define _hrscript_parser_
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/ast/Declaration.h>
 
@@ -55,3 +57,4 @@ private:
 };
 
 } // namespace hrscript
+#endif //_hrscript_parser_
