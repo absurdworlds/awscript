@@ -13,7 +13,7 @@ namespace hrscript {
 #define TOKEN(x) tok_ ## x
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x
-enum TokenType : u8 {
+enum TokenType {
 	TOKEN(illegal),
 	TOKEN(eof),
 	TOKEN(identifier),

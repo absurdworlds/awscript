@@ -24,7 +24,7 @@ enum class Precedence {
 	Shift          = 9,  // <<, >>
 	Additive       = 10, // +, -
 	Multiplicative = 11  // *, *, %
-}
+};
 
 Precedence getOperatorPrecedence(Token tok)
 {
