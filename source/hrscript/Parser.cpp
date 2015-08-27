@@ -8,7 +8,7 @@
  */
 #include <hrscript/parser/Parser.h>
 
-namespace deadalus {
+namespace hrscript {
 
 Declaration* Parser::parseDeclaration()
 {
@@ -327,11 +327,6 @@ Expression* Parser::parsePrimaryExpr()
 
 Expression* Parser::parseParenExpr()
 {
-#if 0 // not needed
-	if (!getNextToken().getType() != tok_l_paren)
-		return 0; // Expected (
-#endif
-
 	Expression* expr = parseExpression();
 
 	if (!getNextToken().getType() != tok_r_paren)
@@ -340,25 +335,10 @@ Expression* Parser::parseParenExpr()
 	return expr;
 }
 
-int getBinOp(Token tok)
-{
-	// TODO
-	if (isOperator(tok))
-		return tok.getType();
-
-	return -1;
-}
-
-int getPrecedence(int op)
-{
-	// TODO: precedence table
-}
-
-Expression* Parser::parseBinaryExpr(Expression* LHS, int minPrec)
+Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
 {
 	while(1) {
-		int op = getBinOp(getNextToken());
-		int curPrec = getPrecedence(op);
+		Precedence curPrec = getOperatorPrecedence(getNextToken());
 		if (curPrec < minPrec)
 			return LHS;
 
@@ -366,11 +346,12 @@ Expression* Parser::parseBinaryExpr(Expression* LHS, int minPrec)
 		if(!RHS)
 			return 0;
 
-		int nextOp = getBinOp(getNextToken());
-		int nextPrec = getPrecedence(nextOp);
+		Precedence nextPrec = getOperatorPrecedence(getNextToken());
 		if(curPrec < nextPrec) {
 			RHS = parseBinaryExpr(RHS, curPrec + 1);
-			if (!RHS) // I'm tired of seeing if(!ret) return 0, TODO: make proper error checking
+			// I'm tired of seeing if(!ret) return 0,
+			// TODO: make proper error checking
+			if (!RHS)
 				return 0;
 		}
 
@@ -383,20 +364,21 @@ Expression* Parser::parseUnaryExpr()
 	if (!isOperator(getNextToken()))
 		return parsePrimaryExpr();
 
-	int op = getBinOp(token);
 	Expression* operand = parseUnaryExpr();
 	if (!operand)
 		return 0;
 
-	return new UnaryExpr(op, LHS);
+	return new UnaryExpr(token.getType(), LHS);
 }
 
 Expression* Parser::parseIdentifierExpr()
 {
 	std::string name = token.getData();
 
-	if (!getNextToken().getType() == tok_l_paren)
+	if (getNextToken().getType() == tok_l_paren)
 		return parseCallExpr(name);
+	
+	// TODO: postfix operators
 
 	return new IdentifierExpr(name);
 }
@@ -436,7 +418,6 @@ Expression* Parser::parseNumberExpr()
 		return 0;
 
 	return new NumberExpr(token.getData());
-
 }
 
 } // namespace hrscript
