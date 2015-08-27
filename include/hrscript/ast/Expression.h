@@ -16,7 +16,7 @@ class Expression : public Node {
 public:
 	virtual ~Expression();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 };
 
 } // namespace ast

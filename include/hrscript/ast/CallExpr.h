@@ -23,7 +23,7 @@ public:
 	virtual Expression* operator [] (size_t arg);
 	virtual Expression* getArgument(size_t arg);
 
-	virtual accept(ast::Visitor& visitor);
+	virtual bool accept(ast::Visitor& visitor);
 private:
 	Function* callee;
 	std::vector<Expression*> arguments;

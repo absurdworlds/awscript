@@ -17,7 +17,7 @@ public:
 	virtual ~Node();
 	// TODO
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 };
 
 } // namespace ast

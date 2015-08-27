@@ -18,7 +18,7 @@ public:
 	                std::vector<VariableDeclaration*> args);
 	virtual ~FuncDeclaration();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 private:
 	std::string name;
 	std::string returnType;
@@ -30,7 +30,7 @@ public:
 	FuncDefinition(FuncDeclaration* proto);
 	virtual ~FuncDefinition();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 private:
 	FuncDeclaration* prototype;
 	StatementBlock* body;

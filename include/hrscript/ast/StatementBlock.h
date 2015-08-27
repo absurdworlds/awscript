@@ -25,7 +25,7 @@ public:
 	StatementBlock(std::vector<Statement*> statements);
 	virtual ~StatementBlock();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 private:
 	std::vector<Statement*> statements;
 };

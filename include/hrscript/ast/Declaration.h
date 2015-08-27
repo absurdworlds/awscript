@@ -16,7 +16,7 @@ class Declaration : public Statement {
 public:
 	virtual ~Declaration();
 
-	virtual accept(ast::Visitor& visitor);
+	virtual bool accept(ast::Visitor& visitor);
 };
 
 } // namespace ast

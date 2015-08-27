@@ -19,7 +19,7 @@ public:
 
 	virtual ~NumberExpr();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 private:
 	std::string value;
 };
@@ -27,13 +27,13 @@ private:
 class FPNumberExpr : NumberExpr {
 	virtual ~FPNumberExpr();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 }
 
 class IntNumberExpr : NumberExpr {
 	virtual ~IntNumberExpr();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor) = 0;
 }
 
 } // namespace ast

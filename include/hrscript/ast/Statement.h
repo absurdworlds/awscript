@@ -17,7 +17,7 @@ class Statement : public Node {
 public:
 	virtual ~Statement();
 
-	virtual accept(ast::Visitor& visitor);
+	virtual bool accept(ast::Visitor& visitor);
 };
 
 } // namespace ast
