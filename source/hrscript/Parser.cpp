@@ -24,14 +24,11 @@ Declaration* Parser::parseDeclaration()
 	case kw_func:
 		decl = parseFunctionDeclaration();
 		break;
-	case kw_class:
-		decl = parseClassDeclaration();
-		break;
 	case kw_prototype:
 		decl = parsePrototypeDeclaration();
 		break;
-	case kw_instance:
-		decl = parseInstanceDeclaration();
+	case kw_class:
+		decl = parseClassDeclaration();
 		break;
 	}
 
@@ -46,6 +43,8 @@ Declaration* Parser::parseDeclaration()
  */
 Declaration* Parser::parseVariableDeclaration()
 {
+	return Error("NYI");
+#if 0
 	// Read variable type
 	if (!isTypeName(getNextToken()))
 		return 0;
@@ -60,6 +59,7 @@ Declaration* Parser::parseVariableDeclaration()
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
 	return new VariableDeclaration(name);
+#endif
 }
 
 /*
@@ -67,6 +67,8 @@ Declaration* Parser::parseVariableDeclaration()
  */
 Declaration* Parser::parseConstantDeclaration()
 {
+	return Error("NYI");
+#if 0
 	// Read variable type
 	if (!isTypeName(getNextToken()))
 		return 0;
@@ -87,6 +89,7 @@ Declaration* Parser::parseConstantDeclaration()
 	// Constant* constant = new Constant(/*symbol*/, /*thingy*/); // TODO 
 
 	return new ConstantDeclaration(name, initializer);
+#endif
 }
 
 /*
@@ -137,12 +140,15 @@ Declaration* Parser::parseFunctionDeclaration()
 }
 
 /*
- *     classDecl ::= 'class' id
- *         class ::= classDecl '{' variableDecls '}'
- * variableDecls ::= variableDecl ';' variableDecls?
+ *      classDecl ::= 'class' id
+ *          class ::= classDecl '{' classBodyDecls '}'
+ * classBodyDecl  ::= functionDecl | varDecl
+ * classBodyDecls ::= classBodyDecl ';' classBodyDecls?
  */
 Declaration* Parser::parseClassDeclaration()
 {
+	return Error("NYI");
+#if 0
 	// Class name
 	if (!isIdentifier(getNextToken()))
 		return 0;
@@ -171,6 +177,7 @@ Declaration* Parser::parseClassDeclaration()
 		return 0;
 
 	return new ClassDeclaration(name, members);
+#endif
 }
 
 /*
@@ -178,6 +185,8 @@ Declaration* Parser::parseClassDeclaration()
  */
 Declaration* Parser::parsePrototypeDeclaration()
 {
+	return Error("NYI");
+#if 0
 	// Prototype name
 	if (!isIdentifier(getNextToken()))
 		return 0;
@@ -201,42 +210,19 @@ Declaration* Parser::parsePrototypeDeclaration()
 	StatementBlock* body = parseStatementBlock();
 
 	return new PrototypeDeclaration(name, base, body);
-}
-
-/*
- * instanceDecl ::= 'instance' id '(' id ')' 
- *     instance ::= instanceDecl '{' stmts '}'
- */
-Declaration* Parser::parseInstanceDeclaration()
-{
-	// Instance name
-	if (!isIdentifier(getNextToken()))
-		return 0;
-
-	std::string name = token.getData();
-
-	if (!getNextToken().getType() != tok_l_paren)
-		return 0;
-
-	if (!isIdentifier(getNextToken()))
-		return 0;
-
-	std::string base = token.getData();
-
-	if (!getNextToken().getType() != tok_r_paren)
-		return 0;
-
-	if (!getNextToken().getType() != tok_l_brace)
-		return InstanceDeclaration(name, base);
-
-	StatementBlock* body = parseStatementBlock();
-
-	return new InstanceDeclaration(name, base, body);
+#endif
 }
 
 Statement* Parser::parseStatement()
 {
-
+	switch (token.getType()) {
+	case tok_kw_if:
+		return parseBranchStatement();
+	case tok_l_brace:
+		return parseStatementBlock();
+	default:
+		return parseExpression();
+	}
 }
 
 StatementBlock* Parser::parseStatementBlock()
@@ -260,15 +246,6 @@ StatementBlock* Parser::parseStatementBlock()
 	return new StatementBlock(statements);
 }
 
-Statement* Parser::parseVariableStatement()
-{
-	
-}
-
-Statement* Parser::parseAssignmentStatement()
-{
-}
-
 Statement* Parser::parseBranchStatement()
 {
 	if (!getNextToken().getType() != tok_kw_if)
@@ -284,11 +261,11 @@ Statement* Parser::parseBranchStatement()
 	if (!getNextToken.getType() != tok_r_paren)
 		return 0;
 
-	StatementBlock* ifBody = parseStatementBlock();
-	StatementBlock* elseBody = 0;
+	Statement* ifBody = parseStatement();
+	Statement* elseBody = 0;
 
 	if (getNextToken().getType() == tok_kw_else)
-		elseBody = parseStatementBlock();
+		elseBody = parseStatement();
 
 	return new BranchStatement(ifExpr, ifBody, elseBody);
 }
@@ -296,7 +273,7 @@ Statement* Parser::parseBranchStatement()
 // TODO: separate expression parser
 Expression* Parser::parseExpression()
 {
-	// Parse left hand-side
+	// Parse left hand side
 	Expression* LHS = parseUnaryExpr();
 
 	if (!LHS)
