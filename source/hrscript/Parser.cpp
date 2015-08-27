@@ -20,7 +20,7 @@
 
 namespace hrscript {
 
-Declaration* Parser::parseDeclaration()
+ast::Declaration* Parser::parseDeclaration()
 {
 	Declaration* decl = 0;
 
@@ -51,7 +51,7 @@ Declaration* Parser::parseDeclaration()
 /*
  * variableDecl ::= 'var' id id
  */
-Declaration* Parser::parseVariableDeclaration()
+ast::Declaration* Parser::parseVariableDeclaration()
 {
 	return Error("NYI");
 #if 0
@@ -75,7 +75,7 @@ Declaration* Parser::parseVariableDeclaration()
 /*
  * constantDecl ::= 'const' id id '=' expr
  */
-Declaration* Parser::parseConstantDeclaration()
+ast::Declaration* Parser::parseConstantDeclaration()
 {
 	return Error("NYI");
 #if 0
@@ -107,7 +107,7 @@ Declaration* Parser::parseConstantDeclaration()
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-Declaration* Parser::parseFunctionDeclaration()
+ast::Declaration* Parser::parseFunctionDeclaration()
 {
 	// Return type
 	if (!isTypeName(tok))
@@ -155,7 +155,7 @@ Declaration* Parser::parseFunctionDeclaration()
  * classBodyDecl  ::= functionDecl | varDecl
  * classBodyDecls ::= classBodyDecl ';' classBodyDecls?
  */
-Declaration* Parser::parseClassDeclaration()
+ast::Declaration* Parser::parseClassDeclaration()
 {
 	return Error("NYI");
 #if 0
@@ -193,7 +193,7 @@ Declaration* Parser::parseClassDeclaration()
 /*
  * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
  */
-Declaration* Parser::parsePrototypeDeclaration()
+ast::Declaration* Parser::parsePrototypeDeclaration()
 {
 	return Error("NYI");
 #if 0
@@ -223,7 +223,7 @@ Declaration* Parser::parsePrototypeDeclaration()
 #endif
 }
 
-Statement* Parser::parseStatement()
+ast::Statement* Parser::parseStatement()
 {
 	switch (token.getType()) {
 	case tok_kw_if:
@@ -235,7 +235,7 @@ Statement* Parser::parseStatement()
 	}
 }
 
-StatementBlock* Parser::parseStatementBlock()
+ast::StatementBlock* Parser::parseStatementBlock()
 {
 	std::vector<Statement*> statements;
 	while (true) {
@@ -253,10 +253,10 @@ StatementBlock* Parser::parseStatementBlock()
 	}
 
 	// TODO: std::move
-	return new StatementBlock(statements);
+	return new ast::StatementBlock(statements);
 }
 
-Statement* Parser::parseBranchStatement()
+ast::Statement* Parser::parseBranchStatement()
 {
 	if (!getNextToken().getType() != tok_kw_if)
 		return 0;
@@ -264,27 +264,27 @@ Statement* Parser::parseBranchStatement()
 	if (!getNextToken().getType() != tok_l_paren)
 		return 0;
 
-	Expression ifExpr = parseExpression();
+	ast::Expression ifExpr = parseExpression();
 	if (!ifExpr)
 		return 0;
 
 	if (!getNextToken.getType() != tok_r_paren)
 		return 0;
 
-	Statement* ifBody = parseStatement();
-	Statement* elseBody = 0;
+	ast::Statement* ifBody = parseStatement();
+	ast::Statement* elseBody = 0;
 
 	if (getNextToken().getType() == tok_kw_else)
 		elseBody = parseStatement();
 
-	return new BranchStatement(ifExpr, ifBody, elseBody);
+	return new ast::BranchStatement(ifExpr, ifBody, elseBody);
 }
 
 // TODO: separate expression parser
-Expression* Parser::parseExpression()
+ast::Expression* Parser::parseExpression()
 {
 	// Parse left hand side
-	Expression* LHS = parseUnaryExpr();
+	ast::Expression* LHS = parseUnaryExpr();
 
 	if (!LHS)
 		return 0;
@@ -292,7 +292,7 @@ Expression* Parser::parseExpression()
 	return parseBinaryExpr(LHS, 0);
 }
 
-Expression* Parser::parsePrimaryExpr()
+ast::Expression* Parser::parsePrimaryExpr()
 {
 	// make sure that it does not get called
 	// before parsePrimaryExpr()
@@ -312,9 +312,9 @@ Expression* Parser::parsePrimaryExpr()
 	}
 }
 
-Expression* Parser::parseParenExpr()
+ast::Expression* Parser::parseParenExpr()
 {
-	Expression* expr = parseExpression();
+	ast::Expression* expr = parseExpression();
 
 	if (!getNextToken().getType() != tok_r_paren)
 		return 0; // Expected )
@@ -322,14 +322,14 @@ Expression* Parser::parseParenExpr()
 	return expr;
 }
 
-Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
+ast::Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
 {
 	while(1) {
 		Precedence curPrec = getOperatorPrecedence(getNextToken());
 		if (curPrec < minPrec)
 			return LHS;
 
-		Expression* RHS = parseUnaryExpr();
+		ast::Expression* RHS = parseUnaryExpr();
 		if(!RHS)
 			return 0;
 
@@ -342,23 +342,23 @@ Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
 				return 0;
 		}
 
-		LHS = new BinaryExpr(op, LHS, RHS);
+		LHS = new ast::BinaryExpr(op, LHS, RHS);
 	}
 }
 
-Expression* Parser::parseUnaryExpr()
+ast::Expression* Parser::parseUnaryExpr()
 {
 	if (!isOperator(getNextToken()))
 		return parsePrimaryExpr();
 
-	Expression* operand = parseUnaryExpr();
+	ast::Expression* operand = parseUnaryExpr();
 	if (!operand)
 		return 0;
 
-	return new UnaryExpr(token.getType(), LHS);
+	return new ast::UnaryExpr(token.getType(), LHS);
 }
 
-Expression* Parser::parseIdentifierExpr()
+ast::Expression* Parser::parseIdentifierExpr()
 {
 	std::string name = token.getData();
 
@@ -367,14 +367,14 @@ Expression* Parser::parseIdentifierExpr()
 	
 	// TODO: postfix operators
 
-	return new IdentifierExpr(name);
+	return new ast::IdentifierExpr(name);
 }
 
-Expression* Parser::parseCallExpr(std::string func)
+ast::Expression* Parser::parseCallExpr(std::string func)
 {
-	std::vector<Expression*> args;
+	std::vector<ast::Expression*> args;
 	while (true) {
-		Expression* arg = parseExpression();
+		ast::Expression* arg = parseExpression();
 		if (!arg)
 			return 0;
 
@@ -388,23 +388,23 @@ Expression* Parser::parseCallExpr(std::string func)
 	}
 
 	// TODO: std::move
-	return new CallExpr(func, args);
+	return new ast::CallExpr(func, args);
 }
 
-Expression* Parser::parseStringExpr()
+ast::Expression* Parser::parseStringExpr()
 {
 	if (!getNextToken().getType() != tok_string_literal)
 		return 0;
 
-	return new StringExpr(token.getData());
+	return new ast::StringExpr(token.getData());
 }
 
-Expression* Parser::parseNumberExpr()
+ast::Expression* Parser::parseNumberExpr()
 {
 	if (!getNextToken().getType() != tok_numeric_constant)
 		return 0;
 
-	return new NumberExpr(token.getData());
+	return new ast::NumberExpr(token.getData());
 }
 
 } // namespace hrscript

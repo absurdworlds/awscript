@@ -9,9 +9,14 @@
 #ifndef _hrscript_parser_
 #define _hrscript_parser_
 #include <hrscript/lexer/Lexer.h>
-#include <hrscript/ast/Declaration.h>
 
 namespace hrscript {
+namespace ast {
+class Statement;
+class Declaration;
+class Expression;
+}
+
 class Parser {
 public:
 	Parser(Lexer& lexer)
@@ -39,21 +44,21 @@ private:
 	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
 
-	Declaration* parseClassDeclaration();
-	Declaration* parsePrototypeDeclaration();
-	Declaration* parseInstanceDeclaration();
-	Declaration* parseFunctionDeclaration();
-	Declaration* parseVariableDeclaration();
-	Declaration* parseVariableDeclaration();
-	StatementBlock* parseStatementBlock();
-	Statement* parseStatement();
+	ast::Declaration* parseClassDeclaration();
+	ast::Declaration* parsePrototypeDeclaration();
+	ast::Declaration* parseInstanceDeclaration();
+	ast::Declaration* parseFunctionDeclaration();
+	ast::Declaration* parseVariableDeclaration();
+	ast::Declaration* parseVariableDeclaration();
+	ast::StatementBlock* parseStatementBlock();
+	ast::Statement* parseStatement();
 
-	Expression* parseExpression();
-	Expression* parseIdentifierExpr();
-	Expression* parseNumberExpr();
-	Expression* parseStringExpr();
-	Expression* parseUnaryExpr();
-	Expression* parseBinaryExpr();
+	ast::Expression* parseExpression();
+	ast::Expression* parseIdentifierExpr();
+	ast::Expression* parseNumberExpr();
+	ast::Expression* parseStringExpr();
+	ast::Expression* parseUnaryExpr();
+	ast::Expression* parseBinaryExpr();
 };
 
 } // namespace hrscript
