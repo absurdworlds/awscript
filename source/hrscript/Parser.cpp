@@ -7,6 +7,16 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <hrscript/parser/Parser.h>
+#include <hrscript/ast/Declaration.h>
+#include <hrscript/ast/FuncDeclaration.h>
+#include <hrscript/ast/Expression.h>
+#include <hrscript/ast/UnaryExpr.h>
+#include <hrscript/ast/BinaryExpr.h>
+#include <hrscript/ast/CallExpr.h>
+#include <hrscript/ast/NumberExpr.h>
+#include <hrscript/ast/StringExpr.h>
+#include <hrscript/ast/Statement.h>
+#include <hrscript/ast/StatementBlock.h>
 
 namespace hrscript {
 
