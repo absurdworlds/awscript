@@ -64,5 +64,10 @@ Precedence getOperatorPrecedence(Token tok)
 	}
 }
 
+bool isOperator(Token tok)
+{
+	return getOperatorPrecedence(tok) > Precedence::Unknown;
+}
+
 } // namespace hrscript
 #endif //_hrscript_OperatorPrecedence_
