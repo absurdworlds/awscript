@@ -37,18 +37,18 @@ Precedence getOperatorPrecedence(Token tok)
 	case tok_minus_equal:
 	case tok_slash_equal:
 		return Precedence::Assignment;
-	case tok_tok_pipe_pipe:
+	case tok_pipe_pipe:
 		return Precedence::LogicalOr;
-	case tok_tok_amp_amp:
+	case tok_amp_amp:
 		return Precedence::LogicalAnd;
-	case tok_tok_pipe:
+	case tok_pipe:
 		return Precedence::BitwiseOr;
-	case tok_tok_caret:
+	case tok_caret:
 		return Precedence::BitwiseXor;
-	case tok_tok_amp:
+	case tok_amp:
 		return Precedence::BitwiseAnd;
-	case tok_tok_equal_equal:
-	case tok_tok_bang_equal:
+	case tok_equal_equal:
+	case tok_bang_equal:
 		return Precedence::Equality;
 	case tok_less:
 	case tok_less_equal:
