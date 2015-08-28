@@ -15,12 +15,19 @@ namespace ast {
 /*! Expression for identifier referencing */
 class IdentifierExpr : public Expression {
 public:
-	IdentifierExpr(std::string id);
+	IdentifierExpr(std::string id)
+		: id(id)
+	{
+	}
+
 	virtual ~IdentifierExpr();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
+	}
 private:
-	std::string identifier;
+	std::string id;
 };
 
 } // namespace ast

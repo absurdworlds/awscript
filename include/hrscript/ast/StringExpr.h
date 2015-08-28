@@ -19,7 +19,10 @@ public:
 
 	virtual ~StringExpr();
 
-	virtual bool accept(ast::Visitor& visitor) = 0;
+	virtual bool accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
+	}
 private:
 	std::string value;
 };

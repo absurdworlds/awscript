@@ -21,7 +21,10 @@ public:
 	virtual Expression* getOperand();
 	virtual Operator getOperation();
 
-	virtual bool accept(ast::Visitor& visitor);
+	virtual bool accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
+	}
 private:
 	Expression* expr;
 	Operator op;

@@ -25,7 +25,10 @@ public:
 	virtual Expression* getRHS();
 	virtual Operator getOperation();
 
-	virtual bool accept(ast::Visitor& visitor);
+	virtual bool accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
+	}
 private:
 	Expression* LHS;
 	Expression* RHS;
