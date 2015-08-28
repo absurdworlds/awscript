@@ -9,6 +9,7 @@
 #ifndef _hrscript_parser_
 #define _hrscript_parser_
 #include <hrscript/lexer/Lexer.h>
+#include <hrscript/parser/Operators.h>
 
 namespace hrscript {
 namespace ast {
@@ -46,19 +47,23 @@ private:
 
 	ast::Declaration* parseClassDeclaration();
 	ast::Declaration* parsePrototypeDeclaration();
-	ast::Declaration* parseInstanceDeclaration();
 	ast::Declaration* parseFunctionDeclaration();
 	ast::Declaration* parseVariableDeclaration();
-	ast::Declaration* parseVariableDeclaration();
+	ast::Declaration* parseConstantDeclaration();
+
 	ast::StatementBlock* parseStatementBlock();
 	ast::Statement* parseStatement();
+	ast::Statement* parseBranchStatement();
 
 	ast::Expression* parseExpression();
 	ast::Expression* parseIdentifierExpr();
+	ast::Expression* parseParenExpr();
 	ast::Expression* parseNumberExpr();
 	ast::Expression* parseStringExpr();
 	ast::Expression* parseUnaryExpr();
-	ast::Expression* parseBinaryExpr();
+	ast::Expression* parsePrimaryExpr();
+	ast::Expression* parseBinaryExpr(ast::Expression* LHS, prec::Level minPrec);
+	ast::Expression* parseCallExpr(std::string func);
 };
 
 } // namespace hrscript
