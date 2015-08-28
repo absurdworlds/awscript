@@ -17,7 +17,7 @@
 #include <hrscript/ast/StringExpr.h>
 #include <hrscript/ast/IdentifierExpr.h>
 #include <hrscript/ast/Statement.h>
-#include <hrscript/ast/Statement.h>
+#include <hrscript/ast/IfElseStatement.h>
 #include <hrscript/ast/StatementBlock.h>
 
 namespace hrscript {
@@ -279,7 +279,7 @@ ast::Statement* Parser::parseBranchStatement()
 	if (getNextToken().getType() == tok_kw_else)
 		elseBody = parseStatement();
 
-	return new ast::BranchStatement(ifExpr, ifBody, elseBody);
+	return new ast::IfElseStatement(ifExpr, ifBody, elseBody);
 }
 
 /********************** Expressions **********************/
