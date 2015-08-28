@@ -19,7 +19,7 @@ public:
 
 	virtual ~StringExpr();
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}

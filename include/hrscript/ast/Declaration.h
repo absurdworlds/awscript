@@ -14,9 +14,7 @@ namespace hrscript {
 namespace ast {
 class Declaration : public Statement {
 public:
-	virtual ~Declaration();
-
-	virtual bool accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
 } // namespace ast

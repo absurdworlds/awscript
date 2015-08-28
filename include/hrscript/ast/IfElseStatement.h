@@ -16,12 +16,14 @@ class Exression;
 
 class IfElseStatement : public Statement {
 public:
-	IfElseStatement(Expression* ifExpr, Statement* ifBody Statement* elseBody)
+	IfElseStatement(Expression* ifExpr, Statement* ifBody, Statement* elseBody)
 		: ifExpr(ifExpr), ifBody(ifBody), elseBody(elseBody)
-
-	virtual accept(ast::Visitor& visitor)
 	{
-		visitor.visit(*this)
+	}
+
+	virtual void accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
 	}
 protected:
 	Expression* ifExpr;

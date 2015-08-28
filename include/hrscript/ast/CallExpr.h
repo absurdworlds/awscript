@@ -17,17 +17,17 @@ namespace ast {
 /*! AST node for a function call */
 class CallExpr : public Expression {
 public:
-	virtual CallExpr(std::string callee, std::vector<Expression*> arguments)
-		callee(callee), arguments(arguments)
+	CallExpr(std::string callee, std::vector<Expression*> arguments)
+		: callee(callee), arguments(std::move(arguments))
 	{
 	}
 
-	virtual Function* getFunction();
+	virtual std::string getFunction();
 
 	virtual Expression* operator [] (size_t arg);
 	virtual Expression* getArgument(size_t arg);
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}

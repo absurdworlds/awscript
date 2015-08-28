@@ -14,11 +14,15 @@ namespace hrscript {
 namespace ast {
 class FuncDeclaration : public Declaration {
 public:
-	FuncDeclaration(std::string id, /* TODO */ std::string returnType,
-	                std::vector<VariableDeclaration*> args);
+	FuncDeclaration(std::string id, std::string returnType,
+	                std::vector<VariableDeclaration*> args)
+		: name(id), returnType(returnType), args(std::move(args))
+	{
+	}
+
 	virtual ~FuncDeclaration();
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}
@@ -30,10 +34,12 @@ private:
 
 class FuncDefinition : public Declaration {
 public:
-	FuncDefinition(FuncDeclaration* proto);
-	virtual ~FuncDefinition();
+	FuncDefinition(FuncDeclaration* proto, StatementBlock* body)
+		: prototype(proto), body(body)
+	{
+	}
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}

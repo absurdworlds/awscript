@@ -20,14 +20,14 @@ class TypeDeclaration : public Declaration {
 public:
 	virtual ~TypeDeclaration();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor) = 0;
 }
 
 class ClassDeclaration : public TypeDeclaration {
 public:
 	virtual ~ClassDeclaration();
 
-	virtual accept(ast::Visitor& visitor);
+	virtual void accept(ast::Visitor& visitor);
 private:
 	std::string name;
 	std::vector<VariableDeclaration*> body;
@@ -37,7 +37,7 @@ class PrototypeDeclaration : public TypeDeclaration {
 public:
 	virtual ~ClassDeclaration();
 
-	virtual accept(ast::Visitor& visitor);
+	virtual void accept(ast::Visitor& visitor);
 protected:
 	std::string name;
 	TypeDeclaration* base;
@@ -50,7 +50,7 @@ class InstanceDeclaration : public Declaration {
 public:
 	virtual ~ClassDeclaration();
 
-	virtual accept(ast::Visitor& visitor);
+	virtual void accept(ast::Visitor& visitor);
 private:
 	std::string name;
 	TypeDeclaration* base;

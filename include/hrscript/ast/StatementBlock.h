@@ -8,24 +8,21 @@
  */
 #ifndef _hrscript_AST_StatementBlock_
 #define _hrscript_AST_StatementBlock_
+#include <vector>
+
 #include <hrscript/ast/Statement.h>
 
 namespace hrscript {
 namespace ast {
-/* TODO: Does Daedalus allow “freestanding” blocks?
- * {
- *    ...
- * }
- *
- * My memory tells me it doesn't. If so, I probably should
- * change base class
- */
+
 class StatementBlock : public Statement {
 public:
-	StatementBlock(std::vector<Statement*> statements);
-	virtual ~StatementBlock();
+	StatementBlock(std::vector<Statement*> statements)
+		: statements(std::move(statements))
+	{
+	}
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}

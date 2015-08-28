@@ -12,27 +12,26 @@
 
 namespace hrscript {
 namespace ast {
-enum class Operator {
-
-};
 
 class BinaryExpr : public Expression {
 public:
-	BinaryExpr(int op, Expression* LHS, Expression* RHS);
-	virtual ~BinaryExpr();
+	BinaryExpr(int op, Expression* lhs, Expression* rhs)
+		: op(op), lhs(lhs), rhs(rhs)
+	{
+	}
 
 	virtual Expression* getLHS();
 	virtual Expression* getRHS();
-	virtual Operator getOperation();
+	virtual int getOperation();
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}
 private:
-	Expression* LHS;
-	Expression* RHS;
-	Operator op;
+	Expression* lhs;
+	Expression* rhs;
+	int op;
 };
 
 } // namespace ast

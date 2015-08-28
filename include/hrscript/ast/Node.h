@@ -8,16 +8,12 @@
  */
 #ifndef _hrscript_AST_Node_
 #define _hrscript_AST_Node_
+#include <hrscript/ast/Visitor.h>
 namespace hrscript {
 namespace ast {
-class Visitor;
-
 class Node {
 public:
-	virtual ~Node();
-	// TODO
-
-	virtual bool accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
 } // namespace ast

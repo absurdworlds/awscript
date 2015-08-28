@@ -18,7 +18,10 @@ public:
 	VariableDeclaration(std::string id/*, Expression* val = 0*/);
 	virtual ~VariableDeclaration();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor)
+	{
+		visitor.visitor(*this);
+	}
 private:
 	std::string name;
 	// IIRC Daedalus doesn't support variable initializaion
@@ -30,7 +33,7 @@ public:
 	ConstantDeclaration(std::string id, Expression* val);
 	virtual ~ConstantDeclaration();
 
-	virtual accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor) = 0;
 private:
 	std::string name;
 	Expression* val;

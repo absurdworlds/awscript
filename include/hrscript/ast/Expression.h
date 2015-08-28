@@ -8,15 +8,13 @@
  */
 #ifndef _hrscript_AST_Expression_
 #define _hrscript_AST_Expression_
-#include <hrscript/ast/Node.h>
+#include <hrscript/ast/Statement.h>
 
 namespace hrscript {
 namespace ast {
-class Expression : public Node {
+class Expression : public Statement {
 public:
-	virtual ~Expression();
-
-	virtual bool accept(ast::Visitor& visitor) = 0;
+	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
 } // namespace ast

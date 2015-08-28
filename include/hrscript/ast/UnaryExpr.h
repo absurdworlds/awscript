@@ -15,19 +15,21 @@ namespace ast {
 
 class UnaryExpr : public Expression {
 public:
-	UnaryExpr(int op, Expression* LHS);
-	virtual ~UnaryExpr();
+	UnaryExpr(int op, Expression* operand)
+		: op(op), expr(operand)
+	{
+	}
 
 	virtual Expression* getOperand();
-	virtual Operator getOperation();
+	virtual int getOperation();
 
-	virtual bool accept(ast::Visitor& visitor)
+	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
 	}
 private:
 	Expression* expr;
-	Operator op;
+	int op;
 };
 
 } // namespace ast
