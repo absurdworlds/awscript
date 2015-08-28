@@ -15,6 +15,8 @@
 #include <hrscript/ast/CallExpr.h>
 #include <hrscript/ast/NumberExpr.h>
 #include <hrscript/ast/StringExpr.h>
+#include <hrscript/ast/IdentifierExpr.h>
+#include <hrscript/ast/Statement.h>
 #include <hrscript/ast/Statement.h>
 #include <hrscript/ast/StatementBlock.h>
 
@@ -94,7 +96,7 @@ ast::Declaration* Parser::parseConstantDeclaration()
 	if (getNextToken().getType() != tok_equals)
 		return 0;
 
-	Expression* initializer = parseExpression();
+	ast::Expression* initializer = parseExpression();
 
 	// Constant* constant = new Constant(/*symbol*/, /*thingy*/); // TODO 
 
@@ -280,16 +282,16 @@ ast::Statement* Parser::parseBranchStatement()
 	return new ast::BranchStatement(ifExpr, ifBody, elseBody);
 }
 
-// TODO: separate expression parser
+/********************** Expressions **********************/
 ast::Expression* Parser::parseExpression()
 {
 	// Parse left hand side
-	ast::Expression* LHS = parseUnaryExpr();
+	ast::Expression* lhs = parseUnaryExpr();
 
-	if (!LHS)
+	if (!lhs)
 		return 0;
 
-	return parseBinaryExpr(LHS, 0);
+	return parseBinaryExpr(lhs, prec::Unknown);
 }
 
 ast::Expression* Parser::parsePrimaryExpr()
@@ -322,10 +324,10 @@ ast::Expression* Parser::parseParenExpr()
 	return expr;
 }
 
-ast::Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
+ast::Expression* Parser::parseBinaryExpr(ast::Expression* LHS, prec::Level minPrec)
 {
 	while(1) {
-		Precedence curPrec = getOperatorPrecedence(getNextToken());
+		prec::Level curPrec = getOperatorPrecedence(getNextToken());
 		if (curPrec < minPrec)
 			return LHS;
 
@@ -333,16 +335,14 @@ ast::Expression* Parser::parseBinaryExpr(Expression* LHS, Precedence minPrec)
 		if(!RHS)
 			return 0;
 
-		Precedence nextPrec = getOperatorPrecedence(getNextToken());
+		prec::Level nextPrec = getOperatorPrecedence(getNextToken());
 		if(curPrec < nextPrec) {
-			RHS = parseBinaryExpr(RHS, curPrec + 1);
-			// I'm tired of seeing if(!ret) return 0,
-			// TODO: make proper error checking
+			RHS = parseBinaryExpr(RHS, prec::Level(curPrec + 1));
 			if (!RHS)
 				return 0;
 		}
 
-		LHS = new ast::BinaryExpr(op, LHS, RHS);
+		LHS = new ast::BinaryExpr(token.getType(), LHS, RHS);
 	}
 }
 
@@ -355,7 +355,7 @@ ast::Expression* Parser::parseUnaryExpr()
 	if (!operand)
 		return 0;
 
-	return new ast::UnaryExpr(token.getType(), LHS);
+	return new ast::UnaryExpr(token.getType(), operand);
 }
 
 ast::Expression* Parser::parseIdentifierExpr()
@@ -406,5 +406,4 @@ ast::Expression* Parser::parseNumberExpr()
 
 	return new ast::NumberExpr(token.getData());
 }
-
 } // namespace hrscript
