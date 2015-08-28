@@ -8,6 +8,7 @@
  */
 #ifndef _hrscript_AST_FuncDeclaration_
 #define _hrscript_AST_FuncDeclaration_
+#include <memory>
 #include <string>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/Expression.h>
@@ -15,28 +16,33 @@ namespace hrscript {
 namespace ast {
 class VariableDeclaration : public Declaration {
 public:
-	VariableDeclaration(std::string id/*, Expression* val = 0*/);
-	virtual ~VariableDeclaration();
+	VariableDeclaration(std::string id)
+		: name(id), writeAccessible(true)
+	{
+	}
 
 	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visitor(*this);
 	}
+
+	virtual Expression* getInitializer()
+	{
+		return val.get();
+	}
+
+	virtual bool isWriteable(bool writeable)
+	{
+		return writeAccessible;
+
+	virtual void setWriteable(bool writeable)
+	{
+		writeAccessible = writeable;
+	}
 private:
 	std::string name;
-	// IIRC Daedalus doesn't support variable initializaion
-	//Expression* val;
-}
-
-class ConstantDeclaration : public Declaration {
-public:
-	ConstantDeclaration(std::string id, Expression* val);
-	virtual ~ConstantDeclaration();
-
-	virtual void accept(ast::Visitor& visitor) = 0;
-private:
-	std::string name;
-	Expression* val;
+	std::unique_ptr<Expression> val;
+	bool writeAccessible;
 }
 } // namespace ast
 } // namespace hrscript
