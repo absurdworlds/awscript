@@ -30,7 +30,7 @@ public:
 	/*!
 	 * Parse next top-level declaration.
 	 */
-	Declaration* parseDeclaration();
+	ast::Declaration* parseDeclaration();
 
 	/*!
 	 * Consume peek token and extract next token.

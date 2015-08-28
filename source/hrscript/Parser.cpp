@@ -6,9 +6,12 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#include <vector>
+
 #include <hrscript/parser/Parser.h>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/FuncDeclaration.h>
+#include <hrscript/ast/VariableDeclaration.h>
 #include <hrscript/ast/Expression.h>
 #include <hrscript/ast/UnaryExpr.h>
 #include <hrscript/ast/BinaryExpr.h>
@@ -21,10 +24,15 @@
 #include <hrscript/ast/StatementBlock.h>
 
 namespace hrscript {
+ast::Declaration* ErrorDeclaration(std::string msg)
+{
+	//print(msg);
+	return 0;
+}
 
 ast::Declaration* Parser::parseDeclaration()
 {
-	Declaration* decl = 0;
+	ast::Declaration* decl;
 
 	switch(token.getType()) {
 	case kw_var:
@@ -44,7 +52,7 @@ ast::Declaration* Parser::parseDeclaration()
 		break;
 	}
 
-	if (getNextToken() != tok_semicolon)
+	if (getNextToken().getType() != tok_semicolon)
 		return 0;
 
 	return decl;
@@ -55,7 +63,7 @@ ast::Declaration* Parser::parseDeclaration()
  */
 ast::Declaration* Parser::parseVariableDeclaration()
 {
-	return Error("NYI");
+	return ErrorDeclaration("NYI");
 #if 0
 	// Read variable type
 	if (!isTypeName(getNextToken()))
@@ -79,7 +87,7 @@ ast::Declaration* Parser::parseVariableDeclaration()
  */
 ast::Declaration* Parser::parseConstantDeclaration()
 {
-	return Error("NYI");
+	return ErrorDeclaration("NYI");
 #if 0
 	// Read variable type
 	if (!isTypeName(getNextToken()))
@@ -112,7 +120,7 @@ ast::Declaration* Parser::parseConstantDeclaration()
 ast::Declaration* Parser::parseFunctionDeclaration()
 {
 	// Return type
-	if (!isTypeName(tok))
+	if (!isTypeName(token))
 		return 0;
 
 	std::string ret = token.getData();
@@ -124,13 +132,13 @@ ast::Declaration* Parser::parseFunctionDeclaration()
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
-	if (getNextToken() != tok_l_paren)
+	if (getNextToken().getType() != tok_l_paren)
 		return 0;
 
 	// Argument list
-	std::vector<VariableDeclaration*> args;
-	while (getNextToken().getType() == tok_kw_var) {
-		auto arg = parseVariableDeclaration();
+	std::vector<ast::VariableDeclaration*> args;
+	while (getNextToken().getType() == kw_var) {
+		auto arg = (ast::VariableDeclaration*)parseVariableDeclaration();
 		if (arg == 0)
 			return 0;
 
@@ -138,17 +146,17 @@ ast::Declaration* Parser::parseFunctionDeclaration()
 
 		getNextToken();
 
-		if (token == tok_r_paren)
+		if (token.getType() == tok_r_paren)
 			break;
 
-		if (token != tok_comma)
+		if (token.getType() != tok_comma)
 			return 0;
 	}
 	
-	if (token != tok_r_paren)
+	if (token.getType() != tok_r_paren)
 		return 0;
 
-	return new FunctionDeclaration(name, ret, args);
+	return new ast::FuncDeclaration(name, ret, args);
 }
 
 /*
@@ -159,7 +167,7 @@ ast::Declaration* Parser::parseFunctionDeclaration()
  */
 ast::Declaration* Parser::parseClassDeclaration()
 {
-	return Error("NYI");
+	return ErrorDeclaration("NYI");
 #if 0
 	// Class name
 	if (!isIdentifier(getNextToken()))
@@ -172,7 +180,7 @@ ast::Declaration* Parser::parseClassDeclaration()
 
 	// Class members
 	std::vector<VariableDeclaration*> members;
-	while (getNextToken().getType() == tok_kw_var) {
+	while (getNextToken().getType() == kw_var) {
 		auto var = parseVariableDeclaration();
 		if (var == 0)
 			return 0;
@@ -197,7 +205,7 @@ ast::Declaration* Parser::parseClassDeclaration()
  */
 ast::Declaration* Parser::parsePrototypeDeclaration()
 {
-	return Error("NYI");
+	return ErrorDeclaration("NYI");
 #if 0
 	// Prototype name
 	if (!isIdentifier(getNextToken()))
@@ -228,7 +236,7 @@ ast::Declaration* Parser::parsePrototypeDeclaration()
 ast::Statement* Parser::parseStatement()
 {
 	switch (token.getType()) {
-	case tok_kw_if:
+	case kw_if:
 		return parseBranchStatement();
 	case tok_l_brace:
 		return parseStatementBlock();
@@ -239,7 +247,7 @@ ast::Statement* Parser::parseStatement()
 
 ast::StatementBlock* Parser::parseStatementBlock()
 {
-	std::vector<Statement*> statements;
+	std::vector<ast::Statement*> statements;
 	while (true) {
 		auto statement = parseStatement();
 		if(!statement)
@@ -254,13 +262,12 @@ ast::StatementBlock* Parser::parseStatementBlock()
 			return 0;
 	}
 
-	// TODO: std::move
-	return new ast::StatementBlock(statements);
+	return new ast::StatementBlock(std::move(statements));
 }
 
 ast::Statement* Parser::parseBranchStatement()
 {
-	if (getNextToken().getType() != tok_kw_if)
+	if (getNextToken().getType() != kw_if)
 		return 0;
 	
 	if (getNextToken().getType() != tok_l_paren)
@@ -270,13 +277,13 @@ ast::Statement* Parser::parseBranchStatement()
 	if (!ifExpr)
 		return 0;
 
-	if (getNextToken.getType() != tok_r_paren)
+	if (getNextToken().getType() != tok_r_paren)
 		return 0;
 
 	ast::Statement* ifBody = parseStatement();
 	ast::Statement* elseBody = 0;
 
-	if (getNextToken().getType() == tok_kw_else)
+	if (getNextToken().getType() == kw_else)
 		elseBody = parseStatement();
 
 	return new ast::IfElseStatement(ifExpr, ifBody, elseBody);
