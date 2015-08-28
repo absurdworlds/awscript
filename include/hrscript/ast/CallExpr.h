@@ -6,9 +6,10 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_BinaryExpr_
-#define _hrscript_AST_BinaryExpr_
+#ifndef _hrscript_AST_CallExpr_
+#define _hrscript_AST_CallExpr_
 #include <vector>
+#include <string>
 #include <hrscript/ast/Expression.h>
 
 namespace hrscript {
@@ -16,7 +17,10 @@ namespace ast {
 /*! AST node for a function call */
 class CallExpr : public Expression {
 public:
-	virtual ~BinaryExpr();
+	virtual CallExpr(std::string callee, std::vector<Expression*> arguments)
+		callee(callee), arguments(arguments)
+	{
+	}
 
 	virtual Function* getFunction();
 
@@ -28,10 +32,11 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	Function* callee;
+	//Function* callee;
+	std::string callee;
 	std::vector<Expression*> arguments;
 };
 
 } // namespace ast
 } // namespace hrscript
-#endif//_hrscript_AST_BinaryExpr_
+#endif//_hrscript_AST_CallExpr_
