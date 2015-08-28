@@ -11,7 +11,8 @@
 #include <hrscript/lexer/Token.h>
 
 namespace hrscript {
-enum class Precedence {
+namespace prec {
+enum Level {
 	Unknown        = 0,
 	Assignment     = 1,  // =, any= (except relational)
 	LogicalOr      = 2,
@@ -25,48 +26,49 @@ enum class Precedence {
 	Additive       = 10, // +, -
 	Multiplicative = 11  // *, *, %
 };
+}
 
-Precedence getOperatorPrecedence(Token tok)
+prec::Level getOperatorPrecedence(Token tok)
 {
 	switch(tok.getType()) {
 	default:
 		// Not an operator
-		return Precedence::Unknown;
+		return prec::Unknown;
 	case tok_ast_equal:
 	case tok_plus_equal:
 	case tok_minus_equal:
 	case tok_slash_equal:
-		return Precedence::Assignment;
+		return prec::Assignment;
 	case tok_pipe_pipe:
-		return Precedence::LogicalOr;
+		return prec::LogicalOr;
 	case tok_amp_amp:
-		return Precedence::LogicalAnd;
+		return prec::LogicalAnd;
 	case tok_pipe:
-		return Precedence::BitwiseOr;
+		return prec::BitwiseOr;
 	case tok_caret:
-		return Precedence::BitwiseXor;
+		return prec::BitwiseXor;
 	case tok_amp:
-		return Precedence::BitwiseAnd;
+		return prec::BitwiseAnd;
 	case tok_equal_equal:
 	case tok_bang_equal:
-		return Precedence::Equality;
+		return prec::Equality;
 	case tok_less:
 	case tok_less_equal:
 	case tok_greater:
 	case tok_greater_equal:
-		return Precedence::Relational;
+		return prec::Relational;
 	case tok_plus:
 	case tok_minus:
-		return Precedence::Additive;
+		return prec::Additive;
 	case tok_ast:
 	case tok_slash:
-		return Precedence::Multiplicative;	
+		return prec::Multiplicative;	
 	}
 }
 
 bool isOperator(Token tok)
 {
-	return getOperatorPrecedence(tok) > Precedence::Unknown;
+	return getOperatorPrecedence(tok) > prec::Unknown;
 }
 
 } // namespace hrscript
