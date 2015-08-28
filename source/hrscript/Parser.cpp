@@ -260,17 +260,17 @@ ast::StatementBlock* Parser::parseStatementBlock()
 
 ast::Statement* Parser::parseBranchStatement()
 {
-	if (!getNextToken().getType() != tok_kw_if)
+	if (getNextToken().getType() != tok_kw_if)
 		return 0;
 	
-	if (!getNextToken().getType() != tok_l_paren)
+	if (getNextToken().getType() != tok_l_paren)
 		return 0;
 
-	ast::Expression ifExpr = parseExpression();
+	ast::Expression* ifExpr = parseExpression();
 	if (!ifExpr)
 		return 0;
 
-	if (!getNextToken.getType() != tok_r_paren)
+	if (getNextToken.getType() != tok_r_paren)
 		return 0;
 
 	ast::Statement* ifBody = parseStatement();
