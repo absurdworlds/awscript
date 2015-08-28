@@ -14,6 +14,7 @@
 namespace hrscript {
 namespace ast {
 class Statement;
+class StatementBlock;
 class Declaration;
 class Expression;
 }
