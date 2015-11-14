@@ -10,6 +10,7 @@
 #define _hrscript_types_
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 namespace hrscript {
 typedef uint8_t  u8;
@@ -26,5 +27,8 @@ typedef  int64_t i64;
 
 typedef float    f32;
 typedef double   f64;
+
+template <typename T>
+using uptr = std::unique_ptr<T>;
 } // namespace hrscript
 #endif //_hrscript_types_
