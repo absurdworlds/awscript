@@ -30,7 +30,7 @@ Lexer::Lexer(OctetStream& stream)
 	.add("import", KEYWORD(export));
 }
 
-void Lexer::init ()
+void Lexer::init()
 {
 }
 
@@ -391,6 +391,7 @@ lexNextToken:
 		break;
 	/* Illegal token */
 	default:
+		// TODO: handle unicode
 		return lexIllegalToken(tok);
 	}
 
