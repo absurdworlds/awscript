@@ -19,6 +19,7 @@ enum TokenType {
 	TOKEN(identifier),
 	TOKEN(numeric_constant),
 	TOKEN(string_literal),
+
 	PUNCT(comma,            ","),
 	PUNCT(dot,              "."),
 	PUNCT(semicolon,        ";"),
@@ -55,6 +56,9 @@ enum TokenType {
 	PUNCT(caret,            "^"),
 	PUNCT(equal,            "="),
 	PUNCT(equal_equal,      "=="),
+
+	// Keywords
+	TOKEN(keyword),
 	KEYWORD(const),
 	KEYWORD(var),
 	KEYWORD(func),
@@ -68,6 +72,8 @@ enum TokenType {
 	KEYWORD(float),
 	KEYWORD(int),
 	KEYWORD(string),
+	KEYWORD(export),
+	KEYWORD(import),
 };
 
 class Token {
@@ -101,15 +107,16 @@ private:
 };
 
 /*! Returns true if token is an identifier */
-bool isIdentifier(Token tok)
+inline bool isIdentifier(Token tok)
 {
 	return tok.getType() == tok_identifier;
 }
 
-/*! Returns true if token is a type name (in other words, can appear
+/*!
+ * Returns true if token is a type name (in other words, can appear
  * after ‘var’)
  */
-bool isTypeName(Token tok)
+inline bool isTypeName(Token tok)
 {
 	return tok.getType() == kw_func ||
 	       tok.getType() >= kw_void ||
