@@ -2,4 +2,5 @@
 *.swp
 *.swo
 *.swn
-build
+build/*
+lib/*
