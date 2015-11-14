@@ -52,6 +52,8 @@ Parser::parseDeclaration()
 	case kw_class:
 		decl = parseClassDeclaration();
 		break;
+	default:
+		return nullptr;
 	}
 
 	if (getNextToken().getType() != tok_semicolon)
