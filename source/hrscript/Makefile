@@ -1,5 +1,5 @@
 RootPath = ../..
-Sources = Lexer.cpp Parser.cpp
+Sources = KeywordMap.cpp Lexer.cpp Parser.cpp
 ProjectName = hrscript
 Executable = false
 

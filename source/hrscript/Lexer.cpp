@@ -9,6 +9,26 @@
 #include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
 namespace hrscript {
+Lexer::Lexer(OctetStream& stream)
+	: stream(stream)
+{
+	kwmap
+	.add("const", KEYWORD(const))
+	.add("var", KEYWORD(var))
+	.add("func", KEYWORD(func))
+	.add("if", KEYWORD(if))
+	.add("else", KEYWORD(else))
+	.add("class", KEYWORD(class))
+	.add("prototype", KEYWORD(prototype))
+	.add("instance", KEYWORD(instance))
+	.add("return", KEYWORD(return))
+	.add("void", KEYWORD(void))
+	.add("float", KEYWORD(float))
+	.add("int", KEYWORD(int))
+	.add("string", KEYWORD(string))
+	.add("import", KEYWORD(import))
+	.add("import", KEYWORD(export));
+}
 
 void Lexer::init ()
 {
@@ -26,40 +46,6 @@ Token Lexer::getNextToken()
 	return getCurrentToken();
 }
 
-/*! Temporary (TODO) helper function to recognize identifier */
-void processIdentifier(Token& identifier)
-{
-	std::string const id = identifier.getData();
-	if (id == "const")
-		identifier.setType(KEYWORD(const));
-	else if (id == "var")
-		identifier.setType(KEYWORD(var));
-	else if (id == "func")
-		identifier.setType(KEYWORD(func));
-	else if (id == "if")
-		identifier.setType(KEYWORD(if));
-	else if (id == "else")
-		identifier.setType(KEYWORD(else));
-	else if (id == "class")
-		identifier.setType(KEYWORD(class));
-	else if (id == "prototype")
-		identifier.setType(KEYWORD(prototype));
-	else if (id == "instance")
-		identifier.setType(KEYWORD(instance));
-	else if (id == "return")
-		identifier.setType(KEYWORD(return));
-	else if (id == "void")
-		identifier.setType(KEYWORD(void));
-	else if (id == "float")
-		identifier.setType(KEYWORD(float));
-	else if (id == "int")
-		identifier.setType(KEYWORD(int));
-	else if (id == "string")
-		identifier.setType(KEYWORD(string));
-	else
-		identifier.setType(TOKEN(identifier));
-}
-
 bool Lexer::lexIdentifier(Token& token)
 {
 	char c;
@@ -73,8 +59,13 @@ bool Lexer::lexIdentifier(Token& token)
 
 	token.setData(id);
 
-	//FIXME: use map
-	processIdentifier(token);
+	// Check if token is a reserved keyword
+	auto kind = kwmap.get(token.getData());
+
+	if (!kind)
+		kind = TOKEN(identifier);
+
+	token.setType(kind);
 	
 	return true;
 }

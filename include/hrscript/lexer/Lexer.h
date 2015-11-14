@@ -10,13 +10,11 @@
 #define _hrscript_lexer_
 #include <hrscript/lexer/OctetStream.h>
 #include <hrscript/lexer/Token.h>
+#include <hrscript/lexer/KeywordMap.h>
 namespace hrscript {
 class Lexer {
 public:
-	Lexer(OctetStream& stream)
-		: stream(stream)
-	{
-	}
+	Lexer(OctetStream& stream);
 
 	void init();
 	Token getCurrentToken();
@@ -34,6 +32,7 @@ private:
 
 	Token curToken;
 	OctetStream& stream;
+	KeywordMap kwmap;
 };
 } // namespace hrscript
 #endif//_hrscript_lexer_
