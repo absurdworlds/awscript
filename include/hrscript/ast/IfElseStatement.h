@@ -16,8 +16,12 @@ class Exression;
 
 class IfElseStatement : public Statement {
 public:
-	IfElseStatement(Expression* ifExpr, Statement* ifBody, Statement* elseBody)
-		: ifExpr(ifExpr), ifBody(ifBody), elseBody(elseBody)
+	IfElseStatement(uptr<Expression> ifExpr,
+	                uptr<Statement>  ifBody,
+	                uptr<Statement> elseBody)
+		: ifExpr(std::move(ifExpr)),
+		  ifBody(std::move(ifBody)),
+		  elseBody(std::move(elseBody))
 	{
 	}
 
@@ -26,9 +30,9 @@ public:
 		visitor.visit(*this);
 	}
 protected:
-	Expression* ifExpr;
-	Statement*  ifBody;
-	Statement*  elseBody;
+	uptr<Expression> ifExpr;
+	uptr<Statement>  ifBody;
+	uptr<Statement>  elseBody;
 };
 
 } // namespace ast

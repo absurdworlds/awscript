@@ -24,15 +24,17 @@
 #include <hrscript/ast/StatementBlock.h>
 
 namespace hrscript {
-ast::Declaration* ErrorDeclaration(std::string msg)
+uptr<ast::Declaration>
+ErrorDeclaration(std::string msg)
 {
 	//print(msg);
 	return 0;
 }
 
-ast::Declaration* Parser::parseDeclaration()
+uptr<ast::Declaration>
+Parser::parseDeclaration()
 {
-	ast::Declaration* decl;
+	uptr<ast::Declaration> decl;
 
 	switch(token.getType()) {
 	case kw_var:
@@ -61,9 +63,10 @@ ast::Declaration* Parser::parseDeclaration()
 /*
  * variableDecl ::= 'var' id id
  */
-ast::Declaration* Parser::parseVariableDeclaration()
+uptr<ast::VariableDeclaration>
+Parser::parseVariableDeclaration()
 {
-	return ErrorDeclaration("NYI");
+	return nullptr;
 #if 0
 	// Read variable type
 	if (!isTypeName(getNextToken()))
@@ -85,7 +88,8 @@ ast::Declaration* Parser::parseVariableDeclaration()
 /*
  * constantDecl ::= 'const' id id '=' expr
  */
-ast::Declaration* Parser::parseConstantDeclaration()
+uptr<ast::Declaration>
+Parser::parseConstantDeclaration()
 {
 	return ErrorDeclaration("NYI");
 #if 0
@@ -117,7 +121,8 @@ ast::Declaration* Parser::parseConstantDeclaration()
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-ast::Declaration* Parser::parseFunctionDeclaration()
+uptr<ast::Declaration>
+Parser::parseFunctionDeclaration()
 {
 	// Return type
 	if (!isTypeName(token))
@@ -136,13 +141,13 @@ ast::Declaration* Parser::parseFunctionDeclaration()
 		return 0;
 
 	// Argument list
-	std::vector<ast::VariableDeclaration*> args;
+	std::vector<uptr<ast::VariableDeclaration>> args;
 	while (getNextToken().getType() == kw_var) {
-		auto arg = (ast::VariableDeclaration*)parseVariableDeclaration();
-		if (arg == 0)
-			return 0;
+		auto arg = parseVariableDeclaration();
+		if (!arg)
+			return nullptr;
 
-		args.push_back(arg);
+		args.push_back(std::move(arg));
 
 		getNextToken();
 
@@ -156,7 +161,7 @@ ast::Declaration* Parser::parseFunctionDeclaration()
 	if (token.getType() != tok_r_paren)
 		return 0;
 
-	return new ast::FuncDeclaration(name, ret, args);
+	return std::make_unique<ast::FuncDeclaration>(name, ret, std::move(args));
 }
 
 /*
@@ -165,7 +170,8 @@ ast::Declaration* Parser::parseFunctionDeclaration()
  * classBodyDecl  ::= functionDecl | varDecl
  * classBodyDecls ::= classBodyDecl ';' classBodyDecls?
  */
-ast::Declaration* Parser::parseClassDeclaration()
+uptr<ast::Declaration>
+Parser::parseClassDeclaration()
 {
 	return ErrorDeclaration("NYI");
 #if 0
@@ -203,7 +209,8 @@ ast::Declaration* Parser::parseClassDeclaration()
 /*
  * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
  */
-ast::Declaration* Parser::parsePrototypeDeclaration()
+uptr<ast::Declaration>
+Parser::parsePrototypeDeclaration()
 {
 	return ErrorDeclaration("NYI");
 #if 0
@@ -233,7 +240,8 @@ ast::Declaration* Parser::parsePrototypeDeclaration()
 #endif
 }
 
-ast::Statement* Parser::parseStatement()
+uptr<ast::Statement>
+Parser::parseStatement()
 {
 	switch (token.getType()) {
 	case kw_if:
@@ -245,15 +253,16 @@ ast::Statement* Parser::parseStatement()
 	}
 }
 
-ast::StatementBlock* Parser::parseStatementBlock()
+uptr<ast::StatementBlock>
+Parser::parseStatementBlock()
 {
-	std::vector<ast::Statement*> statements;
+	std::vector<uptr<ast::Statement>> statements;
 	while (true) {
 		auto statement = parseStatement();
 		if(!statement)
 			return 0;
 
-		statements.push_back(statement);
+		statements.push_back(std::move(statement));
 
 		if (getNextToken().getType() == tok_r_brace)
 			break;
@@ -262,10 +271,11 @@ ast::StatementBlock* Parser::parseStatementBlock()
 			return 0;
 	}
 
-	return new ast::StatementBlock(std::move(statements));
+	return std::make_unique<ast::StatementBlock>(std::move(statements));
 }
 
-ast::Statement* Parser::parseBranchStatement()
+uptr<ast::Statement>
+Parser::parseBranchStatement()
 {
 	if (getNextToken().getType() != kw_if)
 		return 0;
@@ -273,35 +283,38 @@ ast::Statement* Parser::parseBranchStatement()
 	if (getNextToken().getType() != tok_l_paren)
 		return 0;
 
-	ast::Expression* ifExpr = parseExpression();
+	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
 		return 0;
 
 	if (getNextToken().getType() != tok_r_paren)
 		return 0;
 
-	ast::Statement* ifBody = parseStatement();
-	ast::Statement* elseBody = 0;
+	uptr<ast::Statement> ifBody = parseStatement();
+	uptr<ast::Statement> elseBody = nullptr;
 
 	if (getNextToken().getType() == kw_else)
 		elseBody = parseStatement();
 
-	return new ast::IfElseStatement(ifExpr, ifBody, elseBody);
+	return std::make_unique<ast::IfElseStatement>(
+	        std::move(ifExpr), std::move(ifBody), std::move(elseBody));
 }
 
 /********************** Expressions **********************/
-ast::Expression* Parser::parseExpression()
+uptr<ast::Expression>
+Parser::parseExpression()
 {
 	// Parse left hand side
-	ast::Expression* lhs = parseUnaryExpr();
+	uptr<ast::Expression> lhs = parseUnaryExpr();
 
 	if (!lhs)
 		return 0;
 
-	return parseBinaryExpr(lhs, prec::Unknown);
+	return parseBinaryExpr(std::move(lhs), prec::Unknown);
 }
 
-ast::Expression* Parser::parsePrimaryExpr()
+uptr<ast::Expression>
+Parser::parsePrimaryExpr()
 {
 	// make sure that it does not get called
 	// before parsePrimaryExpr()
@@ -321,9 +334,10 @@ ast::Expression* Parser::parsePrimaryExpr()
 	}
 }
 
-ast::Expression* Parser::parseParenExpr()
+uptr<ast::Expression>
+Parser::parseParenExpr()
 {
-	ast::Expression* expr = parseExpression();
+	uptr<ast::Expression> expr = parseExpression();
 
 	if (!getNextToken().getType() != tok_r_paren)
 		return 0; // Expected )
@@ -331,41 +345,49 @@ ast::Expression* Parser::parseParenExpr()
 	return expr;
 }
 
-ast::Expression* Parser::parseBinaryExpr(ast::Expression* LHS, prec::Level minPrec)
+uptr<ast::Expression>
+Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
+                        prec::Level minPrec)
 {
 	while(1) {
 		prec::Level curPrec = getOperatorPrecedence(getNextToken());
 		if (curPrec < minPrec)
 			return LHS;
 
-		ast::Expression* RHS = parseUnaryExpr();
+		uptr<ast::Expression> RHS = parseUnaryExpr();
 		if(!RHS)
 			return 0;
 
 		prec::Level nextPrec = getOperatorPrecedence(getNextToken());
 		if(curPrec < nextPrec) {
-			RHS = parseBinaryExpr(RHS, prec::Level(curPrec + 1));
+			RHS = parseBinaryExpr(
+			       std::move(RHS),
+			       prec::Level(curPrec + 1));
 			if (!RHS)
 				return 0;
 		}
 
-		LHS = new ast::BinaryExpr(token.getType(), LHS, RHS);
+		LHS = std::make_unique<ast::BinaryExpr>(
+		       token.getType(), std::move(LHS), std::move(RHS));
 	}
 }
 
-ast::Expression* Parser::parseUnaryExpr()
+uptr<ast::Expression>
+Parser::parseUnaryExpr()
 {
 	if (!isOperator(getNextToken()))
 		return parsePrimaryExpr();
 
-	ast::Expression* operand = parseUnaryExpr();
+	uptr<ast::Expression> operand = parseUnaryExpr();
 	if (!operand)
 		return 0;
 
-	return new ast::UnaryExpr(token.getType(), operand);
+	return std::make_unique<ast::UnaryExpr>(
+	        token.getType(), std::move(operand));
 }
 
-ast::Expression* Parser::parseIdentifierExpr()
+uptr<ast::Expression>
+Parser::parseIdentifierExpr()
 {
 	std::string name = token.getData();
 
@@ -374,18 +396,20 @@ ast::Expression* Parser::parseIdentifierExpr()
 	
 	// TODO: postfix operators
 
-	return new ast::IdentifierExpr(name);
+	return std::make_unique<ast::IdentifierExpr>(name);
 }
 
-ast::Expression* Parser::parseCallExpr(std::string func)
+uptr<ast::Expression>
+Parser::parseCallExpr(std::string func)
 {
-	std::vector<ast::Expression*> args;
+	std::vector<uptr<ast::Expression>> args;
 	while (true) {
-		ast::Expression* arg = parseExpression();
+		auto arg = parseExpression();
+
 		if (!arg)
 			return 0;
 
-		args.push_back(arg);
+		args.push_back(std::move(arg));
 
 		if (getNextToken().getType() == tok_r_paren)
 			break;
@@ -394,23 +418,25 @@ ast::Expression* Parser::parseCallExpr(std::string func)
 			return 0; // expected ,
 	}
 
-	// TODO: std::move
-	return new ast::CallExpr(func, args);
+	return std::make_unique<ast::CallExpr>(
+	        std::move(func), std::move(args));
 }
 
-ast::Expression* Parser::parseStringExpr()
+uptr<ast::Expression>
+Parser::parseStringExpr()
 {
 	if (!getNextToken().getType() != tok_string_literal)
 		return 0;
 
-	return new ast::StringExpr(token.getData());
+	return std::make_unique<ast::StringExpr>(token.getData());
 }
 
-ast::Expression* Parser::parseNumberExpr()
+uptr<ast::Expression>
+Parser::parseNumberExpr()
 {
 	if (!getNextToken().getType() != tok_numeric_constant)
 		return 0;
 
-	return new ast::NumberExpr(token.getData());
+	return std::make_unique<ast::NumberExpr>(token.getData());
 }
 } // namespace hrscript

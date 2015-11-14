@@ -8,6 +8,7 @@
  */
 #ifndef _hrscript_parser_
 #define _hrscript_parser_
+#include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/parser/Operators.h>
 
@@ -16,6 +17,7 @@ namespace ast {
 class Statement;
 class StatementBlock;
 class Declaration;
+class VariableDeclaration;
 class Expression;
 }
 
@@ -30,7 +32,7 @@ public:
 	/*!
 	 * Parse next top-level declaration.
 	 */
-	ast::Declaration* parseDeclaration();
+	uptr<ast::Declaration> parseDeclaration();
 
 	/*!
 	 * Consume peek token and extract next token.
@@ -46,25 +48,28 @@ private:
 	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
 
-	ast::Declaration* parseClassDeclaration();
-	ast::Declaration* parsePrototypeDeclaration();
-	ast::Declaration* parseFunctionDeclaration();
-	ast::Declaration* parseVariableDeclaration();
-	ast::Declaration* parseConstantDeclaration();
+	uptr<ast::Declaration> parseClassDeclaration();
+	uptr<ast::Declaration> parsePrototypeDeclaration();
+	uptr<ast::Declaration> parseFunctionDeclaration();
+	uptr<ast::VariableDeclaration> parseVariableDeclaration();
+	uptr<ast::Declaration> parseConstantDeclaration();
 
-	ast::StatementBlock* parseStatementBlock();
-	ast::Statement* parseStatement();
-	ast::Statement* parseBranchStatement();
+	uptr<ast::StatementBlock> parseStatementBlock();
+	uptr<ast::Statement> parseStatement();
+	uptr<ast::Statement> parseBranchStatement();
 
-	ast::Expression* parseExpression();
-	ast::Expression* parseIdentifierExpr();
-	ast::Expression* parseParenExpr();
-	ast::Expression* parseNumberExpr();
-	ast::Expression* parseStringExpr();
-	ast::Expression* parseUnaryExpr();
-	ast::Expression* parsePrimaryExpr();
-	ast::Expression* parseBinaryExpr(ast::Expression* LHS, prec::Level minPrec);
-	ast::Expression* parseCallExpr(std::string func);
+	uptr<ast::Expression> parseExpression();
+	uptr<ast::Expression> parseIdentifierExpr();
+	uptr<ast::Expression> parseParenExpr();
+	uptr<ast::Expression> parseNumberExpr();
+	uptr<ast::Expression> parseStringExpr();
+	uptr<ast::Expression> parseUnaryExpr();
+	uptr<ast::Expression> parsePrimaryExpr();
+
+	uptr<ast::Expression>
+	parseBinaryExpr(uptr<ast::Expression> LHS, prec::Level minPrec);
+
+	uptr<ast::Expression> parseCallExpr(std::string func);
 };
 
 } // namespace hrscript

@@ -17,7 +17,7 @@ namespace ast {
 
 class StatementBlock : public Statement {
 public:
-	StatementBlock(std::vector<Statement*> statements)
+	StatementBlock(std::vector<std::unique_ptr<Statement>> statements)
 		: statements(std::move(statements))
 	{
 	}
@@ -27,7 +27,7 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	std::vector<Statement*> statements;
+	std::vector<std::unique_ptr<Statement>> statements;
 };
 } // namespace ast
 } // namespace hrscript

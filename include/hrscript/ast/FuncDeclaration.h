@@ -15,7 +15,7 @@ namespace ast {
 class FuncDeclaration : public Declaration {
 public:
 	FuncDeclaration(std::string id, std::string returnType,
-	                std::vector<VariableDeclaration*> args)
+	                std::vector<std::unique_ptr<VariableDeclaration>> args)
 		: name(id), returnType(returnType), args(std::move(args))
 	{
 	}
@@ -29,13 +29,13 @@ public:
 private:
 	std::string name;
 	std::string returnType;
-	std::vector<VariableDeclaration*> args;
+	std::vector<std::unique_ptr<VariableDeclaration>> args;
 };
 
 class FuncDefinition : public Declaration {
 public:
-	FuncDefinition(FuncDeclaration* proto, StatementBlock* body)
-		: prototype(proto), body(body)
+	FuncDefinition(uptr<FuncDeclaration> proto, uptr<StatementBlock> body)
+		: prototype(std::move(proto)), body(std::move(body))
 	{
 	}
 
@@ -44,8 +44,8 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	FuncDeclaration* prototype;
-	StatementBlock* body;
+	uptr<FuncDeclaration> prototype;
+	uptr<StatementBlock> body;
 };
 } // namespace ast
 } // namespace hrscript

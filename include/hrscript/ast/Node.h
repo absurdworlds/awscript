@@ -8,6 +8,7 @@
  */
 #ifndef _hrscript_AST_Node_
 #define _hrscript_AST_Node_
+#include <hrscript/common/types.h>
 #include <hrscript/ast/Visitor.h>
 namespace hrscript {
 namespace ast {

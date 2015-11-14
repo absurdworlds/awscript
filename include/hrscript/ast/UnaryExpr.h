@@ -15,8 +15,8 @@ namespace ast {
 
 class UnaryExpr : public Expression {
 public:
-	UnaryExpr(int op, Expression* operand)
-		: op(op), expr(operand)
+	UnaryExpr(int op, std::unique_ptr<Expression> operand)
+		: op(op), operand(std::move(operand))
 	{
 	}
 
@@ -28,7 +28,7 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	Expression* expr;
+	std::unique_ptr<Expression> operand;
 	int op;
 };
 

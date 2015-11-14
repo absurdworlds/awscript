@@ -17,7 +17,8 @@ namespace ast {
 /*! AST node for a function call */
 class CallExpr : public Expression {
 public:
-	CallExpr(std::string callee, std::vector<Expression*> arguments)
+	CallExpr(std::string callee,
+	         std::vector<std::unique_ptr<Expression>> arguments)
 		: callee(callee), arguments(std::move(arguments))
 	{
 	}
@@ -34,7 +35,7 @@ public:
 private:
 	//Function* callee;
 	std::string callee;
-	std::vector<Expression*> arguments;
+	std::vector<std::unique_ptr<Expression>> arguments;
 };
 
 } // namespace ast

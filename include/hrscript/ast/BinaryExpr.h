@@ -15,8 +15,10 @@ namespace ast {
 
 class BinaryExpr : public Expression {
 public:
-	BinaryExpr(int op, Expression* lhs, Expression* rhs)
-		: op(op), lhs(lhs), rhs(rhs)
+	BinaryExpr(int op,
+	           std::unique_ptr<Expression> lhs,
+	           std::unique_ptr<Expression> rhs)
+		: op(op), lhs(std::move(lhs)), rhs(std::move(rhs))
 	{
 	}
 
@@ -29,8 +31,8 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	Expression* lhs;
-	Expression* rhs;
+	std::unique_ptr<Expression> lhs;
+	std::unique_ptr<Expression> rhs;
 	int op;
 };
 
