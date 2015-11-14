@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_FuncDeclaration_
-#define _hrscript_AST_FuncDeclaration_
+#ifndef _hrscript_AST_VariableDeclaration_
+#define _hrscript_AST_VariableDeclaration_
 #include <memory>
 #include <string>
 #include <hrscript/ast/Declaration.h>
@@ -23,7 +23,7 @@ public:
 
 	virtual void accept(ast::Visitor& visitor)
 	{
-		visitor.visitor(*this);
+		visitor.visit(*this);
 	}
 
 	virtual Expression* getInitializer()
@@ -34,6 +34,7 @@ public:
 	virtual bool isWriteable(bool writeable)
 	{
 		return writeAccessible;
+	}
 
 	virtual void setWriteable(bool writeable)
 	{
@@ -43,7 +44,7 @@ private:
 	std::string name;
 	std::unique_ptr<Expression> val;
 	bool writeAccessible;
-}
+};
 } // namespace ast
 } // namespace hrscript
-#endif//_hrscript_AST_FuncDeclaration_
+#endif//_hrscript_AST_VariableDeclaration_
