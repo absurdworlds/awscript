@@ -1,24 +1,28 @@
+# Copyright (C) 2015  hedede <haddayn@gmail.com>
+#
+# License LGPLv3 or later:
+# GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
 # All project makefiles must define:
 # ProjectName
 # RootPath
 # Objects
 # Executable
 
-#
-# Global configuration {
-Version = 0
 
-# 
-comma = ,
-space :=
-space +=
-# } end global configuration
-#
+# Global configuration
+Version = 0
 
 EXTRAFLAGS=
 
-#
-# Per-project settings {
+# Makefile tricks
+comma = ,
+space :=
+space +=
+
+# Per-project settings
 ifeq ($(Executable),true)
 	InstallDir = $(RootPath)/bin
 	OutputName = $(ProjectName)
@@ -31,20 +35,18 @@ endif
 BuildDir = $(RootPath)/build/$(ProjectName)
 Includes = -I$(RootPath)/include
 Objects = $(patsubst %.cpp, $(BuildDir)/%.o, $(Sources))
-# end per-dependent settings }
-#
+Depends = $(Objects:.o=.d)
+ProjectDefines = $(addprefix -D,$(Defines))
+ProjectDependencies = $(addprefix -l,$(Libraries))
 
-#
-# User configuration {
+
+# User configuration
 include $(RootPath)/Config.mk
 
-ExtraIncludePaths = $(addprefix -I,$(CONFIG_INCLUDE_PATHS))
-ExtraLibraryPaths = $(addprefix -L,$(CONFIG_LIBRARY_PATHS))
-# } end user configuration
-#
+ExtraIncludePaths = $(addprefix -I$(RootPath)/,$(CONFIG_INCLUDE_PATHS))
+ExtraLibraryPaths = $(addprefix -L$(RootPath)/,$(CONFIG_LIBRARY_PATHS))
 
-#
-# Tool configuration {
+# Tool configuration
 MKDIR_P = mkdir -p
 
 CXXFLAGS  = -std=c++14
@@ -56,11 +58,19 @@ CXXFLAGS_DEBUG   = -g -DDEBUG -D_DEBUG
 CXXFLAGS_RELEASE = -O3 -DNDEBUG
 
 CCFLAGS  = -std=c11
-CPPFLAGS = $(Defines) $(Includes)
-LDFLAGS  =  -Wl,-rpath-link,../../lib,-R,'$$ORIGIN/../lib' -L../../lib $(Libraries)
-# } end tool configuration
-#
+CPPFLAGS = $(ProjectDefines) $(Includes) $(ExtraIncludePaths)
+LDFLAGS  = -Wl,-rpath-link,$(RootPath)/lib,-R,'$$ORIGIN/../lib' -L$(RootPath)/lib
+LDFLAGS += $(ExtraLibraryPaths)
+LDFLAGS += $(ProjectDependencies)
 
+# Generate dependency files
+ifeq ($(CONFIG_MAKE_DEPENDS),true)
+CCFLAGS  += -MMD -MP
+CXXFLAGS += -MMD -MP
+endif
+
+
+# Build rules
 all: debug
 
 .PHONY:
@@ -72,16 +82,17 @@ release: CXXFLAGS+=$(CXXFLAGS_RELEASE)
 release: Build
 
 $(BuildDir)/%.o: %.cpp
+	@ $(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: directories
 directories: BuildDir InstallDir
 
 BuildDir:
-	$(MKDIR_P) $(BuildDir)
+	@ $(MKDIR_P) $(BuildDir)
 
 InstallDir:
-	$(MKDIR_P) $(InstallDir)
+	@ $(MKDIR_P) $(InstallDir)
 
 Build: directories $(Objects)
 	$(CXX) $(EXTRAFLAGS) -o $(BuildDir)/$(OutputName) \
@@ -93,4 +104,8 @@ endif
 
 .PHONY : clean
 clean:
-	-rm $(Objects) $(BuildDir)/$(OutputName)
+	- rm $(Objects) $(BuildDir)/$(OutputName)
+
+ifeq ($(CONFIG_MAKE_DEPENDS),true)
+-include $(Depends)
+endif
