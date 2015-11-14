@@ -341,7 +341,7 @@ Parser::parseParenExpr()
 {
 	uptr<ast::Expression> expr = parseExpression();
 
-	if (!getNextToken().getType() != tok_r_paren)
+	if (getNextToken().getType() != tok_r_paren)
 		return nullptr; // Expected )
 
 	return expr;
@@ -427,7 +427,7 @@ Parser::parseCallExpr(std::string func)
 uptr<ast::Expression>
 Parser::parseStringExpr()
 {
-	if (!getNextToken().getType() != tok_string_literal)
+	if (getNextToken().getType() != tok_string_literal)
 		return nullptr;
 
 	return std::make_unique<ast::StringExpr>(token.getData());
@@ -436,7 +436,7 @@ Parser::parseStringExpr()
 uptr<ast::Expression>
 Parser::parseNumberExpr()
 {
-	if (!getNextToken().getType() != tok_numeric_constant)
+	if (getNextToken().getType() != tok_numeric_constant)
 		return nullptr;
 
 	return std::make_unique<ast::NumberExpr>(token.getData());
