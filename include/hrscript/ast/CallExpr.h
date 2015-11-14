@@ -25,8 +25,18 @@ public:
 
 	virtual std::string getFunction();
 
-	virtual Expression* operator [] (size_t arg);
-	virtual Expression* getArgument(size_t arg);
+	virtual Expression* getArgument(size_t arg)
+	{
+		if (arg > arguments.size())
+			return nullptr;
+
+		return arguments[arg].get();
+	}
+
+	virtual Expression* operator [] (size_t arg)
+	{
+		return getArgument(arg);
+	}
 
 	virtual void accept(ast::Visitor& visitor)
 	{

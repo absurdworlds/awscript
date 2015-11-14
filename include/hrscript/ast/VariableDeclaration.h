@@ -40,6 +40,11 @@ public:
 	{
 		writeAccessible = writeable;
 	}
+
+	virtual void setInitialier(std::unique_ptr<Expression> newVal)
+	{
+		val = std::move(newVal);
+	}
 private:
 	std::string name;
 	std::unique_ptr<Expression> val;

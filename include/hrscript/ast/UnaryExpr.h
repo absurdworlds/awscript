@@ -20,8 +20,15 @@ public:
 	{
 	}
 
-	virtual Expression* getOperand();
-	virtual int getOperation();
+	virtual Expression& getOperand()
+	{
+		return *operand.get();
+	}
+
+	virtual int getOperation()
+	{
+		return op;
+	}
 
 	virtual void accept(ast::Visitor& visitor)
 	{

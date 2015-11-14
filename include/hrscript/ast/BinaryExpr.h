@@ -22,9 +22,18 @@ public:
 	{
 	}
 
-	virtual Expression* getLHS();
-	virtual Expression* getRHS();
-	virtual int getOperation();
+	virtual Expression& getLHS()
+	{
+		return *lhs.get();
+	}
+	virtual Expression& getRHS()
+	{
+		return *rhs.get();
+	}
+	virtual int getOperation()
+	{
+		return op;
+	}
 
 	virtual void accept(ast::Visitor& visitor)
 	{
