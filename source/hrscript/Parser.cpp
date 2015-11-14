@@ -28,7 +28,7 @@ uptr<ast::Declaration>
 ErrorDeclaration(std::string msg)
 {
 	//print(msg);
-	return 0;
+	return nullptr;
 }
 
 uptr<ast::Declaration>
@@ -55,7 +55,7 @@ Parser::parseDeclaration()
 	}
 
 	if (getNextToken().getType() != tok_semicolon)
-		return 0;
+		return nullptr;
 
 	return decl;
 }
@@ -260,7 +260,7 @@ Parser::parseStatementBlock()
 	while (true) {
 		auto statement = parseStatement();
 		if(!statement)
-			return 0;
+			return nullptr;
 
 		statements.push_back(std::move(statement));
 
@@ -268,7 +268,7 @@ Parser::parseStatementBlock()
 			break;
 
 		if (getNextToken().getType() != tok_semicolon)
-			return 0;
+			return nullptr;
 	}
 
 	return std::make_unique<ast::StatementBlock>(std::move(statements));
@@ -278,17 +278,17 @@ uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
 	if (getNextToken().getType() != kw_if)
-		return 0;
+		return nullptr;
 	
 	if (getNextToken().getType() != tok_l_paren)
-		return 0;
+		return nullptr;
 
 	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
-		return 0;
+		return nullptr;
 
 	if (getNextToken().getType() != tok_r_paren)
-		return 0;
+		return nullptr;
 
 	uptr<ast::Statement> ifBody = parseStatement();
 	uptr<ast::Statement> elseBody = nullptr;
@@ -340,7 +340,7 @@ Parser::parseParenExpr()
 	uptr<ast::Expression> expr = parseExpression();
 
 	if (!getNextToken().getType() != tok_r_paren)
-		return 0; // Expected )
+		return nullptr; // Expected )
 
 	return expr;
 }
@@ -380,7 +380,7 @@ Parser::parseUnaryExpr()
 
 	uptr<ast::Expression> operand = parseUnaryExpr();
 	if (!operand)
-		return 0;
+		return nullptr;
 
 	return std::make_unique<ast::UnaryExpr>(
 	        token.getType(), std::move(operand));
@@ -407,7 +407,7 @@ Parser::parseCallExpr(std::string func)
 		auto arg = parseExpression();
 
 		if (!arg)
-			return 0;
+			return nullptr;
 
 		args.push_back(std::move(arg));
 
@@ -415,7 +415,7 @@ Parser::parseCallExpr(std::string func)
 			break;
 
 		if (getNextToken().getType() != tok_comma)
-			return 0; // expected ,
+			return nullptr; // expected ,
 	}
 
 	return std::make_unique<ast::CallExpr>(
@@ -426,7 +426,7 @@ uptr<ast::Expression>
 Parser::parseStringExpr()
 {
 	if (!getNextToken().getType() != tok_string_literal)
-		return 0;
+		return nullptr;
 
 	return std::make_unique<ast::StringExpr>(token.getData());
 }
@@ -435,7 +435,7 @@ uptr<ast::Expression>
 Parser::parseNumberExpr()
 {
 	if (!getNextToken().getType() != tok_numeric_constant)
-		return 0;
+		return nullptr;
 
 	return std::make_unique<ast::NumberExpr>(token.getData());
 }
