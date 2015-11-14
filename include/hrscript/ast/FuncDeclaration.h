@@ -10,6 +10,7 @@
 #define _hrscript_AST_FuncDeclaration_
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/StatementBlock.h>
+#include <hrscript/ast/VariableDeclaration.h>
 namespace hrscript {
 namespace ast {
 class FuncDeclaration : public Declaration {

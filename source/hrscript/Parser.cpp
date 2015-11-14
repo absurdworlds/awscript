@@ -10,8 +10,8 @@
 
 #include <hrscript/parser/Parser.h>
 #include <hrscript/ast/Declaration.h>
-#include <hrscript/ast/FuncDeclaration.h>
 #include <hrscript/ast/VariableDeclaration.h>
+#include <hrscript/ast/FuncDeclaration.h>
 #include <hrscript/ast/Expression.h>
 #include <hrscript/ast/UnaryExpr.h>
 #include <hrscript/ast/BinaryExpr.h>
