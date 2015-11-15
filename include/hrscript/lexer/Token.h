@@ -66,5 +66,10 @@ inline bool isTypeName(Token tok)
 	       tok.getType() >= kw_void ||
 	       isIdentifier(tok);
 }
+
+inline bool operator == (Token tok, TokenType kind)
+{
+	return tok.getType() == kind;
+}
 } // namespace hrscript
 #endif//_hrscript_token_
