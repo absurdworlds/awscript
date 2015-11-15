@@ -23,7 +23,7 @@ TokenType KeywordMap::get(std::string def)
 
 	if (result == std::end(theMap))
 		// TODO: better indication that it is not present
-		return TOKEN(illegal);
+		return tok_illegal;
 
 	return theMap[def];
 }
@@ -31,6 +31,6 @@ TokenType KeywordMap::get(std::string def)
 // Check if keyword is present
 bool KeywordMap::isKeyword(std::string def)
 {
-	return get(def) != TOKEN(illegal);
+	return get(def) != tok_illegal;
 }
 } // namespace hrscript

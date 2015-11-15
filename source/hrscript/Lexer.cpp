@@ -14,21 +14,21 @@ Lexer::Lexer(OctetStream& stream)
 {
 	// Setup keywords
 	kwmap
-	.add("const", KEYWORD(const))
-	.add("var", KEYWORD(var))
-	.add("func", KEYWORD(func))
-	.add("if", KEYWORD(if))
-	.add("else", KEYWORD(else))
-	.add("class", KEYWORD(class))
-	.add("prototype", KEYWORD(prototype))
-	.add("instance", KEYWORD(instance))
-	.add("return", KEYWORD(return))
-	.add("void", KEYWORD(void))
-	.add("float", KEYWORD(float))
-	.add("int", KEYWORD(int))
-	.add("string", KEYWORD(string))
-	.add("import", KEYWORD(import))
-	.add("import", KEYWORD(export));
+	.add("const", kw_const)
+	.add("var", kw_var)
+	.add("func", kw_func)
+	.add("if", kw_if)
+	.add("else", kw_else)
+	.add("class", kw_class)
+	.add("prototype", kw_prototype)
+	.add("instance", kw_instance)
+	.add("return", kw_return)
+	.add("void", kw_void)
+	.add("float", kw_float)
+	.add("int", kw_int)
+	.add("string", kw_string)
+	.add("import", kw_import)
+	.add("import", kw_export);
 
 	// Extract first token
 	getNextToken();
@@ -69,7 +69,7 @@ bool Lexer::lexIdentifier(Token& token)
 	auto kind = kwmap.get(token.getData());
 
 	if (!kind)
-		kind = TOKEN(identifier);
+		kind = tok_identifier;
 
 	token.setType(kind);
 	
