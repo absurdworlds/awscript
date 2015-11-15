@@ -41,10 +41,9 @@ int main(int argc, char** arg)
 	FileStream fstream(arg[1]);
 	Lexer lexer(fstream);
 
-	Token token;
+	Token token = lexer.getCurrentToken();
 	do {
-		token = lexer.getNextToken();	
-
 		printTokenInfo(token);
+		token = lexer.getNextToken();
 	} while (token.getType() != tok_eof);
 }
