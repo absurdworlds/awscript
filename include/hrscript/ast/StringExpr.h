@@ -15,9 +15,12 @@ namespace ast {
 /*! Expression for numeric literals */
 class StringExpr : public Expression {
 public:
-	StringExpr(std::string value);
+	StringExpr(std::string value)
+		: value(value)
+	{
+	}
 
-	virtual ~StringExpr();
+	virtual ~StringExpr() = default;
 
 	virtual void accept(ast::Visitor& visitor)
 	{

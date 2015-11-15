@@ -21,6 +21,8 @@ public:
 	{
 	}
 
+	virtual ~VariableDeclaration() = default;
+
 	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);

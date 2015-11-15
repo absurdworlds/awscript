@@ -20,7 +20,7 @@ public:
 	{
 	}
 
-	virtual ~IdentifierExpr();
+	virtual ~IdentifierExpr() = default;
 
 	virtual void accept(ast::Visitor& visitor)
 	{

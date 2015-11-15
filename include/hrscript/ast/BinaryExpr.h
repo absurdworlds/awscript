@@ -22,6 +22,8 @@ public:
 	{
 	}
 
+	virtual ~BinaryExpr() = default;
+
 	virtual Expression& getLHS()
 	{
 		return *lhs.get();

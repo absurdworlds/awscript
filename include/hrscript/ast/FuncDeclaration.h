@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_FuncDeclaration_
-#define _hrscript_AST_FuncDeclaration_
+#ifndef _hrscript_AST_FunctionDeclaration_
+#define _hrscript_AST_FunctionDeclaration_
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/StatementBlock.h>
 #include <hrscript/ast/VariableDeclaration.h>
@@ -21,7 +21,7 @@ public:
 	{
 	}
 
-	virtual ~FuncDeclaration();
+	virtual ~FuncDeclaration() = default;
 
 	virtual void accept(ast::Visitor& visitor)
 	{
@@ -39,6 +39,8 @@ public:
 		: prototype(std::move(proto)), body(std::move(body))
 	{
 	}
+
+	virtual ~FuncDefinition() = default;
 
 	virtual void accept(ast::Visitor& visitor)
 	{

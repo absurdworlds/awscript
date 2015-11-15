@@ -23,7 +23,12 @@ public:
 	{
 	}
 
-	virtual std::string getFunction();
+	virtual ~CallExpr() = default;
+
+	virtual std::string getFunction() const
+	{
+		return callee;
+	}
 
 	virtual Expression* getArgument(size_t arg)
 	{

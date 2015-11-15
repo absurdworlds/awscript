@@ -25,6 +25,8 @@ public:
 	{
 	}
 
+	virtual ~IfElseStatement() = default;
+
 	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);

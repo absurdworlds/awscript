@@ -15,7 +15,7 @@ namespace ast {
 
 class Statement : public Node {
 public:
-	virtual ~Statement();
+	virtual ~Statement() = default;
 
 	virtual void accept(ast::Visitor& visitor) = 0;
 };

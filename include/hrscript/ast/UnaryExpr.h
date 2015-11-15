@@ -20,6 +20,8 @@ public:
 	{
 	}
 
+	virtual ~UnaryExpr() = default;
+
 	virtual Expression& getOperand()
 	{
 		return *operand.get();

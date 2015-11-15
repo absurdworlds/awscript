@@ -14,6 +14,8 @@ namespace hrscript {
 namespace ast {
 class Expression : public Statement {
 public:
+	virtual ~Expression() = default;
+
 	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
