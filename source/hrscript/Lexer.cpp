@@ -12,6 +12,7 @@ namespace hrscript {
 Lexer::Lexer(OctetStream& stream)
 	: stream(stream)
 {
+	// Setup keywords
 	kwmap
 	.add("const", KEYWORD(const))
 	.add("var", KEYWORD(var))
@@ -28,6 +29,9 @@ Lexer::Lexer(OctetStream& stream)
 	.add("string", KEYWORD(string))
 	.add("import", KEYWORD(import))
 	.add("import", KEYWORD(export));
+
+	// Extract first token
+	getNextToken();
 }
 
 void Lexer::init()
@@ -39,7 +43,9 @@ Token Lexer::getCurrentToken()
 	return curToken;
 }
 
-/*! Extract next token from stream */
+/*!
+ * Extract next token from stream
+ */
 Token Lexer::getNextToken()
 {
 	lexNextToken(curToken);
@@ -274,7 +280,7 @@ lexNextToken:
 		tok.setType(tok_r_paren);
 		break;
 	case '&':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '&') {
 			tok.setType(tok_amp_amp);
 			stream.getNext(c);
@@ -284,7 +290,7 @@ lexNextToken:
 		// TODO: does daedalus have '&=' operator?
 		break;
 	case '|':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '|') {
 			tok.setType(tok_pipe_pipe);
 			stream.getNext(c);
@@ -293,7 +299,7 @@ lexNextToken:
 		}
 		// TODO: does daedalus have '|= operator?
 	case '!':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_bang_equal);
 			stream.getNext(c);
@@ -302,7 +308,7 @@ lexNextToken:
 		}
 		break;
 	case '*':
-		stream.getNext(c);
+		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_ast_equal);
 			stream.getNext(c);
