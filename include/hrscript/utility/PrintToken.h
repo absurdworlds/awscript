@@ -23,7 +23,8 @@ std::string getTokenSpelling(TokenType kind);
 
 
 // some macro magic to print token names
-#define STR(x) #x
+#define STR1(x) #x
+#define STR(x)  STR1(x)
 #define TOKEN1(x) tok_ ## x
 #define KEYWORD1(x) kw_ ## x
 
@@ -44,7 +45,7 @@ std::string getTokenSpelling(TokenType kind)
 {
 	switch (kind) {
 #define TOKEN(x)    case TOKEN1(x)   : return STR(x);
-#define PUNCT(x, y) case TOKEN1(x)   : return STR(y);
+#define PUNCT(x, y) case TOKEN1(x)   : return y;
 #define KEYWORD(x)  case KEYWORD1(x) : return STR(x);
 #include <hrscript/lexer/TokenKinds.h>
 #undef TOKEN
