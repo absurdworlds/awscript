@@ -2,6 +2,6 @@ RootPath = ../..
 Sources = LexerTest.cpp
 ProjectName = LexerTest
 Executable = true
-Libraries = -lhrscript
+Libraries = hrscript
 
 include $(RootPath)/Rules.mk
