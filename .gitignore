@@ -4,3 +4,4 @@
 *.swn
 build/*
 lib/*
+Config.mk
