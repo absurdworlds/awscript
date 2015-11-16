@@ -30,6 +30,8 @@ public:
 		token = lexer.getCurrentToken();
 	}
 
+	virtual ~Parser() = default;
+
 	/*!
 	 * Parse next top-level declaration.
 	 */

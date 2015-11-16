@@ -27,7 +27,7 @@ enum Level {
 	Additive       = 10, // +, -
 	Multiplicative = 11  // *, *, %
 };
-}
+} // namespace prec
 
 prec::Level getOperatorPrecedence(Token tok)
 {
@@ -68,9 +68,19 @@ prec::Level getOperatorPrecedence(Token tok)
 	}
 }
 
-bool isOperator(Token tok)
+bool isRightAssociative(Token tok)
+{
+	return getOperatorPrecedence(tok) == prec::Assignment;
+}
+
+bool isBinaryOperator(Token tok)
 {
 	return getOperatorPrecedence(tok) > prec::Unknown;
+}
+
+bool isOperator(Token tok)
+{
+	return isBinaryOperator(tok);
 }
 
 } // namespace hrscript

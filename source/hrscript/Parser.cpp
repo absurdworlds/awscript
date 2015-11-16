@@ -404,11 +404,15 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 		if(!RHS)
 			return nullptr;
 
+
 		prec::Level nextPrec = getOperatorPrecedence(token);
-		if(curPrec < nextPrec) {
+		bool isRightAssoc = isRightAssociative(token);
+
+		if(curPrec < nextPrec ||
+		   curPrec == nextPrec && isRightAssoc) {
 			RHS = parseBinaryExpr(
 			       std::move(RHS),
-			       prec::Level(curPrec + 1));
+			       prec::Level(curPrec + !isRightAssoc));
 			if (!RHS)
 				return nullptr;
 		}
