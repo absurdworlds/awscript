@@ -58,8 +58,10 @@ Parser::parseDeclaration()
 		return nullptr;
 	}
 
-	if (getNextToken().getType() != tok_semicolon)
+	/* TODO: do not forget about global variables
+	if (token.getType() != tok_semicolon)
 		return nullptr;
+		*/
 
 	return decl;
 }
