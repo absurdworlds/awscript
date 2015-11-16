@@ -70,23 +70,20 @@ Parser::parseDeclaration()
 uptr<ast::VariableDeclaration>
 Parser::parseVariableDeclaration()
 {
-	return nullptr;
-#if 0
 	// Read variable type
-	if (!isTypeName(getNextToken()))
-		return 0;
+	if (!isTypeName(token))
+		return nullptr;
 
 	// Read variable name
 	if (!isIdentifier(getNextToken()))
-		return 0;
+		return nullptr;
 	
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
-	return new VariableDeclaration(name);
-#endif
+	return std::make_unique<ast::VariableDeclaration>(name);
 }
 
 /*
