@@ -303,6 +303,9 @@ Parser::parseExprStatement()
 uptr<ast::StatementBlock>
 Parser::parseStatementBlock()
 {
+	if (!match(tok_l_brace))
+		return nullptr; // expected '{'
+
 	std::vector<uptr<ast::Statement>> statements;
 	while (true) {
 		auto statement = parseStatement();
