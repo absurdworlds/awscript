@@ -453,19 +453,22 @@ uptr<ast::Expression>
 Parser::parseCallExpr(std::string func)
 {
 	std::vector<uptr<ast::Expression>> args;
-	while (true) {
-		auto arg = parseExpression();
 
-		if (!arg)
-			return nullptr;
+	if (!match(tok_r_paren)) {
+		while (true) {
+			auto arg = parseExpression();
 
-		args.push_back(std::move(arg));
+			if (!arg)
+				return nullptr;
 
-		if (getNextToken().getType() == tok_r_paren)
-			break;
+			args.push_back(std::move(arg));
 
-		if (getNextToken().getType() != tok_comma)
-			return nullptr; // expected ,
+			if (match(tok_r_paren))
+				break;
+
+			if (!match(tok_comma))
+				return nullptr; // expected ,
+		}
 	}
 
 	return std::make_unique<ast::CallExpr>(
