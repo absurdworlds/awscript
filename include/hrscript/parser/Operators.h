@@ -13,6 +13,7 @@
 namespace hrscript {
 namespace prec {
 enum Level {
+	None           = -1,
 	Unknown        = 0,
 	Assignment     = 1,  // =, any= (except relational)
 	LogicalOr      = 2,
@@ -33,7 +34,7 @@ prec::Level getOperatorPrecedence(Token tok)
 	switch(tok.getType()) {
 	default:
 		// Not an operator
-		return prec::Unknown;
+		return prec::None;
 	case tok_ast_equal:
 	case tok_plus_equal:
 	case tok_minus_equal:
