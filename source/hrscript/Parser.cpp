@@ -361,40 +361,46 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
                         prec::Level minPrec)
 {
 	while(1) {
-		prec::Level curPrec = getOperatorPrecedence(getNextToken());
+		prec::Level curPrec = getOperatorPrecedence(token);
 		if (curPrec < minPrec)
 			return LHS;
 
+		Token opcode = token;
+		getNextToken(); // consume operator
+
 		uptr<ast::Expression> RHS = parseUnaryExpr();
 		if(!RHS)
-			return 0;
+			return nullptr;
 
-		prec::Level nextPrec = getOperatorPrecedence(getNextToken());
+		prec::Level nextPrec = getOperatorPrecedence(token);
 		if(curPrec < nextPrec) {
 			RHS = parseBinaryExpr(
 			       std::move(RHS),
 			       prec::Level(curPrec + 1));
 			if (!RHS)
-				return 0;
+				return nullptr;
 		}
 
 		LHS = std::make_unique<ast::BinaryExpr>(
-		       token.getType(), std::move(LHS), std::move(RHS));
+		       opcode.getType(), std::move(LHS), std::move(RHS));
 	}
 }
 
 uptr<ast::Expression>
 Parser::parseUnaryExpr()
 {
-	if (!isOperator(getNextToken()))
+	if (!isOperator(token))
 		return parsePrimaryExpr();
+
+	Token opcode = token;
+	getNextToken(); // consume operator
 
 	uptr<ast::Expression> operand = parseUnaryExpr();
 	if (!operand)
 		return nullptr;
 
 	return std::make_unique<ast::UnaryExpr>(
-	        token.getType(), std::move(operand));
+	        opcode.getType(), std::move(operand));
 }
 
 uptr<ast::Expression>
