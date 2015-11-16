@@ -283,8 +283,19 @@ Parser::parseStatement()
 	case tok_l_brace:
 		return parseStatementBlock();
 	default:
-		return parseExpression();
+		return parseExprStatement();
 	}
+}
+
+uptr<ast::Statement>
+Parser::parseExprStatement()
+{
+	auto expr = parseExpression();
+
+	if (!match(tok_semicolon))
+		return nullptr;
+
+	return expr;
 }
 
 uptr<ast::StatementBlock>
@@ -300,9 +311,6 @@ Parser::parseStatementBlock()
 
 		if (getNextToken().getType() == tok_r_brace)
 			break;
-
-		if (getNextToken().getType() != tok_semicolon)
-			return nullptr;
 	}
 
 	return std::make_unique<ast::StatementBlock>(std::move(statements));

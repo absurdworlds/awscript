@@ -64,6 +64,7 @@ private:
 	uptr<ast::StatementBlock> parseStatementBlock();
 	uptr<ast::Statement> parseStatement();
 	uptr<ast::Statement> parseBranchStatement();
+	uptr<ast::Statement> parseExprStatement();
 
 	uptr<ast::Expression> parseExpression();
 	uptr<ast::Expression> parseIdentifierExpr();
