@@ -117,6 +117,16 @@ Parser::parseConstantDeclaration()
 #endif
 }
 
+bool Parser::match(TokenType expected)
+{
+	if (token.getType() != expected)
+		return false;
+
+	// consume token
+	getNextToken();
+	return true;
+}
+
 /*
  * functionDecl ::= 'func' id id '(' args ')'
  *         args ::= arg (',' args)?

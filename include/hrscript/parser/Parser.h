@@ -48,6 +48,11 @@ private:
 	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
 
+	/*!
+	 * Match token, and consume if matched.
+	 */
+	bool match(TokenType expected);
+
 	uptr<ast::Declaration> parseClassDeclaration();
 	uptr<ast::Declaration> parsePrototypeDeclaration();
 	uptr<ast::Declaration> parseFunctionDeclaration();
