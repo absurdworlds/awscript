@@ -26,7 +26,7 @@ public:
 	Parser(Lexer& lexer)
 		: lexer(lexer)
 	{
-		token = lexer.getNextToken();
+		token = lexer.getCurrentToken();
 	}
 
 	/*!
