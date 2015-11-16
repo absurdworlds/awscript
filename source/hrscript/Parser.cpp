@@ -321,23 +321,23 @@ Parser::parseStatementBlock()
 uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
-	if (getNextToken().getType() != kw_if)
+	if (!match(kw_if))
 		return nullptr;
 	
-	if (getNextToken().getType() != tok_l_paren)
+	if (!match(tok_l_paren))
 		return nullptr;
 
 	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
 		return nullptr;
 
-	if (getNextToken().getType() != tok_r_paren)
+	if (!match(tok_r_paren))
 		return nullptr;
 
 	uptr<ast::Statement> ifBody = parseStatement();
 	uptr<ast::Statement> elseBody = nullptr;
 
-	if (getNextToken().getType() == kw_else)
+	if (match(kw_else))
 		elseBody = parseStatement();
 
 	return std::make_unique<ast::IfElseStatement>(
@@ -352,7 +352,7 @@ Parser::parseExpression()
 	uptr<ast::Expression> lhs = parseUnaryExpr();
 
 	if (!lhs)
-		return 0;
+		return nullptr;
 
 	return parseBinaryExpr(std::move(lhs), prec::Unknown);
 }
@@ -360,10 +360,6 @@ Parser::parseExpression()
 uptr<ast::Expression>
 Parser::parsePrimaryExpr()
 {
-	// make sure that it does not get called
-	// before parsePrimaryExpr()
-	getNextToken();
-
 	switch(token.getType()) {
 	case tok_l_paren:
 		return parseParenExpr();
@@ -383,7 +379,7 @@ Parser::parseParenExpr()
 {
 	uptr<ast::Expression> expr = parseExpression();
 
-	if (getNextToken().getType() != tok_r_paren)
+	if (!match(tok_r_paren))
 		return nullptr; // Expected )
 
 	return expr;
@@ -441,7 +437,8 @@ Parser::parseIdentifierExpr()
 {
 	std::string name = token.getData();
 
-	if (getNextToken().getType() == tok_l_paren)
+	getNextToken(); // consume identifier
+	if (match(tok_l_paren))
 		return parseCallExpr(name);
 	
 	// TODO: postfix operators
@@ -478,18 +475,20 @@ Parser::parseCallExpr(std::string func)
 uptr<ast::Expression>
 Parser::parseStringExpr()
 {
-	if (getNextToken().getType() != tok_string_literal)
+	Token tok = token;
+	if (!match(tok_string_literal))
 		return nullptr;
 
-	return std::make_unique<ast::StringExpr>(token.getData());
+	return std::make_unique<ast::StringExpr>(tok.getData());
 }
 
 uptr<ast::Expression>
 Parser::parseNumberExpr()
 {
-	if (getNextToken().getType() != tok_numeric_constant)
+	Token tok = token;
+	if (!match(tok_numeric_constant))
 		return nullptr;
 
-	return std::make_unique<ast::NumberExpr>(token.getData());
+	return std::make_unique<ast::NumberExpr>(tok.getData());
 }
 } // namespace hrscript
