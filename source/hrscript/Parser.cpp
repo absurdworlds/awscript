@@ -46,7 +46,7 @@ Parser::parseDeclaration()
 		decl = parseConstantDeclaration();
 		break;
 	case kw_func:
-		decl = parseFunctionDeclaration();
+		decl = parseFunctionDefinition();
 		break;
 	case kw_prototype:
 		decl = parsePrototypeDeclaration();
@@ -132,28 +132,29 @@ bool Parser::match(TokenType expected)
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-uptr<ast::Declaration>
-Parser::parseFunctionDeclaration()
+uptr<ast::FuncDeclaration>
+Parser::parseFunctionPrototype()
 {
 	// Return type
 	if (!isTypeName(token))
-		return 0;
+		return nullptr;
 
 	std::string ret = token.getData();
 
 	// Function name
 	if (!isIdentifier(getNextToken()))
-		return 0;
+		return nullptr;
 
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
-	if (getNextToken().getType() != tok_l_paren)
-		return 0;
+	getNextToken();
+	if (!match(tok_l_paren))
+		return nullptr;
 
 	// Argument list
 	std::vector<uptr<ast::VariableDeclaration>> args;
-	while (getNextToken().getType() == kw_var) {
+	while (match(kw_var)) {
 		auto arg = parseVariableDeclaration();
 		if (!arg)
 			return nullptr;
@@ -165,14 +166,36 @@ Parser::parseFunctionDeclaration()
 		if (token.getType() == tok_r_paren)
 			break;
 
-		if (token.getType() != tok_comma)
-			return 0;
+		if (!match(tok_comma))
+			return nullptr;
 	}
 	
-	if (token.getType() != tok_r_paren)
-		return 0;
+	if (!match(tok_r_paren))
+		return nullptr;
 
 	return std::make_unique<ast::FuncDeclaration>(name, ret, std::move(args));
+}
+
+/*
+ * functionDef  ::= functionDecl '{' stmts '}'
+ */
+uptr<ast::Declaration>
+Parser::parseFunctionDefinition()
+{
+	getNextToken(); // consume 'func'
+
+	auto proto = parseFunctionPrototype();
+
+	if (!proto)
+		return nullptr;
+
+	if (token.getType() == tok_semicolon)
+		return proto;
+
+	auto body = parseStatementBlock();
+
+	return std::make_unique<ast::FuncDefinition>(
+	        std::move(proto), std::move(body));
 }
 
 /*
