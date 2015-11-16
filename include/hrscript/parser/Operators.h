@@ -35,6 +35,7 @@ prec::Level getOperatorPrecedence(Token tok)
 	default:
 		// Not an operator
 		return prec::None;
+	case tok_equal:
 	case tok_ast_equal:
 	case tok_plus_equal:
 	case tok_minus_equal:
