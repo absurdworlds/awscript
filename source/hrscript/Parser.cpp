@@ -9,9 +9,10 @@
 #include <vector>
 
 #include <hrscript/parser/Parser.h>
-#include <hrscript/ast/Declaration.h>
+
 #include <hrscript/ast/VariableDeclaration.h>
 #include <hrscript/ast/FuncDeclaration.h>
+
 #include <hrscript/ast/Expression.h>
 #include <hrscript/ast/UnaryExpr.h>
 #include <hrscript/ast/BinaryExpr.h>
@@ -19,6 +20,7 @@
 #include <hrscript/ast/NumberExpr.h>
 #include <hrscript/ast/StringExpr.h>
 #include <hrscript/ast/IdentifierExpr.h>
+
 #include <hrscript/ast/Statement.h>
 #include <hrscript/ast/IfElseStatement.h>
 #include <hrscript/ast/StatementBlock.h>

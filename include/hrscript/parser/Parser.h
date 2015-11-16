@@ -10,13 +10,13 @@
 #define _hrscript_parser_
 #include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
+#include <hrscript/ast/Declaration.h>
 #include <hrscript/parser/Operators.h>
 
 namespace hrscript {
 namespace ast {
 class Statement;
 class StatementBlock;
-class Declaration;
 class VariableDeclaration;
 class Expression;
 }
