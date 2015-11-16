@@ -377,6 +377,9 @@ Parser::parsePrimaryExpr()
 uptr<ast::Expression>
 Parser::parseParenExpr()
 {
+	if (!match(tok_l_paren))
+		return nullptr; // Expected (
+
 	uptr<ast::Expression> expr = parseExpression();
 
 	if (!match(tok_r_paren))
