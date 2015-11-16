@@ -307,15 +307,12 @@ Parser::parseStatementBlock()
 		return nullptr; // expected '{'
 
 	std::vector<uptr<ast::Statement>> statements;
-	while (true) {
+	while (!match(tok_r_brace)) {
 		auto statement = parseStatement();
 		if(!statement)
 			return nullptr;
 
 		statements.push_back(std::move(statement));
-
-		if (getNextToken().getType() == tok_r_brace)
-			break;
 	}
 
 	return std::make_unique<ast::StatementBlock>(std::move(statements));
