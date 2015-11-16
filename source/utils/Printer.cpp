@@ -70,9 +70,11 @@ void Printer::visit(ast::VariableDeclaration& node)
 
 void Printer::visit(ast::StatementBlock& node)
 {
+	writer->startNode("block");
 	for (auto& stmt : node.getStatements()) {
 		stmt->accept(*this);
 	}
+	writer->endNode();
 }
 
 void Printer::visit(ast::IfElseStatement& node)
