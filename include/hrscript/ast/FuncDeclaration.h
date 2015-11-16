@@ -23,6 +23,21 @@ public:
 
 	virtual ~FuncDeclaration() = default;
 
+	virtual std::string getName() const
+	{
+		return name;
+	}
+
+	virtual std::string getReturnType() const
+	{
+		return returnType;
+	}
+
+	std::vector<uptr<VariableDeclaration>>& getArguments()
+	{
+		return args;
+	}
+
 	virtual void accept(ast::Visitor& visitor)
 	{
 		visitor.visit(*this);
@@ -41,6 +56,16 @@ public:
 	}
 
 	virtual ~FuncDefinition() = default;
+
+	FuncDeclaration& getPrototype()
+	{
+		return *prototype;
+	}
+
+	StatementBlock& getBody()
+	{
+		return *body;
+	}
 
 	virtual void accept(ast::Visitor& visitor)
 	{

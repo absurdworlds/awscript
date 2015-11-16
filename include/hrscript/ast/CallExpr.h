@@ -30,17 +30,9 @@ public:
 		return callee;
 	}
 
-	virtual Expression* getArgument(size_t arg)
+	virtual std::vector<uptr<Expression>>& getArguments()
 	{
-		if (arg > arguments.size())
-			return nullptr;
-
-		return arguments[arg].get();
-	}
-
-	virtual Expression* operator [] (size_t arg)
-	{
-		return getArgument(arg);
+		return arguments;
 	}
 
 	virtual void accept(ast::Visitor& visitor)

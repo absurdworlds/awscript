@@ -26,6 +26,11 @@ public:
 	{
 		visitor.visit(*this);
 	}
+
+	std::string getName()
+	{
+		return id;
+	}
 private:
 	std::string id;
 };

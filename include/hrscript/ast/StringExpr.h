@@ -26,6 +26,11 @@ public:
 	{
 		visitor.visit(*this);
 	}
+
+	std::string getValue() const
+	{
+		return value;
+	}
 private:
 	std::string value;
 };

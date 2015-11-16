@@ -47,6 +47,11 @@ public:
 	{
 		val = std::move(newVal);
 	}
+
+	std::string getName() const
+	{
+		return name;
+	}
 private:
 	std::string name;
 	std::unique_ptr<Expression> val;

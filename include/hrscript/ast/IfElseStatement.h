@@ -31,6 +31,21 @@ public:
 	{
 		visitor.visit(*this);
 	}
+
+	Expression& getCondition()
+	{
+		return *ifExpr;
+	}
+
+	Statement& getThenBranch()
+	{
+		return *ifBody;
+	}
+
+	Statement* getElseBranch()
+	{
+		return elseBody.get();
+	}
 protected:
 	uptr<Expression> ifExpr;
 	uptr<Statement>  ifBody;

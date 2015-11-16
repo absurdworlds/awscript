@@ -28,6 +28,11 @@ public:
 	{
 		visitor.visit(*this);
 	}
+
+	std::vector<uptr<Statement>>& getStatements()
+	{
+		return statements;
+	}
 private:
 	std::vector<std::unique_ptr<Statement>> statements;
 };

@@ -25,7 +25,7 @@ class BinaryExpr;
 
 class Visitor {
 public:
-	virtual ~Visitor();
+	virtual ~Visitor() = default;
 
 	virtual void visit(ast::FuncDeclaration& node) = 0;
 	virtual void visit(ast::FuncDefinition& node) = 0;
