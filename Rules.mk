@@ -51,7 +51,7 @@ MKDIR_P = mkdir -p
 
 CXXFLAGS  = -std=c++14
 CXXFLAGS += -fPIC
-CXXFLAGS += -fno-exceptions
+CXXFLAGS += -fno-exceptions -fno-rtti
 CXXFLAGS += -fvisibility=default
 CXXFLAGS += -fdiagnostics-color=auto
 CXXFLAGS_DEBUG   = -g -DDEBUG -D_DEBUG
