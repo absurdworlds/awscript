@@ -12,8 +12,13 @@
 
 namespace hrscript {
 namespace ast {
+/*!
+ * Declaration class represents a declaration or definition,
+ * such as class declaration, function declaration etc.
+ */
 class Declaration {
 public:
+	//! Implements Visitor Pattern
 	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
