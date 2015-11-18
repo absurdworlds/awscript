@@ -69,16 +69,15 @@ private:
 	uptr<ast::Statement> parseExprStatement();
 
 	uptr<ast::Expression> parseExpression();
+	uptr<ast::Expression> parseUnaryExpr();
+	uptr<ast::Expression>
+	parseBinaryExpr(uptr<ast::Expression> LHS, prec::Level minPrec);
+
+	uptr<ast::Expression> parsePrimaryExpr();
 	uptr<ast::Expression> parseIdentifierExpr();
 	uptr<ast::Expression> parseParenExpr();
 	uptr<ast::Expression> parseNumberExpr();
 	uptr<ast::Expression> parseStringExpr();
-	uptr<ast::Expression> parseUnaryExpr();
-	uptr<ast::Expression> parsePrimaryExpr();
-
-	uptr<ast::Expression>
-	parseBinaryExpr(uptr<ast::Expression> LHS, prec::Level minPrec);
-
 	uptr<ast::Expression> parseCallExpr(std::string func);
 };
 
