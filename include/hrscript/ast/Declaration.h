@@ -8,11 +8,11 @@
  */
 #ifndef _hrscript_AST_Declaration_
 #define _hrscript_AST_Declaration_
-#include <hrscript/ast/Statement.h>
+#include <hrscript/ast/Node.h>
 
 namespace hrscript {
 namespace ast {
-class Declaration : public Statement {
+class Declaration {
 public:
 	virtual void accept(ast::Visitor& visitor) = 0;
 };
