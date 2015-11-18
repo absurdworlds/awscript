@@ -18,6 +18,8 @@ namespace ast {
  */
 class Declaration {
 public:
+	virtual ~Declaration() = default;
+
 	//! Implements Visitor Pattern
 	virtual void accept(ast::Visitor& visitor) = 0;
 };
