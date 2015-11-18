@@ -8,9 +8,9 @@
  */
 #ifndef _hrscript_AST_FunctionDeclaration_
 #define _hrscript_AST_FunctionDeclaration_
-#include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/StatementBlock.h>
-#include <hrscript/ast/VariableDeclaration.h>
+#include <hrscript/ast/Declaration.h>
+#include <hrscript/ast/decl/Variable.h>
 namespace hrscript {
 namespace ast {
 class FuncDeclaration : public Declaration {
