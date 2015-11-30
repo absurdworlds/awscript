@@ -34,7 +34,7 @@ public:
 	/*! Get currently extracted octet. */
 	virtual i32 getCurrent(primitive_type& out)
 	{
-		fprintf(stderr,"%c",cur);
+		//fprintf(stderr,"%c",cur);
 		return convert(cur, out);
 	}
  
@@ -55,7 +55,8 @@ public:
 			return 0;
 		}
 		extract();
-#ifdef DEBUG
+//#ifdef DEBUG
+#if 0
 		fprintf(stderr,"%c",cur);
 		if(cur == '\n')
 			printf("\n");
