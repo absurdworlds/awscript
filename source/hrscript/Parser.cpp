@@ -383,7 +383,7 @@ uptr<ast::Expression>
 Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
                         prec::Level minPrec)
 {
-	while(1) {
+	while (1) {
 		prec::Level curPrec = getOperatorPrecedence(token);
 		if (curPrec < minPrec)
 			return LHS;
@@ -399,8 +399,8 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 		prec::Level nextPrec = getOperatorPrecedence(token);
 		bool isRightAssoc = isRightAssociative(token);
 
-		if(curPrec < nextPrec ||
-		   curPrec == nextPrec && isRightAssoc) {
+		if (curPrec < nextPrec ||
+		   (curPrec == nextPrec && isRightAssoc)) {
 			RHS = parseBinaryExpr(
 			       std::move(RHS),
 			       prec::Level(curPrec + !isRightAssoc));
