@@ -14,6 +14,9 @@ namespace hrscript {
 namespace ast {
 class Node {
 public:
+	virtual ~Node() = default;
+
+	//! Implements Visitor Pattern
 	virtual void accept(ast::Visitor& visitor) = 0;
 };
 
