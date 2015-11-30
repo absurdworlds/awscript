@@ -21,6 +21,14 @@ inline std::string nameToken(TokenType type);
  */
 inline std::string spellToken(TokenType kind);
 
+/*!
+ * Get characters compirising the token.
+ */
+inline std::string spellToken(Token token)
+{
+	return token.getData();
+}
+
 
 // some macro magic to print token names
 #define STR1(x) #x
