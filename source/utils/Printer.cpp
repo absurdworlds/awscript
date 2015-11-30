@@ -6,7 +6,6 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-
 #include <hrscript/ast/decl/Variable.h>
 #include <hrscript/ast/decl/Function.h>
 
@@ -25,124 +24,125 @@
 
 namespace hrscript {
 Printer::Printer(awrts::io::WriteStream& out)
-	: writer(awrts::hdf::createWriter(out))
+	: writer(out)
 {
 }
 
 void Printer::printSignature(ast::FunctionProto& node)
 {
-	writer->writeValue("name", node.getName());
-	writer->writeValue("return", node.getReturnType());
+	writer.writeValue("name", node.getName());
+	writer.writeValue("return", node.getReturnType());
 
-	writer->startNode("arguments");
+	writer.startNode("arguments");
 
 	for (auto& arg : node.getArguments()) {
 		arg->accept(*this);
 	}
 	
-	writer->endNode();
+	writer.endNode();
 }
 
 void Printer::visit(ast::FunctionProto& node)
 {
-	writer->startNode("func");
+	writer.startNode("func");
 	printSignature(node);
-	writer->endNode();
+	writer.endNode();
 }
 
 void Printer::visit(ast::Function& node)
 {
-	writer->startNode("func");
+	writer.startNode("func");
 	printSignature(node.getPrototype());
 
-	writer->startNode("body");
+	writer.startNode("body");
 	node.getBody().accept(*this);
-	writer->endNode();
-	writer->endNode();
+	writer.endNode();
+	writer.endNode();
 }
 
 void Printer::visit(ast::Variable& node)
 {
-	writer->startNode("var");
-	writer->writeValue("name", node.getName());
-	writer->endNode();
+	writer.startNode("var");
+	writer.writeValue("name", node.getName());
+	writer.endNode();
 }
 
 void Printer::visit(ast::StatementBlock& node)
 {
-	writer->startNode("block");
+	writer.startNode("block");
 	for (auto& stmt : node.getStatements()) {
 		stmt->accept(*this);
 	}
-	writer->endNode();
+	writer.endNode();
 }
 
 void Printer::visit(ast::IfElseStatement& node)
 {
-	writer->startNode("if");
+	writer.startNode("if");
 	
-	writer->startNode("condition");
+	writer.startNode("condition");
 	node.getCondition().accept(*this);
-	writer->endNode();
+	writer.endNode();
 
-	writer->startNode("then");
+	writer.startNode("then");
 	node.getThenBranch().accept(*this);
-	writer->endNode();
+	writer.endNode();
 
 	if (node.getElseBranch()) {
-		writer->startNode("else");
+		writer.startNode("else");
 		node.getElseBranch()->accept(*this);
-		writer->endNode();
+		writer.endNode();
 	}
-	writer->endNode();
+	writer.endNode();
 }
 
 void Printer::visit(ast::NumberExpr& node)
 {
-	writer->startNode("number");
-	writer->writeValue("value", node.getValue());
-	writer->endNode();
+	writer.startNode("number");
+	writer.writeValue("value", node.getValue());
+	writer.endNode();
 }
 void Printer::visit(ast::StringExpr& node)
 {
-	writer->startNode("string");
-	writer->writeValue("value", node.getValue());
-	writer->endNode();
+	writer.startNode("string");
+	writer.writeValue("value", node.getValue());
+	writer.endNode();
 }
 void Printer::visit(ast::IdentifierExpr& node)
 {
-	writer->startNode("id");
-	writer->writeValue("name", node.getName());
-	writer->endNode();
+	writer.startNode("id");
+	writer.writeValue("name", node.getName());
+	writer.endNode();
 }
 void Printer::visit(ast::CallExpr& node)
 {
-	writer->startNode("call");
-	writer->writeValue("func",node.getFunction());
-	writer->startNode("arguments");
+	writer.startNode("call");
+	writer.writeValue("func",node.getFunction());
+	writer.startNode("arguments");
 	for (auto& arg : node.getArguments()) {
 		if (!arg)
-			writer->startNode("asdasdasd");
+			writer.startNode("asdasdasd");
 		arg->accept(*this);
 	}
-	writer->endNode();	
-	writer->endNode();	
+	writer.endNode();
+	writer.endNode();
 }
 void Printer::visit(ast::UnaryExpr& node)
 {
-	writer->startNode("unary");
-	std::string const tmp = getTokenSpelling(TokenType(node.getOperation()));
-	writer->writeValue("op", tmp);
+	writer.startNode("unary");
+	std::string const tmp = spellToken(TokenType(node.getOperation()));
+	writer.writeValue("op", tmp);
 	node.getOperand().accept(*this);
-	writer->endNode();
+	writer.endNode();
 }
+
 void Printer::visit(ast::BinaryExpr& node)
 {
-	writer->startNode("binary");
-	std::string const tmp = getTokenSpelling(TokenType(node.getOperation()));
-	writer->writeValue("op", tmp);
+	writer.startNode("binary");
+	std::string const tmp = spellToken(TokenType(node.getOperation()));
+	writer.writeValue("op", tmp);
 	node.getLHS().accept(*this);
 	node.getRHS().accept(*this);
-	writer->endNode();
+	writer.endNode();
 }
 } // namespace hrscript

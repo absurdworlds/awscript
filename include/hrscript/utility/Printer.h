@@ -32,7 +32,7 @@ public:
 private:
 	void printSignature(ast::FunctionProto& node);
 
-	std::unique_ptr<awrts::hdf::Writer> writer;
+	awrts::hdf::Writer writer;
 };
 } // namespace hrscript
 #endif//hrscript_printer_h

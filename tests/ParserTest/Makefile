@@ -2,6 +2,6 @@ RootPath = ../..
 Sources = ParserTest.cpp
 ProjectName = ParserTest
 Executable = true
-Libraries = hrscript hrscript-utils
+Libraries = hdf hrscript hrscript-utils
 
 include $(RootPath)/Rules.mk
