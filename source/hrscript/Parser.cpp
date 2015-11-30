@@ -209,6 +209,9 @@ Parser::parseFunctionDefinition()
 
 	auto body = parseStatementBlock();
 
+	if (!body)
+		return nullptr;
+
 	return ast::Function::create(
 	        std::move(proto), std::move(body));
 }
@@ -280,7 +283,7 @@ Parser::parseExprStatement()
 		return nullptr;
 	}
 
-	return expr;
+	return std::move(expr);
 }
 
 uptr<ast::StatementBlock>
@@ -318,10 +321,17 @@ Parser::parseBranchStatement()
 		return unexpectedTokenError(tok_r_paren);
 
 	uptr<ast::Statement> ifBody = parseStatement();
+	if (!ifBody)
+		return nullptr;
+
 	uptr<ast::Statement> elseBody = nullptr;
 
-	if (match(kw_else))
+	if (match(kw_else)) {
 		elseBody = parseStatement();
+
+		if (!elseBody)
+			return nullptr;
+	}
 
 	return std::make_unique<ast::IfElseStatement>(
 	        std::move(ifExpr), std::move(ifBody), std::move(elseBody));
