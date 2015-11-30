@@ -14,12 +14,12 @@ namespace hrscript {
 /*!
  * Print token name (as in source code)
  */
-std::string getTokenName(TokenType type);
+inline std::string nameToken(TokenType type);
 
 /*!
  * Print sequence of characters which would produce the token
  */
-std::string getTokenSpelling(TokenType kind);
+inline std::string spellToken(TokenType kind);
 
 
 // some macro magic to print token names
@@ -28,7 +28,7 @@ std::string getTokenSpelling(TokenType kind);
 #define TOKEN1(x) tok_ ## x
 #define KEYWORD1(x) kw_ ## x
 
-std::string getTokenName(TokenType type)
+std::string nameToken(TokenType type)
 {
 	switch (type) {
 #define TOKEN(x)   case TOKEN1(x)   : return STR(TOKEN1(x)); 
@@ -41,7 +41,7 @@ std::string getTokenName(TokenType type)
 	}
 }
 
-std::string getTokenSpelling(TokenType kind)
+std::string spellToken(TokenType kind)
 {
 	switch (kind) {
 #define TOKEN(x)    case TOKEN1(x)   : return STR(x);
