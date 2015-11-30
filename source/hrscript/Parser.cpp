@@ -6,9 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#include <cassert>
 #include <vector>
-
-#include <hrscript/parser/Parser.h>
 
 #include <hrscript/ast/decl/Variable.h>
 #include <hrscript/ast/decl/Function.h>
@@ -24,6 +23,10 @@
 #include <hrscript/ast/Statement.h>
 #include <hrscript/ast/IfElseStatement.h>
 #include <hrscript/ast/StatementBlock.h>
+
+#include <hrscript/utility/PrintToken.h>
+#include <hrscript/diagnostic/DiagnosticsEngine.h>
+#include <hrscript/parser/Parser.h>
 
 namespace hrscript {
 uptr<ast::Declaration>
@@ -147,12 +150,16 @@ Parser::parseFunctionPrototype()
 	// TODO: symbol table lookup
 	std::string name = token.getData();
 
+	// consume identifier
 	getNextToken();
 	if (!match(tok_l_paren))
 		return nullptr;
 
 	// Argument list
 	std::vector<uptr<ast::Variable>> args;
+
+	// TODO: 'var int a'  or  'int a'
+	// while ((token == tok_identifier) || (token == kw_var)) {
 	while (match(kw_var)) {
 		auto arg = parseVariableDeclaration();
 		if (!arg)
@@ -166,14 +173,23 @@ Parser::parseFunctionPrototype()
 			break;
 
 		if (!match(tok_comma))
-			return nullptr;
+			return unexpectedTokenError(tok_comma);
 	}
 	
-	if (!match(tok_r_paren))
+	if (!match(tok_r_paren)) {
+		Diagnostic msg(Location(), Diagnostic::ExpectedVariableDecl);
+		diag.report(msg);
+		// error(Diagnostic::err_unexpected_token);
 		return nullptr;
+	}
 
 	return ast::FunctionProto::create(name, ret, std::move(args));
 }
+/*
+std::nullptr_t Parser::error(Diagnostic::ID id)
+{
+	return nullptr;
+}*/
 
 /*
  * functionDef  ::= functionDecl '{' stmts '}'
@@ -257,8 +273,12 @@ Parser::parseExprStatement()
 {
 	auto expr = parseExpression();
 
-	if (!match(tok_semicolon))
+	if (!match(tok_semicolon)) {
+		Diagnostic msg(Location(),
+		               Diagnostic::ExpectedSemicolonAfterExpression);
+		diag.report(msg);
 		return nullptr;
+	}
 
 	return expr;
 }
@@ -288,14 +308,14 @@ Parser::parseBranchStatement()
 		return nullptr;
 	
 	if (!match(tok_l_paren))
-		return nullptr;
+		return unexpectedTokenError(tok_l_paren);
 
 	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
 		return nullptr;
 
 	if (!match(tok_r_paren))
-		return nullptr;
+		return unexpectedTokenError(tok_r_paren);
 
 	uptr<ast::Statement> ifBody = parseStatement();
 	uptr<ast::Statement> elseBody = nullptr;
@@ -341,12 +361,12 @@ uptr<ast::Expression>
 Parser::parseParenExpr()
 {
 	if (!match(tok_l_paren))
-		return nullptr; // Expected (
+		return unexpectedTokenError(tok_l_paren); // Expected (
 
 	uptr<ast::Expression> expr = parseExpression();
 
 	if (!match(tok_r_paren))
-		return nullptr; // Expected )
+		return unexpectedTokenError(tok_r_paren);
 
 	return expr;
 }
@@ -434,7 +454,7 @@ Parser::parseCallExpr(std::string func)
 				break;
 
 			if (!match(tok_comma))
-				return nullptr; // expected ,
+				return unexpectedTokenError(tok_comma); // expected ,
 		}
 	}
 
@@ -445,9 +465,11 @@ Parser::parseCallExpr(std::string func)
 uptr<ast::Expression>
 Parser::parseStringExpr()
 {
+	assert(token == tok_string_literal && "parseStringExpr called when there's no string literal!");
+
 	Token tok = token;
-	if (!match(tok_string_literal))
-		return nullptr;
+	// Consume string
+	getNextToken();
 
 	return std::make_unique<ast::StringExpr>(tok.getData());
 }
@@ -455,10 +477,24 @@ Parser::parseStringExpr()
 uptr<ast::Expression>
 Parser::parseNumberExpr()
 {
+	assert(token == tok_numeric_constant && "parseNumberExpr called when there's no number!");
+
+	// store token, because we need to consume it
 	Token tok = token;
-	if (!match(tok_numeric_constant))
-		return nullptr;
+	// consume number
+	getNextToken();
 
 	return std::make_unique<ast::NumberExpr>(tok.getData());
+}
+
+// Print out diagnostic and return nullptr
+// Assumes that it is called after failed match()
+std::nullptr_t Parser::unexpectedTokenError(TokenType expected)
+{
+	Diagnostic msg(Location(), Diagnostic::UnexpectedToken);
+	msg << spellToken(expected) << spellToken(token);
+	diag.report(msg);
+
+	return nullptr;
 }
 } // namespace hrscript

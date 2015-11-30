@@ -22,10 +22,15 @@ class Variable;
 class Expression;
 }
 
+class DiagnosticsEngine;
+
+/*!
+ * Parser transforms token stream into the Abstract Syntax Stream (AST).
+ */
 class Parser {
 public:
-	Parser(Lexer& lexer)
-		: lexer(lexer)
+	Parser(Lexer& lexer, DiagnosticsEngine& diag)
+		: lexer(lexer), diag(diag)
 	{
 		token = lexer.getCurrentToken();
 	}
@@ -50,6 +55,9 @@ private:
 
 	/*! Lexer which provides the stream of tokens */
 	Lexer& lexer;
+
+	/*! Diagnostics engine for error reporting */
+	DiagnosticsEngine& diag;
 
 	/*!
 	 * Match token, and consume if matched.
@@ -78,6 +86,12 @@ private:
 	uptr<ast::Expression> parseNumberExpr();
 	uptr<ast::Expression> parseStringExpr();
 	uptr<ast::Expression> parseCallExpr(std::string func);
+
+	/*!
+	 * Print out diagnostic and return nullptr
+	 * Assumes that it is called after failed match()
+	 */
+	std::nullptr_t unexpectedTokenError(TokenType expected);
 };
 
 } // namespace hrscript
