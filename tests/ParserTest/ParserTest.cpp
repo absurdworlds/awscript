@@ -8,6 +8,7 @@
  */
 #include <iostream>
 #include <awengine/io/WriteStream.h>
+#include <hrscript/diagnostic/DiagnosticsEngine.h>
 #include <hrscript/lexer/FileStream.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/parser/Parser.h>
@@ -43,8 +44,9 @@ int main(int argc, char** arg)
 		return 2;
 
 	FileStream fstream(arg[1]);
+	DiagnosticsEngine diag;
 	Lexer lexer(fstream);
-	Parser parser(lexer);
+	Parser parser(lexer, diag);
 
 	TestWriteStream out;
 	Printer printer(out);
