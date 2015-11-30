@@ -29,6 +29,7 @@ private:
 	void skipLineComment();
 	void skipBlockComment();
 	void handleComment();
+	void setToken(TokenType type);
 
 	Token curToken;
 	OctetStream& stream;

@@ -7,6 +7,7 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <hrscript/common/types.h>
+#include <hrscript/utility/PrintToken.h>
 #include <hrscript/lexer/Lexer.h>
 namespace hrscript {
 Lexer::Lexer(OctetStream& stream)
@@ -205,6 +206,12 @@ checkForComment:
 	goto checkForComment;
 }
 
+void Lexer::setToken(TokenType type)
+{
+	curToken.setType(type);
+	curToken.setData(spellToken(type));
+}
+
 /*!
  * This function is an actual lexer implementation.
  * It reads characters from stream and produces tokens
@@ -244,76 +251,76 @@ lexNextToken:
 		return lexIdentifier(tok);
 	/* Operators */
 	case '^':
-		tok.setType(tok_caret);
+		setToken(tok_caret);
 		break;
 	case '~':
-		tok.setType(tok_tilde);
+		setToken(tok_tilde);
 		break;
 	case ',':
-		tok.setType(tok_comma);
+		setToken(tok_comma);
 		break;
 	case '.':
-		tok.setType(tok_dot);
+		setToken(tok_dot);
 		break;
 	case ';':
-		tok.setType(tok_semicolon);
+		setToken(tok_semicolon);
 		break;
 	case '%':
-		tok.setType(tok_percent);
+		setToken(tok_percent);
 		break;
 	case '{':
-		tok.setType(tok_l_brace);
+		setToken(tok_l_brace);
 		break;
 	case '}':
-		tok.setType(tok_r_brace);
+		setToken(tok_r_brace);
 		break;
 	case '[':
-		tok.setType(tok_l_square);
+		setToken(tok_l_square);
 		break;
 	case ']':
-		tok.setType(tok_r_square);
+		setToken(tok_r_square);
 		break;
 	case '(':
-		tok.setType(tok_l_paren);
+		setToken(tok_l_paren);
 		break;
 	case ')':
-		tok.setType(tok_r_paren);
+		setToken(tok_r_paren);
 		break;
 	case '&':
 		stream.peek(c);
 		if (c == '&') {
-			tok.setType(tok_amp_amp);
+			setToken(tok_amp_amp);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_amp);	
+			setToken(tok_amp);	
 		}
 		// TODO: does daedalus have '&=' operator?
 		break;
 	case '|':
 		stream.peek(c);
 		if (c == '|') {
-			tok.setType(tok_pipe_pipe);
+			setToken(tok_pipe_pipe);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_pipe);
+			setToken(tok_pipe);
 		}
 		// TODO: does daedalus have '|= operator?
 	case '!':
 		stream.peek(c);
 		if (c == '=') {
-			tok.setType(tok_bang_equal);
+			setToken(tok_bang_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_bang);
+			setToken(tok_bang);
 		}
 		break;
 	case '*':
 		stream.peek(c);
 		if (c == '=') {
-			tok.setType(tok_ast_equal);
+			setToken(tok_ast_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_ast);
+			setToken(tok_ast);
 		}
 		break;
 	case '/':
@@ -332,67 +339,67 @@ lexNextToken:
 
 		stream.peek(c);
 		if (c == '=') {
-			tok.setType(tok_slash_equal);
+			setToken(tok_slash_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_slash);
+			setToken(tok_slash);
 		}
 		break;
 	case '=':
 		stream.peek(c);
 		if (c == '=') {
-			tok.setType(tok_equal_equal);
+			setToken(tok_equal_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_equal);
+			setToken(tok_equal);
 		}
 		break;
 	case '+':
 		stream.peek(c);
 		if (c == '+') {
-			tok.setType(tok_plus_plus);
+			setToken(tok_plus_plus);
 			stream.getNext(c);
 		} else if (c == '=') {
-			tok.setType(tok_plus_equal);
+			setToken(tok_plus_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_plus);
+			setToken(tok_plus);
 		}
 		break;
 	case '-':
 		stream.peek(c);
 		if (c == '-') {
-			tok.setType(tok_minus_minus);
+			setToken(tok_minus_minus);
 			stream.getNext(c);
 		} else if (c == '=') {
-			tok.setType(tok_minus_equal);
+			setToken(tok_minus_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_minus);
+			setToken(tok_minus);
 		}
 		break;
 	case '<':
 		stream.peek(c);
 		if (c == '<') {
-			tok.setType(tok_less_less);
+			setToken(tok_less_less);
 			stream.getNext(c);
 		} else if (c == '=') {
-			tok.setType(tok_less_equal);
+			setToken(tok_less_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_less);
+			setToken(tok_less);
 		}
 		break;
 	case '>':
 		stream.peek(c);
 		if (c == '>') {
-			tok.setType(tok_greater_greater);
+			setToken(tok_greater_greater);
 			stream.getNext(c);
 		} else if (c == '=') {
-			tok.setType(tok_less_equal);
+			setToken(tok_less_equal);
 			stream.getNext(c);
 		} else {
-			tok.setType(tok_less);
+			setToken(tok_less);
 		}
 		break;
 	/* Illegal token */
