@@ -96,7 +96,7 @@ InstallDir:
 
 Build: directories $(Objects)
 	$(CXX) $(EXTRAFLAGS) -o $(BuildDir)/$(OutputName) \
-	$(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(Objects)
+	$(CPPFLAGS) $(CXXFLAGS) $(Objects) $(LDFLAGS)
 	cp $(BuildDir)/$(OutputName) $(InstallDir)/$(OutputName)
 ifeq ($(Executable),false)
 	ln -sf $(OutputName) $(InstallDir)/$(OutputShortName)
