@@ -263,6 +263,7 @@ Parser::parseStatement()
 {
 	switch (token.getType()) {
 	case kw_if:
+		getNextToken(); // consume 'if'
 		return parseBranchStatement();
 	case tok_l_brace:
 		return parseStatementBlock();
@@ -307,9 +308,6 @@ Parser::parseStatementBlock()
 uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
-	if (!match(kw_if))
-		return nullptr;
-	
 	if (!match(tok_l_paren))
 		return unexpectedTokenError(tok_l_paren);
 
