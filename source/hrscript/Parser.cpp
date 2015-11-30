@@ -69,7 +69,7 @@ Parser::parseDeclaration()
 /*
  * variableDecl ::= 'var' id id
  */
-uptr<ast::VariableDeclaration>
+uptr<ast::Variable>
 Parser::parseVariableDeclaration()
 {
 	// Read variable type
@@ -134,7 +134,7 @@ bool Parser::match(TokenType expected)
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-uptr<ast::FuncDeclaration>
+uptr<ast::FunctionProto>
 Parser::parseFunctionPrototype()
 {
 	// Return type
@@ -221,7 +221,7 @@ Parser::parseClassDeclaration()
 		return new ClassDeclaration(name);
 
 	// Class members
-	std::vector<VariableDeclaration*> members;
+	std::vector<Variable*> members;
 	while (getNextToken().getType() == kw_var) {
 		auto var = parseVariableDeclaration();
 		if (var == 0)

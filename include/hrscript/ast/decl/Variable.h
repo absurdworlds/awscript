@@ -6,22 +6,22 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_VariableDeclaration_
-#define _hrscript_AST_VariableDeclaration_
+#ifndef hrscript_AST_decl_Variable_
+#define hrscript_AST_decl_Variable_
 #include <memory>
 #include <string>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/Expression.h>
 namespace hrscript {
 namespace ast {
-class VariableDeclaration : public Declaration {
+class Variable : public Declaration {
 public:
-	VariableDeclaration(std::string id)
+	Variable(std::string id)
 		: name(id), writeAccessible(true)
 	{
 	}
 
-	virtual ~VariableDeclaration() = default;
+	virtual ~Variable() = default;
 
 	virtual void accept(ast::Visitor& visitor)
 	{
@@ -59,4 +59,4 @@ private:
 };
 } // namespace ast
 } // namespace hrscript
-#endif//_hrscript_AST_VariableDeclaration_
+#endif//hrscript_AST_decl_Variable_

@@ -13,15 +13,15 @@
 #include <hrscript/ast/decl/Variable.h>
 namespace hrscript {
 namespace ast {
-class FuncDeclaration : public Declaration {
+class FunctionProto : public Declaration {
 public:
-	FuncDeclaration(std::string id, std::string returnType,
-	                std::vector<std::unique_ptr<VariableDeclaration>> args)
+	FunctionProto(std::string id, std::string returnType,
+	                std::vector<std::unique_ptr<Variable>> args)
 		: name(id), returnType(returnType), args(std::move(args))
 	{
 	}
 
-	virtual ~FuncDeclaration() = default;
+	virtual ~FunctionProto() = default;
 
 	virtual std::string getName() const
 	{
@@ -33,7 +33,7 @@ public:
 		return returnType;
 	}
 
-	std::vector<uptr<VariableDeclaration>>& getArguments()
+	std::vector<uptr<Variable>>& getArguments()
 	{
 		return args;
 	}
@@ -43,23 +43,32 @@ public:
 		visitor.visit(*this);
 	}
 private:
+	FunctionProto(std::string id,
+	         std::string returnType,
+	         ArgList args)
+		: Declaration(Declaration::FunctionProto),
+		  name(id),
+		  returnType(returnType)
+	{
+	}
+
 	std::string name;
 	std::string returnType;
-	std::vector<std::unique_ptr<VariableDeclaration>> args;
+	ArgList args;
 };
 
-class FuncDefinition : public Declaration {
+class Function : public Declaration {
 public:
-	FuncDefinition(uptr<FuncDeclaration> proto, uptr<StatementBlock> body)
+	Function(uptr<FunctionProto> proto, uptr<StatementBlock> body)
 		: prototype(std::move(proto)), body(std::move(body))
 	{
 	}
 
-	virtual ~FuncDefinition() = default;
+	virtual ~Function() = default;
 
-	FuncDeclaration& getPrototype()
+	FunctionProto& getPrototype()
 	{
-		return *prototype;
+		return *proto;
 	}
 
 	StatementBlock& getBody()
@@ -72,9 +81,9 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	uptr<FuncDeclaration> prototype;
+	uptr<FunctionProto> prototype;
 	uptr<StatementBlock> body;
 };
 } // namespace ast
 } // namespace hrscript
-#endif//_hrscript_AST_FuncDeclaration_
+#endif//_hrscript_AST_FunctionProto_

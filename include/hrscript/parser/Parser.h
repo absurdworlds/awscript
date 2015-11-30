@@ -17,8 +17,8 @@ namespace hrscript {
 namespace ast {
 class Statement;
 class StatementBlock;
-class FuncDeclaration;
-class VariableDeclaration;
+class FunctionProto;
+class Variable;
 class Expression;
 }
 
@@ -58,9 +58,9 @@ private:
 
 	uptr<ast::Declaration> parseClassDeclaration();
 	uptr<ast::Declaration> parsePrototypeDeclaration();
-	uptr<ast::FuncDeclaration> parseFunctionPrototype();
+	uptr<ast::FunctionProto> parseFunctionPrototype();
 	uptr<ast::Declaration> parseFunctionDefinition();
-	uptr<ast::VariableDeclaration> parseVariableDeclaration();
+	uptr<ast::Variable> parseVariableDeclaration();
 	uptr<ast::Declaration> parseConstantDeclaration();
 
 	uptr<ast::StatementBlock> parseStatementBlock();

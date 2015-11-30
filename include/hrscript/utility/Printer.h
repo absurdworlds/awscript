@@ -17,9 +17,9 @@ public:
 	Printer(awrts::io::WriteStream& out);
 	virtual ~Printer() = default;
 
-	virtual void visit(ast::FuncDeclaration& node);
-	virtual void visit(ast::FuncDefinition& node);
-	virtual void visit(ast::VariableDeclaration& node);
+	virtual void visit(ast::FunctionProto& node);
+	virtual void visit(ast::Function& node);
+	virtual void visit(ast::Variable& node);
 	virtual void visit(ast::StatementBlock& node);
 	virtual void visit(ast::IfElseStatement& node);
 	virtual void visit(ast::NumberExpr& node);
@@ -30,7 +30,7 @@ public:
 	virtual void visit(ast::BinaryExpr& node);
 
 private:
-	void printSignature(ast::FuncDeclaration& node);
+	void printSignature(ast::FunctionProto& node);
 
 	std::unique_ptr<awrts::hdf::Writer> writer;
 };

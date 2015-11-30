@@ -29,7 +29,7 @@ Printer::Printer(awrts::io::WriteStream& out)
 {
 }
 
-void Printer::printSignature(ast::FuncDeclaration& node)
+void Printer::printSignature(ast::FunctionProto& node)
 {
 	writer->writeValue("name", node.getName());
 	writer->writeValue("return", node.getReturnType());
@@ -43,14 +43,14 @@ void Printer::printSignature(ast::FuncDeclaration& node)
 	writer->endNode();
 }
 
-void Printer::visit(ast::FuncDeclaration& node)
+void Printer::visit(ast::FunctionProto& node)
 {
 	writer->startNode("func");
 	printSignature(node);
 	writer->endNode();
 }
 
-void Printer::visit(ast::FuncDefinition& node)
+void Printer::visit(ast::Function& node)
 {
 	writer->startNode("func");
 	printSignature(node.getPrototype());
@@ -61,7 +61,7 @@ void Printer::visit(ast::FuncDefinition& node)
 	writer->endNode();
 }
 
-void Printer::visit(ast::VariableDeclaration& node)
+void Printer::visit(ast::Variable& node)
 {
 	writer->startNode("var");
 	writer->writeValue("name", node.getName());

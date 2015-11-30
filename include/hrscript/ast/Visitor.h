@@ -11,9 +11,9 @@
 namespace hrscript {
 namespace ast {
 class Node;
-class FuncDeclaration;
-class FuncDefinition;
-class VariableDeclaration;
+class FunctionProto;
+class Function;
+class Variable;
 class StatementBlock;
 class IfElseStatement;
 class NumberExpr;
@@ -27,17 +27,17 @@ class Visitor {
 public:
 	virtual ~Visitor() = default;
 
-	virtual void visit(ast::FuncDeclaration& node) = 0;
-	virtual void visit(ast::FuncDefinition& node) = 0;
-	virtual void visit(ast::VariableDeclaration& node) = 0;
-	virtual void visit(ast::StatementBlock& node) = 0;
-	virtual void visit(ast::IfElseStatement& node) = 0;
-	virtual void visit(ast::NumberExpr& node) = 0;
-	virtual void visit(ast::StringExpr& node) = 0;
-	virtual void visit(ast::IdentifierExpr& node) = 0;
-	virtual void visit(ast::CallExpr& node) = 0;
-	virtual void visit(ast::UnaryExpr& node) = 0;
-	virtual void visit(ast::BinaryExpr& node) = 0;
+	virtual void visit(ast::FunctionProto& node) {};
+	virtual void visit(ast::Function& node) {};
+	virtual void visit(ast::Variable& node) {};
+	virtual void visit(ast::StatementBlock& node) {};
+	virtual void visit(ast::IfElseStatement& node) {};
+	virtual void visit(ast::NumberExpr& node) {};
+	virtual void visit(ast::StringExpr& node) {};
+	virtual void visit(ast::IdentifierExpr& node) {};
+	virtual void visit(ast::CallExpr& node) {};
+	virtual void visit(ast::UnaryExpr& node) {};
+	virtual void visit(ast::BinaryExpr& node) {};
 };
 
 } // namespace ast
