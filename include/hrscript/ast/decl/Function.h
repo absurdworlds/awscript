@@ -13,12 +13,19 @@
 #include <hrscript/ast/decl/Variable.h>
 namespace hrscript {
 namespace ast {
+typedef std::vector<std::unique_ptr<Variable>> ArgList;
+
+// TODO: merge with Function
 class FunctionProto : public Declaration {
 public:
-	FunctionProto(std::string id, std::string returnType,
-	                std::vector<std::unique_ptr<Variable>> args)
-		: name(id), returnType(returnType), args(std::move(args))
+	static uptr<FunctionProto>
+	create(std::string id,
+	       std::string returnType,
+	       ArgList args)
 	{
+		uptr<FunctionProto> tmp(
+		        new FunctionProto(id, returnType, std::move(args)));
+		return std::move(tmp);
 	}
 
 	virtual ~FunctionProto() = default;
@@ -33,7 +40,7 @@ public:
 		return returnType;
 	}
 
-	std::vector<uptr<Variable>>& getArguments()
+	ArgList& getArguments()
 	{
 		return args;
 	}
@@ -59,14 +66,18 @@ private:
 
 class Function : public Declaration {
 public:
-	Function(uptr<FunctionProto> proto, uptr<StatementBlock> body)
-		: prototype(std::move(proto)), body(std::move(body))
+	static uptr<Function>
+	create(uptr<ast::FunctionProto> proto,
+	       uptr<StatementBlock> body)
 	{
+		uptr<Function> tmp(new Function(
+		         std::move(proto), std::move(body)));
+		return std::move(tmp);
 	}
 
 	virtual ~Function() = default;
 
-	FunctionProto& getPrototype()
+	ast::FunctionProto& getPrototype() const
 	{
 		return *proto;
 	}
@@ -81,7 +92,15 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	uptr<FunctionProto> prototype;
+	Function(uptr<ast::FunctionProto> proto,
+		 uptr<StatementBlock> body)
+		: Declaration(Declaration::Function),
+		  proto(std::move(proto)),
+		  body(std::move(body))
+	{
+	}
+
+	uptr<ast::FunctionProto> proto;
 	uptr<StatementBlock> body;
 };
 } // namespace ast

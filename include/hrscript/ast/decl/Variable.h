@@ -16,9 +16,11 @@ namespace hrscript {
 namespace ast {
 class Variable : public Declaration {
 public:
-	Variable(std::string id)
-		: name(id), writeAccessible(true)
+	static uptr<Variable>
+	create(std::string id)
 	{
+		uptr<Variable> tmp(new Variable(id));
+		return std::move(tmp);
 	}
 
 	virtual ~Variable() = default;
@@ -53,6 +55,12 @@ public:
 		return name;
 	}
 private:
+	Variable(std::string id)
+		: Declaration(Declaration::Variable),
+		  name(id), writeAccessible(true)
+	{
+	}
+
 	std::string name;
 	std::unique_ptr<Expression> val;
 	bool writeAccessible;

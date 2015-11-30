@@ -22,6 +22,29 @@ public:
 
 	//! Implements Visitor Pattern
 	virtual void accept(ast::Visitor& visitor) = 0;
+
+
+	//! List of concrete derived types
+	enum Kind {
+		FunctionProto,
+		Function,
+		Variable,
+		Class,
+	};
+
+	Kind getKind() const
+	{
+		return kind;
+	}
+
+protected:
+	Declaration(Kind k)
+		: kind(k)
+	{
+	}
+
+private:
+	Kind kind;
 };
 
 } // namespace ast

@@ -85,7 +85,7 @@ Parser::parseVariableDeclaration()
 
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
-	return std::make_unique<ast::VariableDeclaration>(name);
+	return ast::Variable::create(name);
 }
 
 /*
@@ -155,7 +155,7 @@ Parser::parseFunctionPrototype()
 		return nullptr;
 
 	// Argument list
-	std::vector<uptr<ast::VariableDeclaration>> args;
+	std::vector<uptr<ast::Variable>> args;
 	while (match(kw_var)) {
 		auto arg = parseVariableDeclaration();
 		if (!arg)
@@ -175,7 +175,7 @@ Parser::parseFunctionPrototype()
 	if (!match(tok_r_paren))
 		return nullptr;
 
-	return std::make_unique<ast::FuncDeclaration>(name, ret, std::move(args));
+	return ast::FunctionProto::create(name, ret, std::move(args));
 }
 
 /*
@@ -192,11 +192,11 @@ Parser::parseFunctionDefinition()
 		return nullptr;
 
 	if (token.getType() == tok_semicolon)
-		return proto;
+		return std::move(proto);
 
 	auto body = parseStatementBlock();
 
-	return std::make_unique<ast::FuncDefinition>(
+	return ast::Function::create(
 	        std::move(proto), std::move(body));
 }
 
