@@ -9,8 +9,8 @@
 #include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
 namespace hrscript {
-Lexer::Lexer(io::InputStream& stream)
-	: stream(stream)
+Lexer::Lexer(SourceBuffer* inputBuffer)
+	: buf(inputBuffer)
 {
 	// Setup keywords
 	kwmap
@@ -29,6 +29,8 @@ Lexer::Lexer(io::InputStream& stream)
 	.add("string", kw_string)
 	.add("import", kw_import)
 	.add("import", kw_export);
+
+	cur = buf.begin();
 
 	// Extract first token
 	getNextToken();
@@ -54,16 +56,12 @@ Token Lexer::getNextToken()
 
 bool Lexer::lexIdentifier(Token& token)
 {
-	char c;
-	std::string id;
-
-	stream.get(c);
-	while (isalnum(c) || c == '_') {
-		id += c;
-		stream.next(c);
+	char const* start = cur;
+	while (isalnum(*cur) || *cur == '_') {
+		++ cur;
 	}
 
-	token.setData(id);
+	std::string id(start, cur);
 
 	// Check if token is a reserved keyword
 	auto kind = kwmap.get(token.getData());
@@ -72,29 +70,28 @@ bool Lexer::lexIdentifier(Token& token)
 		kind = tok_identifier;
 
 	token.setType(kind);
+	token.setData(id);
 	
 	return true;
 }
 
 bool Lexer::lexNumericConstant(Token& token)
 {
-	std::string num;
-	char c;
-	char prev;
-	stream.get(c);
+	char const* start = cur;
 
-	while (isalnum(c) || c == '.') {
-		num += c;
-		prev = c;
-		stream.next(c);
+	// TODO: "non-greedy" algorithm
+	while (isalnum(*cur) || *cur == '.') {
+		++cur;
 	}
 
-	if ((c == '-' || c == '+') && (prev == 'e' || prev == 'E')) {
+	char const* prev = cur - 1;
+	if ((*cur == '-' || *cur == '+') && (*prev == 'e' || *prev == 'E')) {
 		do {
-			num += c;
-			stream.next(c);
+			++cur;
 		} while (isalnum(c) || c == '.');
 	}
+
+	std::string num(start, cur);
 
 	token.setData(num);
 	token.setType(tok_numeric_constant);
@@ -105,18 +102,16 @@ bool Lexer::lexNumericConstant(Token& token)
 bool Lexer::lexStringLiteral(Token& token)
 {
 	std::string str;
-	char c;
-	stream.get(c);
 
-	while (c != '"') {
-		if (c == '\\') {
-			stream.next(c);
+	while (*cur != '"') {
+		if (*cur == '\\') {
+			++cur;
 		}
-		str += c;
-		stream.next(c);
+		str += *cur;
+		++cur;
 	}
 
-	stream.next(c); // consume '"'
+	++cur; // consume '"'
 
 	token.setData(str);
 	token.setType(tok_string_literal);
@@ -126,13 +121,13 @@ bool Lexer::lexStringLiteral(Token& token)
 
 bool Lexer::lexIllegalToken(Token& token)
 {
-	std::string str;
-	char c;
-
-	while (!isspace(c)) {
-		str += c;
-		stream.next(c);
+	char const* begin = cur;
+	// TODO: search until token-beginnning character
+	while (!isspace(*cur)) {
+		++cur;
 	}
+
+	std::string str(begin, cur);
 
 	token.setData(str);
 	token.setType(tok_illegal);
@@ -142,26 +137,23 @@ bool Lexer::lexIllegalToken(Token& token)
 
 void Lexer::skipLineComment()
 {
-	char c;
 	// crude comment handling
 	do {
-		stream.next(c);
-	} while (c != '\n');
+		++cur;
+	} while (*cur != '\n');
 }
 
 void Lexer::skipBlockComment()
 {
-	while (true) {
-		char c;
-		char prev;
-		stream.next(c);
+	while (*cur != 0) {
 		// TODO: Inefficient! Check multiple chars at once
-		while (c != '/' && c != 0) {
-			prev = c;
-			stream.next(c);
+		while (*cur != '/' && *cur != 0) {
+			++cur;
 		}
-		if (prev == '*' || c == 0) {
-			stream.next(c);
+
+		char const* prev = cur - 1;
+		if (prev == '*') {
+			++cur;
 			break;
 		}
 	}
@@ -181,14 +173,9 @@ void Lexer::handleComment()
 
 void Lexer::handleComment()
 {
-	char c;
-
-checkForComment:
-	stream.peek(c);
-
-	if (c == '*') {
+	if (p == '*') {
 		skipBlockComment();
-	} else if (c == '/') {
+	} else if (p == '/') {
 		skipLineComment();
 	} else {
 		// Not a comment - we're done.
@@ -201,8 +188,12 @@ checkForComment:
 	while(isspace(c))
 		stream.next(c);
 
-	// Manually optimise tail call
-	goto checkForComment;
+	handleComment();
+}
+
+char Lexer::peek()
+{
+	return *(cur + 1);
 }
 
 /*!
@@ -211,15 +202,13 @@ checkForComment:
  */
 bool Lexer::lexNextToken(Token& tok)
 {
-	char c;
+	char const* tok_start = cur;
 
 lexNextToken:
-	stream.get(c);
+	while (isspace(*cur))
+		++cur;
 
-	while(isspace(c))
-		stream.next(c);
-
-	switch (c) {
+	switch (*cur) {
 	case 0:
 		tok.setType(tok_eof);
 		return true;
@@ -229,7 +218,7 @@ lexNextToken:
 		return lexNumericConstant(tok);
 	/* String literal */
 	case '"':
-		stream.next(c); // consume '"'
+		++ cur; // consume '"'
 		return lexStringLiteral(tok);
 	/* Identifier */
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
@@ -280,38 +269,34 @@ lexNextToken:
 		tok.setType(tok_r_paren);
 		break;
 	case '&':
-		stream.peek(c);
-		if (c == '&') {
+		if (peek() == '&') {
 			tok.setType(tok_amp_amp);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_amp);	
 		}
 		// TODO: does daedalus have '&=' operator?
 		break;
 	case '|':
-		stream.peek(c);
-		if (c == '|') {
+		if (peek() == '|') {
 			tok.setType(tok_pipe_pipe);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_pipe);
 		}
 		// TODO: does daedalus have '|= operator?
 	case '!':
-		stream.peek(c);
-		if (c == '=') {
+		if (peek() == '=') {
 			tok.setType(tok_bang_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_bang);
 		}
 		break;
 	case '*':
-		stream.peek(c);
-		if (c == '=') {
+		if (peek() == '=') {
 			tok.setType(tok_ast_equal);
-			stream.next(c);
+			++ cur;
 		} else {
 			tok.setType(tok_ast);
 		}
@@ -325,72 +310,69 @@ lexNextToken:
 		// If we have something different, restart lexer.
 		// TODO: I could've just restarted the lexer regardless,
 		// is this optimization necessary?
-		stream.get(c);
-		if (c != '/')
+		if (*cur != '/')
 			// We didn't lex anything, restart the lexer.
 			goto lexNextToken;
 
-		stream.peek(c);
-		if (c == '=') {
+		if (peek() == '=') {
 			tok.setType(tok_slash_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_slash);
 		}
 		break;
 	case '=':
-		stream.peek(c);
-		if (c == '=') {
+		if (peek() == '=') {
 			tok.setType(tok_equal_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_equal);
 		}
 		break;
 	case '+':
-		stream.peek(c);
-		if (c == '+') {
+		char p = peek();
+		if (p == '+') {
 			tok.setType(tok_plus_plus);
-			stream.next(c);
-		} else if (c == '=') {
+			++cur;
+		} else if (p == '=') {
 			tok.setType(tok_plus_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_plus);
 		}
 		break;
 	case '-':
-		stream.peek(c);
-		if (c == '-') {
+		char p = peek();
+		if (p == '-') {
 			tok.setType(tok_minus_minus);
-			stream.next(c);
-		} else if (c == '=') {
+			++cur;
+		} else if (p == '=') {
 			tok.setType(tok_minus_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_minus);
 		}
 		break;
 	case '<':
-		stream.peek(c);
-		if (c == '<') {
+		char p = peek();
+		if (p == '<') {
 			tok.setType(tok_less_less);
-			stream.next(c);
-		} else if (c == '=') {
+			++cur;
+		} else if (p == '=') {
 			tok.setType(tok_less_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_less);
 		}
 		break;
 	case '>':
-		stream.peek(c);
+		char p = peek();
 		if (c == '>') {
 			tok.setType(tok_greater_greater);
-			stream.next(c);
+			++cur;
 		} else if (c == '=') {
 			tok.setType(tok_less_equal);
-			stream.next(c);
+			++cur;
 		} else {
 			tok.setType(tok_less);
 		}
@@ -401,7 +383,10 @@ lexNextToken:
 		return lexIllegalToken(tok);
 	}
 
-	stream.next(c);
+	std::string val = (tok_start, cur);
+	tok.setData(val);
+
+	++cur;
 	return true;
 }
 } // namespace hrscript

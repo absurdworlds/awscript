@@ -8,13 +8,13 @@
  */
 #ifndef _hrscript_lexer_
 #define _hrscript_lexer_
-#include <aw/io/InputStream.h>
+#include <hrscript/lexer/SourceBuffer.h>
 #include <hrscript/lexer/Token.h>
 #include <hrscript/lexer/KeywordMap.h>
 namespace hrscript {
 class Lexer {
 public:
-	Lexer(io::InputStream& stream);
+	Lexer(SourceBuffer* inputBuffer)
 
 	void init();
 	Token getCurrentToken();
@@ -31,8 +31,9 @@ private:
 	void handleComment();
 
 	Token curToken;
-	OctetStream& stream;
 	KeywordMap kwmap;
+	SourceBuffer* buf;
+	char const* cur;
 };
 } // namespace hrscript
 #endif//_hrscript_lexer_
