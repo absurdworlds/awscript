@@ -9,7 +9,7 @@
 #include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
 namespace hrscript {
-Lexer::Lexer(OctetStream& stream)
+Lexer::Lexer(io::InputStream& stream)
 	: stream(stream)
 {
 	// Setup keywords
@@ -57,10 +57,10 @@ bool Lexer::lexIdentifier(Token& token)
 	char c;
 	std::string id;
 
-	stream.getCurrent(c);
+	stream.get(c);
 	while (isalnum(c) || c == '_') {
 		id += c;
-		stream.getNext(c);
+		stream.next(c);
 	}
 
 	token.setData(id);
@@ -81,18 +81,18 @@ bool Lexer::lexNumericConstant(Token& token)
 	std::string num;
 	char c;
 	char prev;
-	stream.getCurrent(c);
+	stream.get(c);
 
 	while (isalnum(c) || c == '.') {
 		num += c;
 		prev = c;
-		stream.getNext(c);
+		stream.next(c);
 	}
 
 	if ((c == '-' || c == '+') && (prev == 'e' || prev == 'E')) {
 		do {
 			num += c;
-			stream.getNext(c);
+			stream.next(c);
 		} while (isalnum(c) || c == '.');
 	}
 
@@ -106,17 +106,17 @@ bool Lexer::lexStringLiteral(Token& token)
 {
 	std::string str;
 	char c;
-	stream.getCurrent(c);
+	stream.get(c);
 
 	while (c != '"') {
 		if (c == '\\') {
-			stream.getNext(c);
+			stream.next(c);
 		}
 		str += c;
-		stream.getNext(c);
+		stream.next(c);
 	}
 
-	stream.getNext(c); // consume '"'
+	stream.next(c); // consume '"'
 
 	token.setData(str);
 	token.setType(tok_string_literal);
@@ -131,7 +131,7 @@ bool Lexer::lexIllegalToken(Token& token)
 
 	while (!isspace(c)) {
 		str += c;
-		stream.getNext(c);
+		stream.next(c);
 	}
 
 	token.setData(str);
@@ -145,7 +145,7 @@ void Lexer::skipLineComment()
 	char c;
 	// crude comment handling
 	do {
-		stream.getNext(c);
+		stream.next(c);
 	} while (c != '\n');
 }
 
@@ -154,14 +154,14 @@ void Lexer::skipBlockComment()
 	while (true) {
 		char c;
 		char prev;
-		stream.getNext(c);
+		stream.next(c);
 		// TODO: Inefficient! Check multiple chars at once
 		while (c != '/' && c != 0) {
 			prev = c;
-			stream.getNext(c);
+			stream.next(c);
 		}
 		if (prev == '*' || c == 0) {
-			stream.getNext(c);
+			stream.next(c);
 			break;
 		}
 	}
@@ -197,9 +197,9 @@ checkForComment:
 	
 	// Instead of going through everything again, we do everything here.
 	// Skip whitespace and check for more comments
-	stream.getCurrent(c);
+	stream.get(c);
 	while(isspace(c))
-		stream.getNext(c);
+		stream.next(c);
 
 	// Manually optimise tail call
 	goto checkForComment;
@@ -214,10 +214,10 @@ bool Lexer::lexNextToken(Token& tok)
 	char c;
 
 lexNextToken:
-	stream.getCurrent(c);
+	stream.get(c);
 
 	while(isspace(c))
-		stream.getNext(c);
+		stream.next(c);
 
 	switch (c) {
 	case 0:
@@ -229,7 +229,7 @@ lexNextToken:
 		return lexNumericConstant(tok);
 	/* String literal */
 	case '"':
-		stream.getNext(c); // consume '"'
+		stream.next(c); // consume '"'
 		return lexStringLiteral(tok);
 	/* Identifier */
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
@@ -283,7 +283,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '&') {
 			tok.setType(tok_amp_amp);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_amp);	
 		}
@@ -293,7 +293,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '|') {
 			tok.setType(tok_pipe_pipe);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_pipe);
 		}
@@ -302,7 +302,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_bang_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_bang);
 		}
@@ -311,7 +311,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_ast_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_ast);
 		}
@@ -325,7 +325,7 @@ lexNextToken:
 		// If we have something different, restart lexer.
 		// TODO: I could've just restarted the lexer regardless,
 		// is this optimization necessary?
-		stream.getCurrent(c);
+		stream.get(c);
 		if (c != '/')
 			// We didn't lex anything, restart the lexer.
 			goto lexNextToken;
@@ -333,7 +333,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_slash_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_slash);
 		}
@@ -342,7 +342,7 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '=') {
 			tok.setType(tok_equal_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_equal);
 		}
@@ -351,10 +351,10 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '+') {
 			tok.setType(tok_plus_plus);
-			stream.getNext(c);
+			stream.next(c);
 		} else if (c == '=') {
 			tok.setType(tok_plus_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_plus);
 		}
@@ -363,10 +363,10 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '-') {
 			tok.setType(tok_minus_minus);
-			stream.getNext(c);
+			stream.next(c);
 		} else if (c == '=') {
 			tok.setType(tok_minus_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_minus);
 		}
@@ -375,10 +375,10 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '<') {
 			tok.setType(tok_less_less);
-			stream.getNext(c);
+			stream.next(c);
 		} else if (c == '=') {
 			tok.setType(tok_less_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_less);
 		}
@@ -387,10 +387,10 @@ lexNextToken:
 		stream.peek(c);
 		if (c == '>') {
 			tok.setType(tok_greater_greater);
-			stream.getNext(c);
+			stream.next(c);
 		} else if (c == '=') {
 			tok.setType(tok_less_equal);
-			stream.getNext(c);
+			stream.next(c);
 		} else {
 			tok.setType(tok_less);
 		}
@@ -401,7 +401,7 @@ lexNextToken:
 		return lexIllegalToken(tok);
 	}
 
-	stream.getNext(c);
+	stream.next(c);
 	return true;
 }
 } // namespace hrscript

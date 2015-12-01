@@ -7,7 +7,7 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <cstdio>
-#include <hrscript/lexer/FileStream.h>
+#include <aw/io/InputFileStream.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/utility/PrintToken.h>
 
@@ -34,11 +34,12 @@ void printTokenInfo(Token& token)
 
 int main(int argc, char** arg)
 {
-	using namespace hrscript;
+	using namespace aw::io;
+	using namespace aw::script;
 	if (argc < 2)
 		return 2;
 
-	FileStream fstream(arg[1]);
+	InputFileStream fstream(arg[1]);
 	Lexer lexer(fstream);
 
 	Token token = lexer.getCurrentToken();
