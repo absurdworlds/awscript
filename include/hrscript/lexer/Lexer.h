@@ -14,13 +14,15 @@
 namespace hrscript {
 class Lexer {
 public:
-	Lexer(SourceBuffer* inputBuffer)
+	Lexer(SourceBuffer* inputBuffer);
 
 	void init();
 	Token getCurrentToken();
 	Token getNextToken();
 
 private:
+	char peek();
+
 	bool lexIllegalToken(Token& token);
 	bool lexIdentifier(Token& token);
 	bool lexStringLiteral(Token& token);

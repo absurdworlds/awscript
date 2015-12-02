@@ -30,7 +30,7 @@ Lexer::Lexer(SourceBuffer* inputBuffer)
 	.add("import", kw_import)
 	.add("import", kw_export);
 
-	cur = buf.begin();
+	cur = buf->begin();
 
 	// Extract first token
 	getNextToken();
@@ -88,7 +88,7 @@ bool Lexer::lexNumericConstant(Token& token)
 	if ((*cur == '-' || *cur == '+') && (*prev == 'e' || *prev == 'E')) {
 		do {
 			++cur;
-		} while (isalnum(c) || c == '.');
+		} while (isalnum(*cur) || *cur == '.');
 	}
 
 	std::string num(start, cur);
@@ -152,7 +152,7 @@ void Lexer::skipBlockComment()
 		}
 
 		char const* prev = cur - 1;
-		if (prev == '*') {
+		if (*prev == '*') {
 			++cur;
 			break;
 		}
@@ -173,6 +173,7 @@ void Lexer::handleComment()
 
 void Lexer::handleComment()
 {
+	char p = peek();
 	if (p == '*') {
 		skipBlockComment();
 	} else if (p == '/') {
@@ -184,9 +185,9 @@ void Lexer::handleComment()
 	
 	// Instead of going through everything again, we do everything here.
 	// Skip whitespace and check for more comments
-	stream.get(c);
-	while(isspace(c))
-		stream.next(c);
+	++cur;
+	while(isspace(*cur))
+		++cur;
 
 	handleComment();
 }
