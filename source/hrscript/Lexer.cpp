@@ -331,11 +331,10 @@ lexNextToken:
 		}
 		break;
 	case '+':
-		char p = peek();
-		if (p == '+') {
+		if (peek() == '+') {
 			tok.setType(tok_plus_plus);
 			++cur;
-		} else if (p == '=') {
+		} else if (peek() == '=') {
 			tok.setType(tok_plus_equal);
 			++cur;
 		} else {
@@ -343,11 +342,10 @@ lexNextToken:
 		}
 		break;
 	case '-':
-		char p = peek();
-		if (p == '-') {
+		if (peek() == '-') {
 			tok.setType(tok_minus_minus);
 			++cur;
-		} else if (p == '=') {
+		} else if (peek() == '=') {
 			tok.setType(tok_minus_equal);
 			++cur;
 		} else {
@@ -355,11 +353,10 @@ lexNextToken:
 		}
 		break;
 	case '<':
-		char p = peek();
-		if (p == '<') {
+		if (peek() == '<') {
 			tok.setType(tok_less_less);
 			++cur;
-		} else if (p == '=') {
+		} else if (peek() == '=') {
 			tok.setType(tok_less_equal);
 			++cur;
 		} else {
@@ -367,11 +364,10 @@ lexNextToken:
 		}
 		break;
 	case '>':
-		char p = peek();
-		if (c == '>') {
+		if (peek() == '>') {
 			tok.setType(tok_greater_greater);
 			++cur;
-		} else if (c == '=') {
+		} else if (peek() == '=') {
 			tok.setType(tok_less_equal);
 			++cur;
 		} else {
