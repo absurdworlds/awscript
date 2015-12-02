@@ -10,7 +10,8 @@
 #define _hrscript_OperatorPrecedence_
 #include <hrscript/lexer/Token.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace prec {
 enum Level {
 	None           = -1,
@@ -83,5 +84,6 @@ bool isOperator(Token tok)
 	return isBinaryOperator(tok);
 }
 
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif //_hrscript_OperatorPrecedence_

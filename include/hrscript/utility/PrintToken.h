@@ -10,7 +10,8 @@
 #define hrscript_print_token_h
 #include <string>
 #include <hrscript/lexer/Token.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 /*!
  * Print token name (as in source code)
  */
@@ -65,4 +66,5 @@ std::string spellToken(TokenType kind)
 #undef TOKEN1
 #undef KEYWORD1
 } // namespace hrscript
+} // namespace aw
 #endif//hrscript_print_token_h

@@ -8,12 +8,13 @@
  */
 #ifndef _hrscript_parser_
 #define _hrscript_parser_
-#include <hrscript/common/types.h>
+#include <aw/common/types.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/parser/Operators.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 class Statement;
 class StatementBlock;
@@ -95,4 +96,5 @@ private:
 };
 
 } // namespace hrscript
+} // namespace aw
 #endif //_hrscript_parser_

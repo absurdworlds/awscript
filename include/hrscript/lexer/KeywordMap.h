@@ -12,8 +12,8 @@
 #include <string>
 #include <hrscript/lexer/Token.h>
 
-namespace hrscript {
-
+namespace aw {
+namespace script {
 class KeywordMap {
 public:
 	/*!
@@ -34,4 +34,5 @@ private:
 	std::map<std::string, TokenType> theMap;
 };
 } // namespace hrscript
+} // namespace aw
 #endif//hrscript_KeywordMap_

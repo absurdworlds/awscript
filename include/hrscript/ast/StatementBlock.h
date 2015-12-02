@@ -12,7 +12,8 @@
 
 #include <hrscript/ast/Statement.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 
 class StatementBlock : public Statement {
@@ -37,5 +38,6 @@ private:
 	std::vector<std::unique_ptr<Statement>> statements;
 };
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_StatementBlock_

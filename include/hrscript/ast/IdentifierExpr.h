@@ -10,7 +10,8 @@
 #define _hrscript_AST_IdentifierExpr_
 #include <hrscript/ast/Expression.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 /*! Expression for identifier referencing */
 class IdentifierExpr : public Expression {
@@ -36,5 +37,6 @@ private:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_IdentifierExpr_

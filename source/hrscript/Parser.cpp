@@ -28,7 +28,8 @@
 #include <hrscript/diagnostic/DiagnosticsEngine.h>
 #include <hrscript/parser/Parser.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 uptr<ast::Declaration>
 ErrorDeclaration(std::string msg)
 {
@@ -506,3 +507,4 @@ std::nullptr_t Parser::unexpectedTokenError(TokenType expected)
 	return nullptr;
 }
 } // namespace hrscript
+} // namespace aw

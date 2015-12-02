@@ -8,7 +8,8 @@
  */
 #include <hrscript/common/types.h>
 #include <hrscript/lexer/Lexer.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 Lexer::Lexer(SourceBuffer* inputBuffer)
 	: buf(inputBuffer)
 {
@@ -386,4 +387,5 @@ lexNextToken:
 	++cur;
 	return true;
 }
-} // namespace hrscript
+} // namespace script
+} // namespace aw

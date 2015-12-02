@@ -11,7 +11,8 @@
 #include <hrscript/ast/StatementBlock.h>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/decl/Variable.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 typedef std::vector<std::unique_ptr<Variable>> ArgList;
 
@@ -104,5 +105,6 @@ private:
 	uptr<StatementBlock> body;
 };
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_FunctionProto_

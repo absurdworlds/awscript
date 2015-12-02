@@ -11,7 +11,8 @@
 #include <hrscript/lexer/SourceBuffer.h>
 #include <hrscript/lexer/Token.h>
 #include <hrscript/lexer/KeywordMap.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 class Lexer {
 public:
 	Lexer(SourceBuffer* inputBuffer);
@@ -37,5 +38,6 @@ private:
 	SourceBuffer* buf;
 	char const* cur;
 };
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_lexer_

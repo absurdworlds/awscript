@@ -12,7 +12,8 @@
 #include <string>
 #include <hrscript/ast/Declaration.h>
 #include <hrscript/ast/Expression.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 class Variable : public Declaration {
 public:
@@ -67,4 +68,5 @@ private:
 };
 } // namespace ast
 } // namespace hrscript
+} // namespace aw
 #endif//hrscript_AST_decl_Variable_

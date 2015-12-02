@@ -11,7 +11,8 @@
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/utility/PrintToken.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 void printTokenInfo(Token& token)
 {
 	std::string msg;
@@ -30,7 +31,8 @@ void printTokenInfo(Token& token)
 
 	printf("〈%s〉 ", msg.c_str());
 }
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 
 int main(int argc, char** arg)
 {

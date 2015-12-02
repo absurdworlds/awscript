@@ -9,7 +9,8 @@
 #ifndef _hrscript_token_
 #define _hrscript_token_
 #include <string>
-namespace hrscript {
+namespace aw {
+namespace script {
 enum TokenType {
 #define TOKEN(x) tok_ ## x,
 #define PUNCT(x, y) TOKEN(x)
@@ -72,4 +73,5 @@ inline bool operator == (Token tok, TokenType kind)
 	return tok.getType() == kind;
 }
 } // namespace hrscript
+} // namespace aw
 #endif//_hrscript_token_

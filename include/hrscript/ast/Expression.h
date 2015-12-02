@@ -10,7 +10,8 @@
 #define _hrscript_AST_Expression_
 #include <hrscript/ast/Statement.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 class Expression : public Statement {
 public:
@@ -20,5 +21,6 @@ public:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_Expression_

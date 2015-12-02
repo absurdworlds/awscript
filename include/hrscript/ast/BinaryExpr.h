@@ -10,7 +10,8 @@
 #define _hrscript_AST_BinaryExpr_
 #include <hrscript/ast/Expression.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 
 class BinaryExpr : public Expression {
@@ -48,5 +49,6 @@ private:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_BinaryExpr_

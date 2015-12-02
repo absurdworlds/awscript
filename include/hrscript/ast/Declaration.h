@@ -10,7 +10,8 @@
 #define _hrscript_AST_Declaration_
 #include <hrscript/ast/Node.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 /*!
  * Declaration class represents a declaration or definition,
@@ -48,5 +49,6 @@ private:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_Declaration_

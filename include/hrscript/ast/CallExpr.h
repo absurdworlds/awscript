@@ -12,7 +12,8 @@
 #include <string>
 #include <hrscript/ast/Expression.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 /*! AST node for a function call */
 class CallExpr : public Expression {
@@ -46,5 +47,6 @@ private:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_CallExpr_

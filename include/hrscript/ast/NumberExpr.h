@@ -10,7 +10,8 @@
 #define _hrscript_AST_NumberExpr_
 #include <hrscript/ast/Expression.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 /*! Expression for numeric literals */
 class NumberExpr : public Expression {
@@ -54,5 +55,6 @@ class IntNumberExpr : NumberExpr {
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_NumberExpr_

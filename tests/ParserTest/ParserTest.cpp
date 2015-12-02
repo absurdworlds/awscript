@@ -7,17 +7,19 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <iostream>
-#include <awengine/io/WriteStream.h>
+#include <aw/io/WriteStream.h>
 #include <hrscript/diagnostic/DiagnosticsEngine.h>
 #include <hrscript/lexer/FileStream.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/parser/Parser.h>
 #include <hrscript/utility/Printer.h>
 
-namespace hrscript {
-} // namespace hrscript
+namespace aw {
+namespace script {
+} // namespace script
+} // namespace aw
 
-class TestWriteStream : public awrts::io::WriteStream {
+class TestWriteStream : public aw::io::WriteStream {
 public:
 	virtual awrts::i32 put(char c)
 	{
@@ -39,7 +41,7 @@ public:
 
 int main(int argc, char** arg)
 {
-	using namespace hrscript;
+	using namespace aw::script;
 	if (argc < 2)
 		return 2;
 

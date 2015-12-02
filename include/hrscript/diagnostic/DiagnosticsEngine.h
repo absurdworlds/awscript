@@ -9,9 +9,10 @@
 #ifndef hrscript_diagnostic_engine_h
 #define hrscript_diagnostic_engine_h
 #include <iostream> //temporary
-#include <awengine/string/compose.h>
+#include <aw/string/compose.h>
 #include <hrscript/diagnostic/Diagnostic.h>
-namespace hrscript {
+namespace aw {
+namespace script {
 // TODO:
 // 1. Start building diagnostic
 // 2. Add details
@@ -27,10 +28,11 @@ public:
 
 	void report(Diagnostic diag)
 	{
-		auto msg = awrts::string::compose(
+		auto msg = aw::string::compose(
 		             getDiagMsg(diag.id), diag.args);
 		std::cerr << msg << "\n";
 	}
 };
 } // namespace hrscript
+} // namespace aw
 #endif//hrscript_diagnostic_engine_h

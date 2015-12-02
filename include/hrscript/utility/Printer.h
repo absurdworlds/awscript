@@ -8,13 +8,14 @@
  */
 #ifndef hrscript_printer_h
 #define hrscript_printer_h
-#include <awengine/hdf/Writer.h>
+#include <aw/hdf/Writer.h>
 #include <hrscript/ast/Visitor.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 class Printer : public ast::Visitor {
 public:
-	Printer(awrts::io::WriteStream& out);
+	Printer(aw::io::WriteStream& out);
 	virtual ~Printer() = default;
 
 	virtual void visit(ast::FunctionProto& node);
@@ -32,7 +33,8 @@ public:
 private:
 	void printSignature(ast::FunctionProto& node);
 
-	awrts::hdf::Writer writer;
+	aw::hdf::Writer writer;
 };
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//hrscript_printer_h

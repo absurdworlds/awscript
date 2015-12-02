@@ -8,7 +8,8 @@
  */
 #ifndef hrscript_diagnostic_h
 #define hrscript_diagnostic_h
-namespace hrscript {
+namespace aw {
+namespace script {
 //! temporary, until implemented
 struct Location {
 };
@@ -57,5 +58,6 @@ Diagnostic& operator << (Diagnostic& diag, std::string str)
 {
 	return diag.arg(str);
 }
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//hrscript_diagnostic_h

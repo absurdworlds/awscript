@@ -10,7 +10,8 @@
 #define _hrscript_AST_Statement_
 #include <hrscript/ast/Node.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 
 class Statement : public Node {
@@ -21,5 +22,6 @@ public:
 };
 
 } // namespace ast
-} // namespace deadalus
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_Statement_

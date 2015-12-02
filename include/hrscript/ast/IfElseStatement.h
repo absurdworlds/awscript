@@ -10,7 +10,8 @@
 #define _hrscript_AST_Conditional_
 #include <hrscript/ast/Statement.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 class Exression;
 
@@ -53,5 +54,6 @@ protected:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_Conditional_

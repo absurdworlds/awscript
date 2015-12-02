@@ -8,7 +8,8 @@
  */
 #ifndef _hrscript_AST_Visitor_
 #define _hrscript_AST_Visitor_
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 class Node;
 class FunctionProto;
@@ -41,5 +42,6 @@ public:
 };
 
 } // namespace ast
-} // namespace deadalus
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_Visitor_

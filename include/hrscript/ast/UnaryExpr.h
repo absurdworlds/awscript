@@ -10,7 +10,8 @@
 #define _hrscript_AST_UnaryExpr_
 #include <hrscript/ast/Expression.h>
 
-namespace hrscript {
+namespace aw {
+namespace script {
 namespace ast {
 
 class UnaryExpr : public Expression {
@@ -42,5 +43,6 @@ private:
 };
 
 } // namespace ast
-} // namespace hrscript
+} // namespace script
+} // namespace aw
 #endif//_hrscript_AST_UnaryExpr_

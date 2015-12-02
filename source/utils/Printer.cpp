@@ -22,8 +22,9 @@
 #include <hrscript/utility/Printer.h>
 #include <hrscript/utility/PrintToken.h>
 
-namespace hrscript {
-Printer::Printer(awrts::io::WriteStream& out)
+namespace aw {
+namespace script {
+Printer::Printer(aw::io::WriteStream& out)
 	: writer(out)
 {
 }
@@ -145,4 +146,5 @@ void Printer::visit(ast::BinaryExpr& node)
 	node.getRHS().accept(*this);
 	writer.endNode();
 }
-} // namespace hrscript
+} // namespace script
+} // namespace aw
