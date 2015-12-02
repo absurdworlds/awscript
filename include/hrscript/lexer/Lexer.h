@@ -16,11 +16,11 @@ class Lexer {
 public:
 	Lexer(SourceBuffer* inputBuffer);
 
-	void init();
 	Token getCurrentToken();
 	Token getNextToken();
 
 private:
+	void init();
 	char peek();
 
 	bool lexIllegalToken(Token& token);
