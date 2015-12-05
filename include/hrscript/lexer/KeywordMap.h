@@ -14,6 +14,9 @@
 
 namespace aw {
 namespace script {
+/*!
+ * Helper class for keyword lookup
+ */
 class KeywordMap {
 public:
 	/*!

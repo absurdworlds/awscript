@@ -13,7 +13,9 @@
 namespace aw {
 namespace script {
 namespace ast {
-
+/*!
+ * binary = unary op unary
+ */
 class BinaryExpr : public Expression {
 public:
 	BinaryExpr(int op,

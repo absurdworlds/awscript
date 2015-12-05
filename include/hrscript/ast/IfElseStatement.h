@@ -14,7 +14,10 @@ namespace aw {
 namespace script {
 namespace ast {
 class Exression;
-
+/*!
+ * ifStmt = 'if' '(' expr ')' block optElse
+ * optElse = ('else' block) | ϵ
+ */
 class IfElseStatement : public Statement {
 public:
 	IfElseStatement(uptr<Expression> ifExpr,
