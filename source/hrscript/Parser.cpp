@@ -52,6 +52,9 @@ Parser::parseDeclaration()
 	case kw_func:
 		decl = parseFunctionDefinition();
 		break;
+	case kw_prototype:
+		decl = parsePrototypeDeclaration();
+		break;
 	case kw_class:
 		decl = parseClassDeclaration();
 		break;
@@ -256,6 +259,40 @@ Parser::parseClassDeclaration()
 		return 0;
 
 	return new ClassDeclaration(name, members);
+#endif
+}
+
+/*
+ * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
+ */
+uptr<ast::Declaration>
+Parser::parsePrototypeDeclaration()
+{
+	return ErrorDeclaration("NYI");
+#if 0
+	// Prototype name
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string name = token.getData();
+
+	if (!getNextToken().getType() != tok_l_paren)
+		return 0;
+
+	if (!isIdentifier(getNextToken()))
+		return 0;
+
+	std::string base = token.getData();
+
+	if (!getNextToken().getType() != tok_r_paren)
+		return 0;
+	
+	if (!getNextToken().getType() != tok_l_brace)
+		return 0;
+
+	StatementBlock* body = parseStatementBlock();
+
+	return new PrototypeDeclaration(name, base, body);
 #endif
 }
 
