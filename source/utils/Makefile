@@ -1,5 +1,5 @@
 RootPath = ../..
-Sources = Printer.cpp
+Sources = printer.c++
 Libraries = hrscript hdf
 ProjectName = hrscript-utils
 Executable = false

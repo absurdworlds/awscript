@@ -1,5 +1,5 @@
 RootPath = ../..
-Sources = Codegen.cpp
+Sources = codegen.c++
 ProjectName = hrscript-llvm
 Executable = false
 
