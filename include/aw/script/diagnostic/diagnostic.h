@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef hrscript_diagnostic_h
-#define hrscript_diagnostic_h
+#ifndef aw_script_diagnostic_h
+#define aw_script_diagnostic_h
 namespace aw {
 namespace script {
 //! temporary, until implemented
@@ -23,7 +23,7 @@ class Diagnostic {
 public:
 	enum ID {
 #define DIAG(type, id, msg) id,
-#include <hrscript/diagnostic/Messages.h>
+#include <aw/script/diagnostic/messages.h>
 #undef DIAG
 	};
 
@@ -49,9 +49,10 @@ std::string getDiagMsg(Diagnostic::ID id)
 {
 	switch (id) {
 #define DIAG(type, id, msg) case Diagnostic::id: return msg;
-#include <hrscript/diagnostic/Messages.h>
+#include <aw/script/diagnostic/messages.h>
 #undef DIAG
 	}
+	return {};
 }
 
 Diagnostic& operator << (Diagnostic& diag, std::string str)
@@ -60,4 +61,4 @@ Diagnostic& operator << (Diagnostic& diag, std::string str)
 }
 } // namespace script
 } // namespace aw
-#endif//hrscript_diagnostic_h
+#endif//aw_script_diagnostic_h

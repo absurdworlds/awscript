@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef hrscript_diagnostic_engine_h
-#define hrscript_diagnostic_engine_h
+#ifndef aw_script_diagnostic_engine_h
+#define aw_script_diagnostic_engine_h
 #include <iostream> //temporary
 #include <aw/utility/string/compose.h>
-#include <hrscript/diagnostic/Diagnostic.h>
+#include <aw/script/diagnostic/diagnostic.h>
 namespace aw {
 namespace script {
 // TODO:
@@ -33,6 +33,6 @@ public:
 		std::cerr << msg << "\n";
 	}
 };
-} // namespace hrscript
+} // namespace script
 } // namespace aw
-#endif//hrscript_diagnostic_engine_h
+#endif//aw_script_diagnostic_engine_h

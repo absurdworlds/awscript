@@ -22,11 +22,11 @@ void printTokenInfo(Token& token)
 	                 token == tok_string_literal;
 
 	if(show_data) {
-		msg += getTokenName(token.getType());
+		msg += nameToken(token.getType());
 		msg += ", ";
 		msg += token.getData();
 	} else {
-		msg += getTokenName(token.getType());
+		msg += nameToken(token.getType());
 	}
 
 	printf("〈%s〉 ", msg.c_str());
@@ -41,7 +41,8 @@ int main(int argc, char** arg)
 	if (argc < 2)
 		return 2;
 
-	InputFileStream fstream(arg[1]);
+	ReadFile file(arg[1]);
+	InputFileStream fstream(file);
 	Lexer lexer(fstream);
 
 	Token token = lexer.getCurrentToken();

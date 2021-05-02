@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_Conditional_
-#define _hrscript_AST_Conditional_
-#include <hrscript/ast/Statement.h>
+#ifndef aw_script_AST_Conditional_
+#define aw_script_AST_Conditional_
+#include <aw/script/ast/statement.h>
 
 namespace aw {
 namespace script {
@@ -59,4 +59,4 @@ protected:
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_Conditional_
+#endif//aw_script_AST_Conditional_

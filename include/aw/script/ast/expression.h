@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_Expression_
-#define _hrscript_AST_Expression_
-#include <hrscript/ast/Statement.h>
+#ifndef aw_script_ast_expression_h
+#define aw_script_ast_expression_h
+#include <aw/script/ast/statement.h>
 
 namespace aw {
 namespace script {
@@ -23,4 +23,4 @@ public:
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_Expression_
+#endif//aw_script_ast_expression_h

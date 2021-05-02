@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_OperatorPrecedence_
-#define _hrscript_OperatorPrecedence_
-#include <hrscript/lexer/Token.h>
+#ifndef aw_script_OperatorPrecedence_
+#define aw_script_OperatorPrecedence_
+#include <aw/script/lexer/token.h>
 
 namespace aw {
 namespace script {
@@ -86,4 +86,4 @@ bool isOperator(Token tok)
 
 } // namespace script
 } // namespace aw
-#endif //_hrscript_OperatorPrecedence_
+#endif //aw_script_OperatorPrecedence_

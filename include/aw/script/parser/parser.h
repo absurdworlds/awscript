@@ -6,12 +6,12 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_parser_
-#define _hrscript_parser_
-#include <aw/common/types.h>
-#include <hrscript/lexer/Lexer.h>
-#include <hrscript/ast/Declaration.h>
-#include <hrscript/parser/Operators.h>
+#ifndef aw_script_parser_h
+#define aw_script_parser_h
+#include <aw/script/common/types.h>
+#include <aw/script/lexer/lexer.h>
+#include <aw/script/ast/declaration.h>
+#include <aw/script/parser/operators.h>
 
 namespace aw {
 namespace script {
@@ -96,6 +96,6 @@ private:
 	std::nullptr_t unexpectedTokenError(TokenType expected);
 };
 
-} // namespace hrscript
+} // namespace script
 } // namespace aw
-#endif //_hrscript_parser_
+#endif //aw_script_parser_h

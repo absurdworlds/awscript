@@ -7,10 +7,10 @@
  * There is NO WARRANTY, to the extent permitted by law.
  *
  */
-#ifndef _hrscript_AST_Node_
-#define _hrscript_AST_Node_
-#include <aw/common/types.h>
-#include <hrscript/ast/Visitor.h>
+#ifndef aw_script_ast_node_h
+#define aw_script_ast_node_h
+#include <aw/script/common/types.h>
+#include <aw/script/ast/visitor.h>
 namespace aw {
 namespace script {
 namespace ast {
@@ -25,4 +25,4 @@ public:
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_Node_
+#endif//aw_script_ast_node_h

@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_NumberExpr_
-#define _hrscript_AST_NumberExpr_
-#include <hrscript/ast/Expression.h>
+#ifndef aw_script_ast_numberexpr_h
+#define aw_script_ast_numberexpr_h
+#include <aw/script/ast/expression.h>
 
 namespace aw {
 namespace script {
@@ -57,4 +57,4 @@ class IntNumberExpr : NumberExpr {
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_NumberExpr_
+#endif//aw_script_ast_numberexpr_h

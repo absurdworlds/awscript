@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_CallExpr_
-#define _hrscript_AST_CallExpr_
+#ifndef aw_script_AST_CallExpr_
+#define aw_script_AST_CallExpr_
 #include <vector>
 #include <string>
-#include <hrscript/ast/Expression.h>
+#include <aw/script/ast/expression.h>
 
 namespace aw {
 namespace script {
@@ -49,4 +49,4 @@ private:
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_CallExpr_
+#endif//aw_script_AST_CallExpr_

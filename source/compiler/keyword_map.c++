@@ -10,14 +10,14 @@
 namespace aw {
 namespace script {
 // Link token to a keyword
-KeywordMap& KeywordMap::add(std::string def, TokenType kind)
+keyword_map& keyword_map::add(std::string def, TokenType kind)
 {
 	theMap[def] = kind;
 	return *this;
 }
 
 // Get token type from string
-TokenType KeywordMap::get(std::string def)
+TokenType keyword_map::get(std::string def)
 {
 	auto result = theMap.find(def);
 
@@ -29,7 +29,7 @@ TokenType KeywordMap::get(std::string def)
 }
 
 // Check if keyword is present
-bool KeywordMap::isKeyword(std::string def)
+bool keyword_map::is_keyword(std::string def)
 {
 	return get(def) != tok_illegal;
 }

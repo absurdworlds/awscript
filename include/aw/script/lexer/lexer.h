@@ -6,11 +6,11 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_lexer_
-#define _hrscript_lexer_
-#include <hrscript/lexer/SourceBuffer.h>
-#include <hrscript/lexer/Token.h>
-#include <hrscript/lexer/KeywordMap.h>
+#ifndef aw_script_lexer_h
+#define aw_script_lexer_h
+#include <aw/script/lexer/source_buffer.h>
+#include <aw/script/lexer/token.h>
+#include <aw/script/lexer/keyword_map.h>
 namespace aw {
 namespace script {
 class Lexer {
@@ -20,7 +20,7 @@ public:
 	Token getCurrentToken();
 	Token getNextToken();
 
-private:
+private: //func
 	void init();
 	char peek();
 
@@ -33,11 +33,12 @@ private:
 	void skipBlockComment();
 	void handleComment();
 
+private: //data
 	Token curToken;
-	KeywordMap kwmap;
+	keyword_map kwmap;
 	SourceBuffer* buf;
 	char const* cur;
 };
 } // namespace script
 } // namespace aw
-#endif//_hrscript_lexer_
+#endif//aw_script_lexer_h

@@ -6,10 +6,10 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef hrscript_print_token_h
-#define hrscript_print_token_h
+#ifndef aw_script_print_token_h
+#define aw_script_print_token_h
 #include <string>
-#include <hrscript/lexer/Token.h>
+#include <aw/script/lexer/token.h>
 namespace aw {
 namespace script {
 /*!
@@ -43,7 +43,7 @@ std::string nameToken(TokenType type)
 #define TOKEN(x)   case TOKEN1(x)   : return STR(TOKEN1(x)); 
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) case KEYWORD1(x) : return STR(KEYWORD1(x));
-#include <hrscript/lexer/TokenKinds.h>
+#include <aw/script/lexer/token_kinds.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD
@@ -56,15 +56,16 @@ std::string spellToken(TokenType kind)
 #define TOKEN(x)    case TOKEN1(x)   : return STR(x);
 #define PUNCT(x, y) case TOKEN1(x)   : return y;
 #define KEYWORD(x)  case KEYWORD1(x) : return STR(x);
-#include <hrscript/lexer/TokenKinds.h>
+#include <aw/script/lexer/token_kinds.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD
 	}
+	return {};
 }
 
 #undef TOKEN1
 #undef KEYWORD1
 } // namespace hrscript
 } // namespace aw
-#endif//hrscript_print_token_h
+#endif//aw_script_print_token_h

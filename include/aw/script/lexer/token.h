@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_token_
-#define _hrscript_token_
+#ifndef aw_script_token_h
+#define aw_script_token_h
 #include <string>
 namespace aw {
 namespace script {
@@ -15,7 +15,7 @@ enum TokenType {
 #define TOKEN(x) tok_ ## x,
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x,
-#include <hrscript/lexer/TokenKinds.h>
+#include <aw/script/lexer/token_kinds.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD
@@ -72,6 +72,6 @@ inline bool operator == (Token tok, TokenType kind)
 {
 	return tok.getType() == kind;
 }
-} // namespace hrscript
+} // namespace script
 } // namespace aw
-#endif//_hrscript_token_
+#endif//aw_script_token_h

@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_BinaryExpr_
-#define _hrscript_AST_BinaryExpr_
-#include <hrscript/ast/Expression.h>
+#ifndef aw_script_AST_BinaryExpr_
+#define aw_script_AST_BinaryExpr_
+#include <aw/script/ast/expression.h>
 
 namespace aw {
 namespace script {
@@ -53,4 +53,4 @@ private:
 } // namespace ast
 } // namespace script
 } // namespace aw
-#endif//_hrscript_AST_BinaryExpr_
+#endif//aw_script_AST_BinaryExpr_

@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef awscript_source_buffer_h_
-#define awscript_source_buffer_h_
-#include <aw/common/types.h>
+#ifndef aw_script_source_buffer_h
+#define aw_script_source_buffer_h
+#include <aw/script/common/types.h>
 namespace aw {
 namespace script {
 /*!
@@ -16,6 +16,7 @@ namespace script {
  */
 class SourceBuffer {
 public:
+	virtual ~SourceBuffer() = default;
 	// TODO: ptrwrapper
 	char const* begin();
 	char const* end();
@@ -24,4 +25,4 @@ public:
 };
 } // namespace script
 } // namespace aw
-#endif//awscript_source_buffer_h_
+#endif//aw_script_source_buffer_h

@@ -381,7 +381,7 @@ lexNextToken:
 		return lexIllegalToken(tok);
 	}
 
-	std::string val = (tok_start, cur);
+	std::string val = std::string(tok_start, cur);
 	tok.setData(val);
 
 	++cur;

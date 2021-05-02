@@ -6,12 +6,12 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef hrscript_AST_decl_Variable_
-#define hrscript_AST_decl_Variable_
+#ifndef aw_script_ast_decl_variable_h
+#define aw_script_ast_decl_variable_h
 #include <memory>
 #include <string>
-#include <hrscript/ast/Declaration.h>
-#include <hrscript/ast/Expression.h>
+#include <aw/script/ast/declaration.h>
+#include <aw/script/ast/expression.h>
 namespace aw {
 namespace script {
 namespace ast {
@@ -67,6 +67,6 @@ private:
 	bool writeAccessible;
 };
 } // namespace ast
-} // namespace hrscript
+} // namespace script
 } // namespace aw
-#endif//hrscript_AST_decl_Variable_
+#endif//aw_script_ast_decl_variable_h
