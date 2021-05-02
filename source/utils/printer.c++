@@ -6,21 +6,21 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <hrscript/ast/decl/Variable.h>
-#include <hrscript/ast/decl/Function.h>
+#include <aw/script/ast/decl/variable.h>
+#include <aw/script/ast/decl/function.h>
 
-#include <hrscript/ast/UnaryExpr.h>
-#include <hrscript/ast/BinaryExpr.h>
-#include <hrscript/ast/CallExpr.h>
-#include <hrscript/ast/NumberExpr.h>
-#include <hrscript/ast/StringExpr.h>
-#include <hrscript/ast/IdentifierExpr.h>
+#include <aw/script/ast/expr/unary.h>
+#include <aw/script/ast/expr/binary.h>
+#include <aw/script/ast/expr/call.h>
+#include <aw/script/ast/expr/number.h>
+#include <aw/script/ast/expr/string.h>
+#include <aw/script/ast/expr/identifier.h>
 
-#include <hrscript/ast/IfElseStatement.h>
-#include <hrscript/ast/StatementBlock.h>
+#include <aw/script/ast/if_else_statement.h>
+#include <aw/script/ast/statement_block.h>
 
-#include <hrscript/utility/Printer.h>
-#include <hrscript/utility/PrintToken.h>
+#include <aw/script/utility/printer.h>
+#include <aw/script/utility/print_token.h>
 
 namespace aw {
 namespace script {
@@ -29,122 +29,127 @@ Printer::Printer(aw::io::WriteStream& out)
 {
 }
 
+void Printer::write_value(std::string_view name, std::string_view str)
+{
+	writer.write_value(name, doc::value(str));
+}
+
 void Printer::printSignature(ast::FunctionProto& node)
 {
-	writer.writeValue("name", node.getName());
-	writer.writeValue("return", node.getReturnType());
+	write_value("name",   node.getName());
+	write_value("return", node.getReturnType());
 
-	writer.startNode("arguments");
+	writer.start_node("arguments");
 
 	for (auto& arg : node.getArguments()) {
 		arg->accept(*this);
 	}
 	
-	writer.endNode();
+	writer.end_node();
 }
 
 void Printer::visit(ast::FunctionProto& node)
 {
-	writer.startNode("func");
+	writer.start_node("func");
 	printSignature(node);
-	writer.endNode();
+	writer.end_node();
 }
 
 void Printer::visit(ast::Function& node)
 {
-	writer.startNode("func");
+	writer.start_node("func");
 	printSignature(node.getPrototype());
 
-	writer.startNode("body");
+	writer.start_node("body");
 	node.getBody().accept(*this);
-	writer.endNode();
-	writer.endNode();
+	writer.end_node();
+	writer.end_node();
 }
 
 void Printer::visit(ast::Variable& node)
 {
-	writer.startNode("var");
-	writer.writeValue("name", node.getName());
-	writer.endNode();
+	writer.start_node("var");
+	write_value("name", node.getName());
+	writer.end_node();
 }
 
 void Printer::visit(ast::StatementBlock& node)
 {
-	writer.startNode("block");
+	writer.start_node("block");
 	for (auto& stmt : node.getStatements()) {
 		stmt->accept(*this);
 	}
-	writer.endNode();
+	writer.end_node();
 }
 
 void Printer::visit(ast::IfElseStatement& node)
 {
-	writer.startNode("if");
+	writer.start_node("if");
 	
-	writer.startNode("condition");
+	writer.start_node("condition");
 	node.getCondition().accept(*this);
-	writer.endNode();
+	writer.end_node();
 
-	writer.startNode("then");
+	writer.start_node("then");
 	node.getThenBranch().accept(*this);
-	writer.endNode();
+	writer.end_node();
 
 	if (node.getElseBranch()) {
-		writer.startNode("else");
+		writer.start_node("else");
 		node.getElseBranch()->accept(*this);
-		writer.endNode();
+		writer.end_node();
 	}
-	writer.endNode();
+	writer.end_node();
 }
 
 void Printer::visit(ast::NumberExpr& node)
 {
-	writer.startNode("number");
-	writer.writeValue("value", node.getValue());
-	writer.endNode();
+	writer.start_node("number");
+	write_value("value", node.getValue());
+	writer.end_node();
 }
 void Printer::visit(ast::StringExpr& node)
 {
-	writer.startNode("string");
-	writer.writeValue("value", node.getValue());
-	writer.endNode();
+	writer.start_node("string");
+	write_value("value", node.getValue());
+	writer.end_node();
 }
 void Printer::visit(ast::IdentifierExpr& node)
 {
-	writer.startNode("id");
-	writer.writeValue("name", node.getName());
-	writer.endNode();
+	writer.start_node("id");
+	write_value("name", node.getName());
+	writer.end_node();
 }
 void Printer::visit(ast::CallExpr& node)
 {
-	writer.startNode("call");
-	writer.writeValue("func",node.getFunction());
-	writer.startNode("arguments");
+	writer.start_node("call");
+	write_value("func",node.getFunction());
+	writer.start_node("arguments");
 	for (auto& arg : node.getArguments()) {
 		if (!arg)
-			writer.startNode("asdasdasd");
+			writer.start_node("asdasdasd");
 		arg->accept(*this);
 	}
-	writer.endNode();
-	writer.endNode();
+	writer.end_node();
+	writer.end_node();
 }
 void Printer::visit(ast::UnaryExpr& node)
 {
-	writer.startNode("unary");
+	writer.start_node("unary");
 	std::string const tmp = spellToken(TokenType(node.getOperation()));
-	writer.writeValue("op", tmp);
+	write_value("op", tmp);
 	node.getOperand().accept(*this);
-	writer.endNode();
+	writer.end_node();
 }
 
 void Printer::visit(ast::BinaryExpr& node)
 {
-	writer.startNode("binary");
+	writer.start_node("binary");
 	std::string const tmp = spellToken(TokenType(node.getOperation()));
-	writer.writeValue("op", tmp);
+	write_value("op", tmp);
 	node.getLHS().accept(*this);
 	node.getRHS().accept(*this);
-	writer.endNode();
+	writer.end_node();
 }
 } // namespace script
 } // namespace aw

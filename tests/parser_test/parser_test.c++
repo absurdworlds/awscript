@@ -7,29 +7,33 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <iostream>
+#include <aw/types/string_view.h>
 #include <aw/io/WriteStream.h>
-#include <hrscript/diagnostic/DiagnosticsEngine.h>
-#include <hrscript/lexer/FileStream.h>
-#include <hrscript/lexer/Lexer.h>
-#include <hrscript/parser/Parser.h>
-#include <hrscript/utility/Printer.h>
+#include <aw/script/diagnostic/diagnostics_engine.h>
+#include <aw/script/lexer/source_buffer.h>
+#include <aw/script/lexer/lexer.h>
+#include <aw/script/parser/parser.h>
+#include <aw/script/utility/printer.h>
 
 namespace aw {
 namespace script {
-} // namespace script
-} // namespace aw
-
-class TestWriteStream : public aw::io::WriteStream {
+class TestWriteStream : public io::WriteStream {
 public:
-	virtual awrts::i32 put(char c)
+	virtual i32 put(char c)
 	{
 		std::cout.put(c);
 		return 0;
 	}
 
-	virtual awrts::i32 put(std::string str)
+	virtual i32 put(std::string_view str)
 	{
 		std::cout << str;
+		return 0;
+	}
+
+	virtual i32 write(const char* d, size_t s)
+	{
+		std::cout.write(d,s);
 		return 0;
 	}
 
@@ -38,16 +42,20 @@ public:
 		return 0;
 	}
 };
+} // namespace script
+} // namespace aw
 
-int main(int argc, char** arg)
+int main(int argc, char** argv)
 {
+	using namespace aw;
 	using namespace aw::script;
 	if (argc < 2)
 		return 2;
 
-	FileStream fstream(arg[1]);
+	io::read_file<io::file> file(argv[1]);
+	source_buffer buffer(file);
+	Lexer lexer(&buffer);
 	DiagnosticsEngine diag;
-	Lexer lexer(fstream);
 	Parser parser(lexer, diag);
 
 	TestWriteStream out;

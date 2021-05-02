@@ -6,10 +6,10 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef hrscript_printer_h
-#define hrscript_printer_h
-#include <aw/hdf/Writer.h>
-#include <hrscript/ast/Visitor.h>
+#ifndef awscript_printer_h
+#define awscript_printer_h
+#include <aw/doc/writer.h>
+#include <aw/script/ast/visitor.h>
 
 namespace aw {
 namespace script {
@@ -31,10 +31,11 @@ public:
 	virtual void visit(ast::BinaryExpr& node);
 
 private:
+	void write_value(std::string_view name, std::string_view str);
 	void printSignature(ast::FunctionProto& node);
 
-	aw::hdf::Writer writer;
+	aw::doc::writer writer;
 };
 } // namespace script
 } // namespace aw
-#endif//hrscript_printer_h
+#endif//awscript_printer_h

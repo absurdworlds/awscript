@@ -1,7 +1,7 @@
 RootPath = ../..
-Sources = ParserTest.cpp
+Sources = parser_test.c++
 ProjectName = ParserTest
 Executable = true
-Libraries = hdf hrscript hrscript-utils
+Libraries = awio awstring awdoc awscript awscript-utils
 
 include $(RootPath)/Rules.mk
