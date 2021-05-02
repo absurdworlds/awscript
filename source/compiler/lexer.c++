@@ -8,6 +8,8 @@
  */
 #include <aw/types/types.h>
 #include <aw/script/lexer/lexer.h>
+
+#include "char_type.h"
 namespace aw {
 namespace script {
 Lexer::Lexer(source_buffer* inputBuffer)
@@ -32,6 +34,7 @@ Lexer::Lexer(source_buffer* inputBuffer)
 	.add("import", kw_export);
 
 	cur = buf->begin();
+	end = buf->end();
 
 	// Extract first token
 	getNextToken();
@@ -55,23 +58,23 @@ Token Lexer::getNextToken()
 	return getCurrentToken();
 }
 
-bool Lexer::lexIdentifier(Token& token)
+bool Lexer::lex_identifier(Token& token)
 {
+	// TODO: support unicode
 	char const* start = cur;
-	while (isalnum(*cur) || *cur == '_') {
-		++ cur;
-	}
+	cur = std::find_if_not(cur, end, is_name_char);
 
 	std::string id(start, cur);
 
 	// Check if token is a reserved keyword
-	auto kind = kwmap.get(token.getData());
+	auto kind = kwmap.get(id);
 
 	if (!kind)
 		kind = tok_identifier;
 
 	token.setType(kind);
 	token.setData(id);
+	//token.setLocation(size_t(start - buf->begin()));
 	
 	return true;
 }
@@ -232,7 +235,7 @@ lexNextToken:
 	case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
 	case 'v': case 'w': case 'x': case 'y': case 'z':
 	case '_':
-		return lexIdentifier(tok);
+		return lex_identifier(tok);
 	/* Operators */
 	case '^':
 		tok.setType(tok_caret);

@@ -25,7 +25,7 @@ private: //func
 	char peek();
 
 	bool lexIllegalToken(Token& token);
-	bool lexIdentifier(Token& token);
+	bool lex_identifier(Token& token);
 	bool lexStringLiteral(Token& token);
 	bool lexNumericConstant(Token& token);
 	bool lexNextToken(Token& token);
@@ -37,7 +37,9 @@ private: //data
 	Token curToken;
 	keyword_map kwmap;
 	source_buffer* buf;
-	char const* cur;
+
+	char const* cur = nullptr;
+	char const* end = nullptr;
 };
 } // namespace script
 } // namespace aw
