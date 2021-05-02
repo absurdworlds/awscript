@@ -1,7 +1,7 @@
 RootPath = ../..
 Sources = printer.c++
-Libraries = hrscript hdf
-ProjectName = hrscript-utils
+Libraries = awscript awdoc
+ProjectName = awscript-utils
 Executable = false
 
 include $(RootPath)/Rules.mk

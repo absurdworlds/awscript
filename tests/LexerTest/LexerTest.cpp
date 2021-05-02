@@ -7,10 +7,10 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <cstdio>
+#include <aw/io/ReadFile.h>
 #include <aw/io/InputFileStream.h>
 #include <hrscript/lexer/Lexer.h>
 #include <hrscript/utility/PrintToken.h>
-
 namespace aw {
 namespace script {
 void printTokenInfo(Token& token)

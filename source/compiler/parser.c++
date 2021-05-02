@@ -9,24 +9,24 @@
 #include <cassert>
 #include <vector>
 
-#include <hrscript/ast/decl/Variable.h>
-#include <hrscript/ast/decl/Function.h>
+#include <aw/script/ast/decl/variable.h>
+#include <aw/script/ast/decl/function.h>
 
-#include <hrscript/ast/Expression.h>
-#include <hrscript/ast/UnaryExpr.h>
-#include <hrscript/ast/BinaryExpr.h>
-#include <hrscript/ast/CallExpr.h>
-#include <hrscript/ast/NumberExpr.h>
-#include <hrscript/ast/StringExpr.h>
-#include <hrscript/ast/IdentifierExpr.h>
+#include <aw/script/ast/expression.h>
+#include <aw/script/ast/expr/unary.h>
+#include <aw/script/ast/expr/binary.h>
+#include <aw/script/ast/expr/call.h>
+#include <aw/script/ast/expr/number.h>
+#include <aw/script/ast/expr/string.h>
+#include <aw/script/ast/expr/identifier.h>
 
-#include <hrscript/ast/Statement.h>
-#include <hrscript/ast/IfElseStatement.h>
-#include <hrscript/ast/StatementBlock.h>
+#include <aw/script/ast/statement.h>
+#include <aw/script/ast/statement_block.h>
+#include <aw/script/ast/if_else_statement.h>
 
-#include <hrscript/utility/PrintToken.h>
-#include <hrscript/diagnostic/DiagnosticsEngine.h>
-#include <hrscript/parser/Parser.h>
+#include <aw/script/utility/print_token.h>
+#include <aw/script/diagnostic/diagnostics_engine.h>
+#include <aw/script/parser/parser.h>
 
 namespace aw {
 namespace script {
@@ -543,5 +543,5 @@ std::nullptr_t Parser::unexpectedTokenError(TokenType expected)
 
 	return nullptr;
 }
-} // namespace hrscript
+} // namespace script
 } // namespace aw

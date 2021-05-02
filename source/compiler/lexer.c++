@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <hrscript/common/types.h>
-#include <hrscript/lexer/Lexer.h>
+#include <aw/types/types.h>
+#include <aw/script/lexer/lexer.h>
 namespace aw {
 namespace script {
 Lexer::Lexer(SourceBuffer* inputBuffer)

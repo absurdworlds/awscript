@@ -6,9 +6,9 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#include <hrscript/lexer/KeywordMap.h>
-
-namespace hrscript {
+#include <aw/script/lexer/keyword_map.h>
+namespace aw {
+namespace script {
 // Link token to a keyword
 KeywordMap& KeywordMap::add(std::string def, TokenType kind)
 {
@@ -33,4 +33,5 @@ bool KeywordMap::isKeyword(std::string def)
 {
 	return get(def) != tok_illegal;
 }
-} // namespace hrscript
+} // namespace script
+} // namespace aw

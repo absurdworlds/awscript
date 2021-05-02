@@ -1,6 +1,6 @@
 RootPath = ../..
 Sources = codegen.c++
-ProjectName = hrscript-llvm
+ProjectName = awscript-llvm
 Executable = false
 
 include $(RootPath)/Rules.mk

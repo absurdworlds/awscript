@@ -1,6 +1,6 @@
 RootPath = ../..
 Sources = keyword_map.c++ lexer.c++ parser.c++
-ProjectName = hrscript
+ProjectName = awscript
 Executable = false
 
 include $(RootPath)/Rules.mk

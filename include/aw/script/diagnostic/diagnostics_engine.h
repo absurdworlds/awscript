@@ -9,7 +9,7 @@
 #ifndef hrscript_diagnostic_engine_h
 #define hrscript_diagnostic_engine_h
 #include <iostream> //temporary
-#include <aw/string/compose.h>
+#include <aw/utility/string/compose.h>
 #include <hrscript/diagnostic/Diagnostic.h>
 namespace aw {
 namespace script {
