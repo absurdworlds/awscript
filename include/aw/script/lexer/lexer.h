@@ -22,7 +22,8 @@ public:
 
 private: //func
 	void init();
-	char peek();
+	char peek() const;
+	char prev() const;
 
 	bool lexIllegalToken(Token& token);
 	bool lex_identifier(Token& token);
@@ -32,6 +33,11 @@ private: //func
 	void skipLineComment();
 	void skipBlockComment();
 	void handleComment();
+
+	size_t loc(char const* pos) const
+	{
+		return pos - buf->begin();
+	}
 
 private: //data
 	Token curToken;

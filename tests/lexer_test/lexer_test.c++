@@ -22,11 +22,11 @@ void printTokenInfo(Token& token)
 	                 token == tok_string_literal;
 
 	if(show_data) {
-		msg += nameToken(token.getType());
+		msg += nameToken(token.type());
 		msg += ", ";
-		msg += token.getData();
+		msg += token.data();
 	} else {
-		msg += nameToken(token.getType());
+		msg += nameToken(token.type());
 	}
 
 	printf("〈%s〉 ", msg.c_str());
@@ -49,5 +49,5 @@ int main(int argc, char** arg)
 	do {
 		printTokenInfo(token);
 		token = lexer.getNextToken();
-	} while (token.getType() != tok_eof);
+	} while (token.type() != tok_eof);
 }

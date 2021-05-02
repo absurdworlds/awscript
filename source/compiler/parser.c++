@@ -42,7 +42,7 @@ Parser::parseDeclaration()
 {
 	uptr<ast::Declaration> decl;
 
-	switch(token.getType()) {
+	switch(token.type()) {
 	case kw_var:
 		decl = parseVariableDeclaration();
 		break;
@@ -63,7 +63,7 @@ Parser::parseDeclaration()
 	}
 
 	/* TODO: do not forget about global variables
-	if (token.getType() != tok_semicolon)
+	if (token.type() != tok_semicolon)
 		return nullptr;
 		*/
 
@@ -77,15 +77,15 @@ uptr<ast::Variable>
 Parser::parseVariableDeclaration()
 {
 	// Read variable type
-	if (!isTypeName(token))
+	if (!is_type_name(token))
 		return nullptr;
 
 	// Read variable name
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return nullptr;
 	
 	// TODO: symbol table lookup
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
@@ -101,18 +101,18 @@ Parser::parseConstantDeclaration()
 	return ErrorDeclaration("NYI");
 #if 0
 	// Read variable type
-	if (!isTypeName(getNextToken()))
+	if (!is_type_name(getNextToken()))
 		return 0;
 
 	// Read variable name
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return 0;
 
 	// TODO: symbol table lookup
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
 	// Read constant initializer
-	if (getNextToken().getType() != tok_equals)
+	if (getNextToken().type() != tok_equals)
 		return 0;
 
 	ast::Expression* initializer = parseExpression();
@@ -125,7 +125,7 @@ Parser::parseConstantDeclaration()
 
 bool Parser::match(TokenType expected)
 {
-	if (token.getType() != expected)
+	if (token.type() != expected)
 		return false;
 
 	// consume token
@@ -142,17 +142,17 @@ uptr<ast::FunctionProto>
 Parser::parseFunctionPrototype()
 {
 	// Return type
-	if (!isTypeName(token))
+	if (!is_type_name(token))
 		return nullptr;
 
-	std::string ret = token.getData();
+	std::string_view ret = token.data();
 
 	// Function name
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return nullptr;
 
 	// TODO: symbol table lookup
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
 	// consume identifier
 	getNextToken();
@@ -173,7 +173,7 @@ Parser::parseFunctionPrototype()
 
 		getNextToken();
 
-		if (token.getType() == tok_r_paren)
+		if (token.type() == tok_r_paren)
 			break;
 
 		if (!match(tok_comma))
@@ -208,7 +208,7 @@ Parser::parseFunctionDefinition()
 	if (!proto)
 		return nullptr;
 
-	if (token.getType() == tok_semicolon)
+	if (token.type() == tok_semicolon)
 		return std::move(proto);
 
 	auto body = parseStatementBlock();
@@ -232,17 +232,17 @@ Parser::parseClassDeclaration()
 	return ErrorDeclaration("NYI");
 #if 0
 	// Class name
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return 0;
 
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
-	if (!getNextToken().getType() != tok_l_brace)
+	if (!getNextToken().type() != tok_l_brace)
 		return new ClassDeclaration(name);
 
 	// Class members
 	std::vector<Variable*> members;
-	while (getNextToken().getType() == kw_var) {
+	while (getNextToken().type() == kw_var) {
 		auto var = parseVariableDeclaration();
 		if (var == 0)
 			return 0;
@@ -255,7 +255,7 @@ Parser::parseClassDeclaration()
 			return 0;
 	}
 
-	if (!getNextToken().getType() != tok_r_brace)
+	if (!getNextToken().type() != tok_r_brace)
 		return 0;
 
 	return new ClassDeclaration(name, members);
@@ -271,23 +271,23 @@ Parser::parsePrototypeDeclaration()
 	return ErrorDeclaration("NYI");
 #if 0
 	// Prototype name
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return 0;
 
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
-	if (!getNextToken().getType() != tok_l_paren)
+	if (!getNextToken().type() != tok_l_paren)
 		return 0;
 
-	if (!isIdentifier(getNextToken()))
+	if (!is_identifier(getNextToken()))
 		return 0;
 
-	std::string base = token.getData();
+	std::string base = token.data();
 
-	if (!getNextToken().getType() != tok_r_paren)
+	if (!getNextToken().type() != tok_r_paren)
 		return 0;
 	
-	if (!getNextToken().getType() != tok_l_brace)
+	if (!getNextToken().type() != tok_l_brace)
 		return 0;
 
 	StatementBlock* body = parseStatementBlock();
@@ -299,7 +299,7 @@ Parser::parsePrototypeDeclaration()
 uptr<ast::Statement>
 Parser::parseStatement()
 {
-	switch (token.getType()) {
+	switch (token.type()) {
 	case kw_if:
 		getNextToken(); // consume 'if'
 		return parseBranchStatement();
@@ -389,7 +389,7 @@ Parser::parseExpression()
 uptr<ast::Expression>
 Parser::parsePrimaryExpr()
 {
-	switch(token.getType()) {
+	switch(token.type()) {
 	case tok_l_paren:
 		return parseParenExpr();
 	case tok_identifier:
@@ -447,7 +447,7 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 		}
 
 		LHS = std::make_unique<ast::BinaryExpr>(
-		       opcode.getType(), std::move(LHS), std::move(RHS));
+		       opcode.type(), std::move(LHS), std::move(RHS));
 	}
 }
 
@@ -465,17 +465,17 @@ Parser::parseUnaryExpr()
 		return nullptr;
 
 	return std::make_unique<ast::UnaryExpr>(
-	        opcode.getType(), std::move(operand));
+	        opcode.type(), std::move(operand));
 }
 
 uptr<ast::Expression>
 Parser::parseIdentifierExpr()
 {
-	std::string name = token.getData();
+	std::string_view name = token.data();
 
 	getNextToken(); // consume identifier
 	if (match(tok_l_paren))
-		return parseCallExpr(name);
+		return parse_call_expr(name);
 	
 	// TODO: postfix operators
 
@@ -483,7 +483,7 @@ Parser::parseIdentifierExpr()
 }
 
 uptr<ast::Expression>
-Parser::parseCallExpr(std::string func)
+Parser::parse_call_expr(std::string_view func)
 {
 	std::vector<uptr<ast::Expression>> args;
 
@@ -517,7 +517,7 @@ Parser::parseStringExpr()
 	// Consume string
 	getNextToken();
 
-	return std::make_unique<ast::StringExpr>(tok.getData());
+	return std::make_unique<ast::StringExpr>(tok.data());
 }
 
 uptr<ast::Expression>
@@ -530,7 +530,7 @@ Parser::parseNumberExpr()
 	// consume number
 	getNextToken();
 
-	return std::make_unique<ast::NumberExpr>(tok.getData());
+	return std::make_unique<ast::NumberExpr>(tok.data());
 }
 
 // Print out diagnostic and return nullptr

@@ -27,7 +27,7 @@ inline std::string spellToken(TokenType kind);
  */
 inline std::string spellToken(Token token)
 {
-	return token.getData();
+	return std::string(token.data());
 }
 
 

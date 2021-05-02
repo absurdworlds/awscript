@@ -32,7 +32,7 @@ enum Level {
 
 prec::Level getOperatorPrecedence(Token tok)
 {
-	switch(tok.getType()) {
+	switch(tok.type()) {
 	default:
 		// Not an operator
 		return prec::None;
@@ -67,6 +67,8 @@ prec::Level getOperatorPrecedence(Token tok)
 	case tok_slash:
 		return prec::Multiplicative;	
 	}
+
+	return prec::None;
 }
 
 bool isRightAssociative(Token tok)

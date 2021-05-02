@@ -16,7 +16,7 @@ namespace ast {
 /*! Expression for numeric literals */
 class StringExpr : public Expression {
 public:
-	StringExpr(std::string value)
+	StringExpr(std::string_view value)
 		: value(value)
 	{
 	}
@@ -28,12 +28,12 @@ public:
 		visitor.visit(*this);
 	}
 
-	std::string getValue() const
+	std::string_view getValue() const
 	{
 		return value;
 	}
 private:
-	std::string value;
+	std::string_view value;
 };
 
 } // namespace ast

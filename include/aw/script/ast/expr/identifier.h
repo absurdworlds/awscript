@@ -16,7 +16,7 @@ namespace ast {
 /*! Expression for identifier referencing */
 class IdentifierExpr : public Expression {
 public:
-	IdentifierExpr(std::string id)
+	IdentifierExpr(std::string_view id)
 		: id(id)
 	{
 	}
@@ -28,12 +28,12 @@ public:
 		visitor.visit(*this);
 	}
 
-	std::string getName()
+	std::string_view getName()
 	{
 		return id;
 	}
 private:
-	std::string id;
+	std::string_view id;
 };
 
 } // namespace ast

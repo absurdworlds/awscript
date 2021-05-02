@@ -87,7 +87,7 @@ private:
 	uptr<ast::Expression> parseParenExpr();
 	uptr<ast::Expression> parseNumberExpr();
 	uptr<ast::Expression> parseStringExpr();
-	uptr<ast::Expression> parseCallExpr(std::string func);
+	uptr<ast::Expression> parse_call_expr(std::string_view func);
 
 	/*!
 	 * Print out diagnostic and return nullptr

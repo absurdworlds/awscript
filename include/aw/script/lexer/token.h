@@ -11,6 +11,17 @@
 #include <string>
 namespace aw {
 namespace script {
+struct location {
+	location() = default;
+	location(size_t offset)
+		: pos(offset)
+	{
+	}
+
+	u32 fileId = 0;
+	size_t pos = 0;
+};
+
 enum TokenType {
 #define TOKEN(x) tok_ ## x,
 #define PUNCT(x, y) TOKEN(x)
@@ -23,54 +34,70 @@ enum TokenType {
 
 class Token {
 public:
-	TokenType getType() const
+	Token()
+		: _kind(tok_illegal)
+	{}
+
+	Token(TokenType kind)
+		: _kind(kind)
+	{}
+
+	Token(TokenType kind, location loc)
+		: _kind(kind), _loc(loc)
+	{}
+
+	Token(TokenType kind, std::string_view data, location loc)
+		: _kind(kind), _data(data), _loc(loc)
 	{
-		return type;
+	}
+
+	TokenType type() const
+	{
+		return _kind;
 	}
 	
-	void setType(TokenType newType)
+	std::string_view data() const
 	{
-		type = newType;
+		return _data;
 	}
 
-	std::string getData() const
+	void set_data(std::string_view data)
 	{
-		return data;
+		_data = data;
 	}
 
-	void setData(std::string newData)
+	script::location location() const
 	{
-		data = newData;
+		return _loc;
 	}
+
 private:
-	TokenType type;
-	std::string data;
-#if 0
-	char* dataPtr;
-	size_t dataSize;
-#endif
+	TokenType _kind;
+
+	std::string_view _data;
+	script::location _loc;
 };
 
 /*! Returns true if token is an identifier */
-inline bool isIdentifier(Token tok)
+inline bool is_identifier(Token tok)
 {
-	return tok.getType() == tok_identifier;
+	return tok.type() == tok_identifier;
 }
 
 /*!
  * Returns true if token is a type name (in other words, can appear
  * after ‘var’)
  */
-inline bool isTypeName(Token tok)
+inline bool is_type_name(Token tok)
 {
-	return tok.getType() == kw_func ||
-	       tok.getType() >= kw_void ||
-	       isIdentifier(tok);
+	return tok.type() == kw_func ||
+	       tok.type() >= kw_void ||
+	       is_identifier(tok);
 }
 
-inline bool operator == (Token tok, TokenType kind)
+inline bool operator==(Token tok, TokenType kind)
 {
-	return tok.getType() == kind;
+	return tok.type() == kind;
 }
 } // namespace script
 } // namespace aw

@@ -18,7 +18,7 @@ namespace ast {
 class Variable : public Declaration {
 public:
 	static uptr<Variable>
-	create(std::string id)
+	create(std::string_view id)
 	{
 		uptr<Variable> tmp(new Variable(id));
 		return std::move(tmp);
@@ -51,18 +51,18 @@ public:
 		val = std::move(newVal);
 	}
 
-	std::string getName() const
+	std::string_view getName() const
 	{
 		return name;
 	}
 private:
-	Variable(std::string id)
+	Variable(std::string_view id)
 		: Declaration(Declaration::Variable),
 		  name(id), writeAccessible(true)
 	{
 	}
 
-	std::string name;
+	std::string_view name;
 	std::unique_ptr<Expression> val;
 	bool writeAccessible;
 };

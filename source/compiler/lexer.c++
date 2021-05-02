@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015  hedede <haddayn@gmail.com>
+ * Copyright (C) 2015-2021  hedede <haddayn@gmail.com>
  *
  * License LGPLv3 or later:
  * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
+#include <cassert>
 #include <aw/types/types.h>
 #include <aw/script/lexer/lexer.h>
 
@@ -31,7 +32,12 @@ Lexer::Lexer(source_buffer* inputBuffer)
 	.add("int", kw_int)
 	.add("string", kw_string)
 	.add("import", kw_import)
-	.add("export", kw_export);
+	.add("export", kw_export)
+	.add("while",  kw_while)
+	.add("do",     kw_do)
+	.add("extern", kw_extern)
+	.add("break",  kw_break)
+	.add("continue", kw_continue);
 
 	cur = buf->begin();
 	end = buf->end();
@@ -64,7 +70,7 @@ bool Lexer::lex_identifier(Token& token)
 	char const* start = cur;
 	cur = std::find_if_not(cur, end, is_name_char);
 
-	std::string id(start, cur);
+	std::string_view id(start, cur);
 
 	// Check if token is a reserved keyword
 	auto kind = kwmap.get(id);
@@ -72,9 +78,7 @@ bool Lexer::lex_identifier(Token& token)
 	if (!kind)
 		kind = tok_identifier;
 
-	token.setType(kind);
-	token.setData(id);
-	//token.setLocation(size_t(start - buf->begin()));
+	token = Token(kind, id, loc(start));
 	
 	return true;
 }
@@ -95,30 +99,31 @@ bool Lexer::lexNumericConstant(Token& token)
 		} while (isalnum(*cur) || *cur == '.');
 	}
 
-	std::string num(start, cur);
+	std::string_view num(start, cur);
 
-	token.setData(num);
-	token.setType(tok_numeric_constant);
+	token = Token(tok_numeric_constant, num, loc(start));
 
 	return true;
 }
 
 bool Lexer::lexStringLiteral(Token& token)
 {
-	std::string str;
-
+	char const* start = cur;
 	while (*cur != '"') {
-		if (*cur == '\\') {
+		cur = std::find(cur, end, '"');
+		if (cur == end)
+			break;
+		if (prev() == '\\')
 			++cur;
-		}
-		str += *cur;
-		++cur;
 	}
 
-	++cur; // consume '"'
+	std::string_view str(start, cur);
 
-	token.setData(str);
-	token.setType(tok_string_literal);
+	// TODO: incomplete flag if cur == end
+	token = Token(tok_string_literal, str, loc(start));
+
+	if (cur < end)
+		++cur; // consume '"'
 
 	return true;
 }
@@ -127,14 +132,11 @@ bool Lexer::lexIllegalToken(Token& token)
 {
 	char const* begin = cur;
 	// TODO: search until token-beginnning character
-	while (!isspace(*cur)) {
-		++cur;
-	}
+	cur = std::find_if(begin, end, isspace);
 
 	std::string str(begin, cur);
 
-	token.setData(str);
-	token.setType(tok_illegal);
+	token = Token(tok_illegal, str, loc(begin));
 
 	return true;
 }
@@ -163,18 +165,6 @@ void Lexer::skipBlockComment()
 	}
 }
 
-#if 0
-void Lexer::handleComment()
-{
-	char c;
-
-	stream.peek(c);
-
-	assert((c == '*' || c == '/')
-	       && "Lexer::handleComment called without a comment");
-}
-#endif
-
 void Lexer::handleComment()
 {
 	char p = peek();
@@ -189,16 +179,21 @@ void Lexer::handleComment()
 	
 	// Instead of going through everything again, we do everything here.
 	// Skip whitespace and check for more comments
-	++cur;
-	while(isspace(*cur))
-		++cur;
+	cur = std::find_if_not(cur+1, end, isspace);
 
-	handleComment();
+	if (*cur == '/')
+		handleComment();
 }
 
-char Lexer::peek()
+char Lexer::peek() const
 {
-	return *(cur + 1);
+	return (cur < end) ? *(cur + 1) : 0;
+}
+
+char Lexer::prev() const
+{
+	assert(cur > std::begin(*buf));
+	return *(cur - 1);
 }
 
 /*!
@@ -207,15 +202,16 @@ char Lexer::peek()
  */
 bool Lexer::lexNextToken(Token& tok)
 {
-lexNextToken:
-	while (isspace(*cur))
-		++cur;
+	cur = std::find_if_not(cur, end, isspace);
 
+lexNextToken:
 	char const* tok_start = cur;
+
+	auto location = loc(tok_start);
 
 	switch (*cur) {
 	case 0:
-		tok.setType(tok_eof);
+		tok = Token(tok_eof, location);
 		return true;
 	/* Numeric constants */
 	case '0': case '1': case '2': case '3': case '4':
@@ -238,73 +234,73 @@ lexNextToken:
 		return lex_identifier(tok);
 	/* Operators */
 	case '^':
-		tok.setType(tok_caret);
+		tok = Token(tok_caret, location);
 		break;
 	case '~':
-		tok.setType(tok_tilde);
+		tok = Token(tok_tilde, location);
 		break;
 	case ',':
-		tok.setType(tok_comma);
+		tok = Token(tok_comma, location);
 		break;
 	case '.':
-		tok.setType(tok_dot);
+		tok = Token(tok_dot, location);
 		break;
 	case ';':
-		tok.setType(tok_semicolon);
+		tok = Token(tok_semicolon, location);
 		break;
 	case '%':
-		tok.setType(tok_percent);
+		tok = Token(tok_percent, location);
 		break;
 	case '{':
-		tok.setType(tok_l_brace);
+		tok = Token(tok_l_brace, location);
 		break;
 	case '}':
-		tok.setType(tok_r_brace);
+		tok = Token(tok_r_brace, location);
 		break;
 	case '[':
-		tok.setType(tok_l_square);
+		tok = Token(tok_l_square, location);
 		break;
 	case ']':
-		tok.setType(tok_r_square);
+		tok = Token(tok_r_square, location);
 		break;
 	case '(':
-		tok.setType(tok_l_paren);
+		tok = Token(tok_l_paren, location);
 		break;
 	case ')':
-		tok.setType(tok_r_paren);
+		tok = Token(tok_r_paren, location);
 		break;
 	case '&':
 		if (peek() == '&') {
-			tok.setType(tok_amp_amp);
+			tok = Token(tok_amp_amp, location);
 			++cur;
 		} else {
-			tok.setType(tok_amp);	
+			tok = Token(tok_amp, location);	
 		}
 		// TODO: does daedalus have '&=' operator?
 		break;
 	case '|':
 		if (peek() == '|') {
-			tok.setType(tok_pipe_pipe);
+			tok = Token(tok_pipe_pipe, location);
 			++cur;
 		} else {
-			tok.setType(tok_pipe);
+			tok = Token(tok_pipe, location);
 		}
 		// TODO: does daedalus have '|= operator?
 		break;
 	case '!':
 		if (peek() == '=') {
-			tok.setType(tok_bang_equal);
+			tok = Token(tok_bang_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_bang);
+			tok = Token(tok_bang, location);
 		}
 		break;
 	case '*':
 		if (peek() == '=') {
-			tok.setType(tok_ast_equal);
+			tok = Token(tok_ast_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_ast);
+			tok = Token(tok_ast, location);
 		}
 		break;
 	case '/':
@@ -321,62 +317,62 @@ lexNextToken:
 			goto lexNextToken;
 
 		if (peek() == '=') {
-			tok.setType(tok_slash_equal);
+			tok = Token(tok_slash_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_slash);
+			tok = Token(tok_slash, location);
 		}
 		break;
 	case '=':
 		if (peek() == '=') {
-			tok.setType(tok_equal_equal);
+			tok = Token(tok_equal_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_equal);
+			tok = Token(tok_equal, location);
 		}
 		break;
 	case '+':
 		if (peek() == '+') {
-			tok.setType(tok_plus_plus);
+			tok = Token(tok_plus_plus, location);
 			++cur;
 		} else if (peek() == '=') {
-			tok.setType(tok_plus_equal);
+			tok = Token(tok_plus_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_plus);
+			tok = Token(tok_plus, location);
 		}
 		break;
 	case '-':
 		if (peek() == '-') {
-			tok.setType(tok_minus_minus);
+			tok = Token(tok_minus_minus, location);
 			++cur;
 		} else if (peek() == '=') {
-			tok.setType(tok_minus_equal);
+			tok = Token(tok_minus_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_minus);
+			tok = Token(tok_minus, location);
 		}
 		break;
 	case '<':
 		if (peek() == '<') {
-			tok.setType(tok_less_less);
+			tok = Token(tok_less_less, location);
 			++cur;
 		} else if (peek() == '=') {
-			tok.setType(tok_less_equal);
+			tok = Token(tok_less_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_less);
+			tok = Token(tok_less, location);
 		}
 		break;
 	case '>':
 		if (peek() == '>') {
-			tok.setType(tok_greater_greater);
+			tok = Token(tok_greater_greater, location);
 			++cur;
 		} else if (peek() == '=') {
-			tok.setType(tok_less_equal);
+			tok = Token(tok_less_equal, location);
 			++cur;
 		} else {
-			tok.setType(tok_less);
+			tok = Token(tok_less, location);
 		}
 		break;
 	/* Illegal token */
@@ -385,10 +381,10 @@ lexNextToken:
 		return lexIllegalToken(tok);
 	}
 
-	std::string val = std::string(tok_start, cur);
-	tok.setData(val);
-
 	++cur;
+	std::string_view val(tok_start, cur);
+	tok.set_data(val);
+
 	return true;
 }
 } // namespace script

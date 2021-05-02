@@ -20,8 +20,8 @@ typedef std::vector<std::unique_ptr<Variable>> ArgList;
 class FunctionProto : public Declaration {
 public:
 	static uptr<FunctionProto>
-	create(std::string id,
-	       std::string returnType,
+	create(std::string_view id,
+	       std::string_view returnType,
 	       ArgList args)
 	{
 		uptr<FunctionProto> tmp(
@@ -31,12 +31,12 @@ public:
 
 	virtual ~FunctionProto() = default;
 
-	virtual std::string getName() const
+	virtual std::string_view getName() const
 	{
 		return name;
 	}
 
-	virtual std::string getReturnType() const
+	virtual std::string_view getReturnType() const
 	{
 		return returnType;
 	}
@@ -51,17 +51,15 @@ public:
 		visitor.visit(*this);
 	}
 private:
-	FunctionProto(std::string id,
-	         std::string returnType,
-	         ArgList args)
+	FunctionProto(std::string_view id, std::string_view returnType, ArgList args)
 		: Declaration(Declaration::FunctionProto),
 		  name(id),
 		  returnType(returnType)
 	{
 	}
 
-	std::string name;
-	std::string returnType;
+	std::string_view name;
+	std::string_view returnType;
 	ArgList args;
 };
 
