@@ -48,6 +48,7 @@ std::string nameToken(TokenType type)
 #undef PUNCT
 #undef KEYWORD
 	}
+	return {};
 }
 
 std::string spellToken(TokenType kind)
