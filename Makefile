@@ -2,7 +2,7 @@
 default: ParserTest
 
 LexerTest:
-	@ $(MAKE) -C 'tests/LexerTest' $(TARGET)
+	@ $(MAKE) -C 'tests/lexer_test' $(TARGET)
 
 ParserTest:
 	@ $(MAKE) -C 'tests/ParserTest' $(TARGET)

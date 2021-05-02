@@ -1,5 +1,5 @@
 RootPath = ../..
-Sources = LexerTest.cpp
+Sources = lexer_test.c++
 ProjectName = LexerTest
 Executable = true
 Libraries = hrscript
