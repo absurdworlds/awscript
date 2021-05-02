@@ -31,7 +31,7 @@ Lexer::Lexer(source_buffer* inputBuffer)
 	.add("int", kw_int)
 	.add("string", kw_string)
 	.add("import", kw_import)
-	.add("import", kw_export);
+	.add("export", kw_export);
 
 	cur = buf->begin();
 	end = buf->end();
@@ -302,7 +302,7 @@ lexNextToken:
 	case '*':
 		if (peek() == '=') {
 			tok.setType(tok_ast_equal);
-			++ cur;
+			++cur;
 		} else {
 			tok.setType(tok_ast);
 		}
