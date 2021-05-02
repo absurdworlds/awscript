@@ -115,11 +115,11 @@ Parser::parse_variable()
 {
 	// Read variable type
 	if (!is_type_name(token))
-		return nullptr;
+		return error(diag, Diagnostic::expected_type_name, token);
 
 	// Read variable name
 	if (!is_identifier(getNextToken()))
-		return nullptr;
+		return error(diag, Diagnostic::expected_identifier, token);
 	
 	// TODO: symbol table lookup
 	std::string_view name = token.data();
@@ -151,13 +151,13 @@ Parser::parseFunctionPrototype()
 {
 	// Return type
 	if (!is_type_name(token))
-		return nullptr;
+		return error(diag, Diagnostic::expected_type_name, token);
 
 	std::string_view ret = token.data();
 
 	// Function name
 	if (!is_identifier(getNextToken()))
-		return nullptr;
+		return error(diag, Diagnostic::expected_identifier, token);
 
 	// TODO: symbol table lookup
 	std::string_view name = token.data();
@@ -187,7 +187,7 @@ Parser::parseFunctionPrototype()
 	}
 	
 	if (!match(tok_r_paren))
-		return error(diag, Diagnostic::ExpectedVariableDecl, token, tok_r_paren);
+		return error(diag, Diagnostic::expected_variable_decl, token, tok_r_paren);
 
 	return ast::FunctionProto::create(name, ret, std::move(args));
 }
@@ -231,12 +231,13 @@ Parser::parseFunctionDefinition()
 uptr<ast::Declaration>
 Parser::parseClassDeclaration()
 {
-	return error_not_implemented_yet(diag, token);
-#if 0
 	// Class name
 	if (!is_identifier(getNextToken()))
-		return 0;
+		return error(diag, Diagnostic::expected_identifier, token);
 
+	return error_not_implemented_yet(diag, token);
+
+#if 0
 	std::string_view name = token.data();
 
 	if (!getNextToken().type() != tok_l_brace)
@@ -285,7 +286,7 @@ Parser::parseExprStatement()
 	auto expr = parseExpression();
 
 	if (!match(tok_semicolon))
-		return error(diag, Diagnostic::ExpectedSemicolonAfterExpression, token);
+		return error(diag, Diagnostic::expected_semicolon_after_expression, token);
 
 	return std::move(expr);
 }
@@ -294,7 +295,7 @@ uptr<ast::StatementBlock>
 Parser::parseStatementBlock()
 {
 	if (!match(tok_l_brace))
-		return nullptr; // expected '{'
+		return error_unexpected_token(diag, token, tok_l_brace);
 
 	std::vector<uptr<ast::Statement>> statements;
 	while (!match(tok_r_brace)) {
