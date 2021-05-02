@@ -8,12 +8,10 @@
  */
 #ifndef aw_script_diagnostic_h
 #define aw_script_diagnostic_h
+#include <aw/script/utility/location.h>
+#include <aw/script/utility/print_token.h>
 namespace aw {
 namespace script {
-//TODO: use one from token, but move to a separate header first
-struct Location {
-};
-
 class diagnostics_engine;
 
 /*!
@@ -27,7 +25,7 @@ public:
 #undef DIAG
 	};
 
-	Diagnostic(Location loc, ID id)
+	Diagnostic(location loc, ID id)
 		: id(id), loc(loc)
 	{
 	}
@@ -40,7 +38,7 @@ public:
 private:
 	friend class diagnostics_engine;
 
-	Location loc;
+	location loc;
 	ID id;
 	std::vector<std::string> args;
 };
@@ -58,6 +56,16 @@ std::string getDiagMsg(Diagnostic::ID id)
 Diagnostic& operator<<(Diagnostic& diag, std::string str)
 {
 	return diag.arg(str);
+}
+
+Diagnostic& operator<<(Diagnostic& diag, std::string_view str)
+{
+	return diag.arg(std::string(str));
+}
+
+Diagnostic& operator<<(Diagnostic& diag, TokenType type)
+{
+	return diag.arg(spellToken(type));
 }
 } // namespace script
 } // namespace aw

@@ -83,12 +83,6 @@ private:
 	uptr<ast::Expression> parseStringExpr();
 	uptr<ast::Expression> parse_call_expr(std::string_view func);
 
-	/*!
-	 * Print out diagnostic and return nullptr
-	 * Assumes that it is called after failed match()
-	 */
-	std::nullptr_t unexpectedTokenError(TokenType expected);
-
 private:
 	/*! Current lookahead (peek) token. */
 	Token token;

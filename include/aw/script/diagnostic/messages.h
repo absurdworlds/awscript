@@ -1,4 +1,6 @@
 DIAG(error, generic_error, "%0")
-DIAG(error, UnexpectedToken, "Unexpected token: expected ‘%0’, got ‘%1’.")
+DIAG(error, unexpected_token, "Unexpected token: expected ‘%1’, got ‘%0’.")
 DIAG(error, ExpectedVariableDecl, "Expected variable declaration.")
+DIAG(error, expected_initializer, "Unexpected token ‘%0’: expected initializer.")
 DIAG(error, ExpectedSemicolonAfterExpression, "Expected ‘;’ after expression.")
+DIAG(error, not_implemented_yet, "Not implemented yet: %0.")

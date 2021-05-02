@@ -9,18 +9,9 @@
 #ifndef aw_script_token_h
 #define aw_script_token_h
 #include <string>
+#include <aw/script/utility/location.h>
 namespace aw {
 namespace script {
-struct location {
-	location() = default;
-	location(size_t offset)
-		: pos(offset)
-	{
-	}
-
-	unsigned fileId = 0;
-	size_t   pos = 0;
-};
 
 enum TokenType {
 #define TOKEN(x) tok_ ## x,

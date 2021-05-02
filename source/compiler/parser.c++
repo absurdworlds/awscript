@@ -25,19 +25,12 @@
 #include <aw/script/ast/if_else_statement.h>
 
 #include <aw/script/utility/print_token.h>
-#include <aw/script/diagnostic/diagnostics_engine.h>
 #include <aw/script/parser/parser.h>
+
+#include "errors.h"
 
 namespace aw {
 namespace script {
-uptr<ast::Declaration>
-ErrorDeclaration(diagnostics_engine& diag, std::string str)
-{
-	Diagnostic msg(Location{}, Diagnostic::generic_error); // TODO
-	diag.report(msg << str);
-	return nullptr;
-}
-
 uptr<ast::Declaration>
 Parser::parseDeclaration()
 {
@@ -88,7 +81,7 @@ Parser::parse_variable_declaration()
 	}
 
 	if (!match(tok_semicolon))
-		return ErrorDeclaration(diag, "Expected semicolon");
+		return error_unexpected_token(diag, token, tok_semicolon);
 
 	return var;
 }
@@ -109,15 +102,15 @@ Parser::parseConstantDeclaration()
 	var->set_const(true);
 
 	if (!match(tok_equal))
-		return ErrorDeclaration(diag, "Expected initializer");
+		return error(diag, Diagnostic::expected_initializer, token);
 
 	auto initializer = parseExpression();
 	var->set_initialier(std::move(initializer));
 
 	if (!match(tok_semicolon))
-		return ErrorDeclaration(diag, "Expected semicolon");
+		return error_unexpected_token(diag, token, tok_semicolon);
 
-	return ErrorDeclaration(diag, "NYI");
+	return var;
 }
 
 uptr<ast::Variable>
@@ -195,15 +188,11 @@ Parser::parseFunctionPrototype()
 			break;
 
 		if (!match(tok_comma))
-			return unexpectedTokenError(tok_comma);
+			return error_unexpected_token(diag, token, tok_comma);
 	}
 	
-	if (!match(tok_r_paren)) {
-		Diagnostic msg(Location(), Diagnostic::ExpectedVariableDecl);
-		diag.report(msg);
-		// error(Diagnostic::err_unexpected_token);
-		return nullptr;
-	}
+	if (!match(tok_r_paren))
+		return error(diag, Diagnostic::ExpectedVariableDecl, token, tok_r_paren);
 
 	return ast::FunctionProto::create(name, ret, std::move(args));
 }
@@ -247,7 +236,7 @@ Parser::parseFunctionDefinition()
 uptr<ast::Declaration>
 Parser::parseClassDeclaration()
 {
-	return ErrorDeclaration(diag, "NYI");
+	return error_not_implemented_yet(diag, token);
 #if 0
 	// Class name
 	if (!is_identifier(getNextToken()))
@@ -286,7 +275,7 @@ Parser::parseClassDeclaration()
 uptr<ast::Declaration>
 Parser::parsePrototypeDeclaration()
 {
-	return ErrorDeclaration(diag, "NYI");
+	return error_not_implemented_yet(diag, token);
 #if 0
 	// Prototype name
 	if (!is_identifier(getNextToken()))
@@ -333,12 +322,8 @@ Parser::parseExprStatement()
 {
 	auto expr = parseExpression();
 
-	if (!match(tok_semicolon)) {
-		Diagnostic msg(Location(),
-		               Diagnostic::ExpectedSemicolonAfterExpression);
-		diag.report(msg);
-		return nullptr;
-	}
+	if (!match(tok_semicolon))
+		return error(diag, Diagnostic::ExpectedSemicolonAfterExpression, token);
 
 	return std::move(expr);
 }
@@ -365,14 +350,14 @@ uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
 	if (!match(tok_l_paren))
-		return unexpectedTokenError(tok_l_paren);
+		return error_unexpected_token(diag, token, tok_l_paren);
 
 	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
 		return nullptr;
 
 	if (!match(tok_r_paren))
-		return unexpectedTokenError(tok_r_paren);
+		return error_unexpected_token(diag, token, tok_r_paren);
 
 	uptr<ast::Statement> ifBody = parseStatement();
 	if (!ifBody)
@@ -425,12 +410,12 @@ uptr<ast::Expression>
 Parser::parseParenExpr()
 {
 	if (!match(tok_l_paren))
-		return unexpectedTokenError(tok_l_paren); // Expected (
+		return error_unexpected_token(diag, token, tok_l_paren); // Expected (
 
 	uptr<ast::Expression> expr = parseExpression();
 
 	if (!match(tok_r_paren))
-		return unexpectedTokenError(tok_r_paren);
+		return error_unexpected_token(diag, token, tok_r_paren);
 
 	return expr;
 }
@@ -518,7 +503,7 @@ Parser::parse_call_expr(std::string_view func)
 				break;
 
 			if (!match(tok_comma))
-				return unexpectedTokenError(tok_comma); // expected ,
+				return error_unexpected_token(diag, token, tok_comma); // expected ,
 		}
 	}
 
@@ -549,17 +534,6 @@ Parser::parseNumberExpr()
 	getNextToken();
 
 	return std::make_unique<ast::NumberExpr>(tok.data());
-}
-
-// Print out diagnostic and return nullptr
-// Assumes that it is called after failed match()
-std::nullptr_t Parser::unexpectedTokenError(TokenType expected)
-{
-	Diagnostic msg(Location(), Diagnostic::UnexpectedToken);
-	msg << spellToken(expected) << spellToken(token);
-	diag.report(msg);
-
-	return nullptr;
 }
 } // namespace script
 } // namespace aw
