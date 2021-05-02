@@ -46,9 +46,6 @@ Parser::parseDeclaration()
 	case kw_func:
 		decl = parseFunctionDefinition();
 		break;
-	case kw_prototype:
-		decl = parsePrototypeDeclaration();
-		break;
 	case kw_class:
 		decl = parseClassDeclaration();
 		break;
@@ -267,39 +264,6 @@ Parser::parseClassDeclaration()
 #endif
 }
 
-/*
- * prototype ::= 'prototype' id '(' id ')' '{' stmts '}'
- */
-uptr<ast::Declaration>
-Parser::parsePrototypeDeclaration()
-{
-	return error_not_implemented_yet(diag, token);
-#if 0
-	// Prototype name
-	if (!is_identifier(getNextToken()))
-		return 0;
-
-	std::string_view name = token.data();
-
-	if (!getNextToken().type() != tok_l_paren)
-		return 0;
-
-	if (!is_identifier(getNextToken()))
-		return 0;
-
-	std::string base = token.data();
-
-	if (!getNextToken().type() != tok_r_paren)
-		return 0;
-	
-	if (!getNextToken().type() != tok_l_brace)
-		return 0;
-
-	StatementBlock* body = parseStatementBlock();
-
-	return new PrototypeDeclaration(name, base, body);
-#endif
-}
 
 uptr<ast::Statement>
 Parser::parseStatement()

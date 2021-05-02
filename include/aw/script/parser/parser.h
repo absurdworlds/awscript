@@ -58,11 +58,11 @@ private:
 	bool match(TokenType expected);
 
 	uptr<ast::Declaration> parseClassDeclaration();
-	uptr<ast::Declaration> parsePrototypeDeclaration();
-	uptr<ast::FunctionProto> parseFunctionPrototype();
 	uptr<ast::Declaration> parseFunctionDefinition();
 	uptr<ast::Declaration> parse_variable_declaration();
 	uptr<ast::Declaration> parseConstantDeclaration();
+
+	uptr<ast::FunctionProto> parseFunctionPrototype();
 
 	uptr<ast::Variable> parse_variable();
 
