@@ -11,28 +11,26 @@
 #include <functional>
 #include <aw/types/types.h>
 namespace aw::script {
-namespace characters {
 /*!
  * Character categories
  */
-enum Category {
-	NameBegin     = 0x01,
-	Numeric       = 0x02,
-	Punctuation   = 0x04,
-	Space         = 0x08,
+enum char_category {
+	name_begin    = 0x01,
+	numeric       = 0x02,
+	punctuation   = 0x04,
+	space         = 0x08,
 	reserved1     = 0x10,
 	reserved2     = 0x20,
-	UnicodeHead   = 0x40,
-	UnicodeTail   = 0x80,
-	Name          = NameBegin | Numeric,
-	TokenBegin    = NameBegin | Numeric | Punctuation,
+	unicode_head  = 0x40,
+	unicode_tail  = 0x80,
+	name          = name_begin | numeric,
+	token_begin   = name_begin | numeric | punctuation,
 };
 
-//constexpr char_count = std::numeric_limits<char>::digits;
 /*!
  * Mapping of characters to categories
  */
-u8 types[] = {
+static u8 char_types[] = {
 //0  SOH  STX  ETX  EOT  ENQ  ACK  BEL  BS    \t   \n   \v   \f   \r   SO   SI
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x08,0x08,0x08,0x08,0x08,0x00,0x00,
 //DLE DC1  DC2  DC2  DC4  NAK  SYN  ETB  CAN  EM   SUB  ESC  FS   GS   RS   US
@@ -59,21 +57,20 @@ u8 types[] = {
 0x40,0x40,0x40,0x40,0x60,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
 0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x00,
 };
-} // namespace characters
 
 bool is_name_char(char c)
 {
-	return characters::types[(unsigned char)c] & characters::Name;
+	return char_types[(unsigned char)c] & char_category::name;
 }
 
 bool is_name_begin(char c)
 {
-	return characters::types[(unsigned char)c] & characters::NameBegin;
+	return char_types[(unsigned char)c] & char_category::name_begin;
 }
 
 bool is_token_begin(char c)
 {
-	return characters::types[(unsigned char)c] & characters::TokenBegin;
+	return char_types[(unsigned char)c] & char_category::token_begin;
 }
 } // namespace aw::script
 #endif//aw_script_char_type_h
