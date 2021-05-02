@@ -182,8 +182,6 @@ Parser::parseFunctionPrototype()
 
 		args.push_back(std::move(arg));
 
-		getNextToken();
-
 		if (token.type() == tok_r_paren)
 			break;
 

@@ -22,7 +22,7 @@ func void test3()
 	x = (y = (z = calculate()));
 }
 
-func float test4()
+func float test4(var int a)
 {
 	a + b * c - (d + e) * f * g + h;
 }

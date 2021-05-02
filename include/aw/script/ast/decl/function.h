@@ -52,9 +52,10 @@ public:
 	}
 private:
 	FunctionProto(std::string_view id, std::string_view returnType, ArgList args)
-		: Declaration(Declaration::FunctionProto),
-		  name(id),
-		  returnType(returnType)
+		: Declaration(Declaration::FunctionProto)
+		, name(id)
+		, returnType(returnType)
+		, args(std::move(args))
 	{
 	}
 
