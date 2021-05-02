@@ -8,6 +8,7 @@
  */
 #include <aw/script/ast/decl/variable.h>
 #include <aw/script/ast/decl/function.h>
+#include <aw/script/ast/decl/class.h>
 
 #include <aw/script/ast/expr/unary.h>
 #include <aw/script/ast/expr/binary.h>
@@ -76,6 +77,20 @@ void Printer::visit(ast::Variable& node)
 		init->accept(*this);
 		writer.end_node();
 	}
+	writer.end_node();
+}
+
+void Printer::visit(ast::ClassDeclaration& node)
+{
+	writer.start_node("class");
+	write_value("name", node.name());
+
+	writer.start_node("body");
+	for (auto& member : node.data_members())
+	{
+		member->accept(*this);
+	}
+	writer.end_node();
 	writer.end_node();
 }
 

@@ -15,6 +15,7 @@ class Node;
 class FunctionProto;
 class Function;
 class Variable;
+class ClassDeclaration;
 class StatementBlock;
 class IfElseStatement;
 class NumberExpr;
@@ -28,17 +29,18 @@ class Visitor {
 public:
 	virtual ~Visitor() = default;
 
-	virtual void visit(ast::FunctionProto& node) {};
-	virtual void visit(ast::Function& node) {};
-	virtual void visit(ast::Variable& node) {};
-	virtual void visit(ast::StatementBlock& node) {};
-	virtual void visit(ast::IfElseStatement& node) {};
-	virtual void visit(ast::NumberExpr& node) {};
-	virtual void visit(ast::StringExpr& node) {};
-	virtual void visit(ast::IdentifierExpr& node) {};
-	virtual void visit(ast::CallExpr& node) {};
-	virtual void visit(ast::UnaryExpr& node) {};
-	virtual void visit(ast::BinaryExpr& node) {};
+	virtual void visit(ast::FunctionProto& node) {}
+	virtual void visit(ast::Function& node) {}
+	virtual void visit(ast::Variable& node) {}
+	virtual void visit(ast::ClassDeclaration& node) {}
+	virtual void visit(ast::StatementBlock& node) {}
+	virtual void visit(ast::IfElseStatement& node) {}
+	virtual void visit(ast::NumberExpr& node) {}
+	virtual void visit(ast::StringExpr& node) {}
+	virtual void visit(ast::IdentifierExpr& node) {}
+	virtual void visit(ast::CallExpr& node) {}
+	virtual void visit(ast::UnaryExpr& node) {}
+	virtual void visit(ast::BinaryExpr& node) {}
 };
 
 } // namespace ast

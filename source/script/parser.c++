@@ -11,6 +11,7 @@
 
 #include <aw/script/ast/decl/variable.h>
 #include <aw/script/ast/decl/function.h>
+#include <aw/script/ast/decl/class.h>
 
 #include <aw/script/ast/expression.h>
 #include <aw/script/ast/expr/unary.h>
@@ -235,34 +236,34 @@ Parser::parseClassDeclaration()
 	if (!is_identifier(getNextToken()))
 		return error(diag, Diagnostic::expected_identifier, token);
 
-	return error_not_implemented_yet(diag, token);
-
-#if 0
 	std::string_view name = token.data();
 
-	if (!getNextToken().type() != tok_l_brace)
-		return new ClassDeclaration(name);
+	getNextToken(); // consume name;
 
-	// Class members
-	std::vector<Variable*> members;
-	while (getNextToken().type() == kw_var) {
-		auto var = parse_variable();
-		if (var == 0)
-			return 0;
-
-		members.push_back(var);
-
-		getNextToken();
-
-		if (token != tok_semicolon)
-			return 0;
+	if (!match(tok_l_brace))
+	{
+		if (!match(tok_semicolon))
+			return error_unexpected_token(diag, token, tok_semicolon);
+		return std::make_unique<ast::ClassDeclaration>(name);
 	}
 
-	if (!getNextToken().type() != tok_r_brace)
-		return 0;
+	// Class members
+	std::vector<uptr<ast::Variable>> members;
+	while (match(kw_var)) {
+		auto var = parse_variable();
+		if (!var)
+			return nullptr;
 
-	return new ClassDeclaration(name, members);
-#endif
+		members.emplace_back(std::move(var));
+
+		if (!match(tok_semicolon))
+			return error_unexpected_token(diag, token, tok_semicolon);
+	}
+
+	if (!match(tok_r_brace))
+		return error_unexpected_token(diag, token, tok_r_brace);
+
+	return std::make_unique<ast::ClassDeclaration>(name, std::move(members));
 }
 
 

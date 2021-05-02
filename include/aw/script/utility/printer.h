@@ -21,6 +21,7 @@ public:
 	virtual void visit(ast::FunctionProto& node);
 	virtual void visit(ast::Function& node);
 	virtual void visit(ast::Variable& node);
+	void visit(ast::ClassDeclaration& node) override;
 	virtual void visit(ast::StatementBlock& node);
 	virtual void visit(ast::IfElseStatement& node);
 	virtual void visit(ast::NumberExpr& node);

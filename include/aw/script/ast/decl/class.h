@@ -6,56 +6,45 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef _hrscript_AST_ClassDeclaration_
-#define _hrscript_AST_ClassDeclaration_
-#include <hrscript/ast/Declaration.h>
-#include <hrscript/ast/Statement.h>
-namespace hrscript {
+#ifndef aw_script_ast_class_declaration_h
+#define aw_script_ast_class_declaration_h
+#include <aw/script/ast/decl/variable.h>
+namespace aw::script {
 namespace ast {
-/* TODO: give this class a more suitable name
- * (prototype is not a new type, but rather just a template for
- * an instance, or at least it seemes to be so)
- */
-class TypeDeclaration : public Declaration {
+class Variable;
+class ClassDeclaration : public Declaration {
 public:
-	virtual ~TypeDeclaration();
+	ClassDeclaration(std::string_view name)
+		: Declaration(Class)
+		, _name(name)
+	{
+	}
+	ClassDeclaration(std::string_view name, std::vector<uptr<ast::Variable>> members)
+		: Declaration(Class)
+		, _name(name)
+		, members(std::move(members))
+	{
+	}
 
-	virtual void accept(ast::Visitor& visitor) = 0;
-}
 
-class ClassDeclaration : public TypeDeclaration {
-public:
-	virtual ~ClassDeclaration();
+	virtual ~ClassDeclaration() = default;
 
-	virtual void accept(ast::Visitor& visitor);
+	virtual void accept(ast::Visitor& visitor)
+	{
+		visitor.visit(*this);
+	}
+
+	std::string_view name() const { return _name; }
+
+	std::vector<uptr<ast::Variable>> const& data_members() const
+	{
+		return members;
+	}
+
 private:
-	std::string name;
-	std::vector<VariableDeclaration*> body;
-};
-
-class PrototypeDeclaration : public TypeDeclaration {
-public:
-	virtual ~ClassDeclaration();
-
-	virtual void accept(ast::Visitor& visitor);
-protected:
-	std::string name;
-	TypeDeclaration* base;
-	// It seems like prototype allows only assignments inside it,
-	// while instance additionally allows at least function calls
-	std::vector<Statement*> stmts;
-};
-
-class InstanceDeclaration : public Declaration {
-public:
-	virtual ~ClassDeclaration();
-
-	virtual void accept(ast::Visitor& visitor);
-private:
-	std::string name;
-	TypeDeclaration* base;
-	std::vector<Statement*> stmts;
+	std::string_view _name;
+	std::vector<uptr<ast::Variable>> members;
 };
 } // namespace ast
-} // namespace hrscript
-#endif//_hrscript_AST_ClassDeclaration_
+} // namespace aw::script
+#endif//aw_script_ast_class_declaration_h
