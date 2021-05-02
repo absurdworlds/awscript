@@ -15,7 +15,7 @@ enum TokenType {
 #define TOKEN(x) tok_ ## x,
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x,
-#include <aw/script/lexer/token_kinds.h>
+#include <aw/script/lexer/tokens.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD

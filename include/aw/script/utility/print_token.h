@@ -43,7 +43,7 @@ std::string nameToken(TokenType type)
 #define TOKEN(x)   case TOKEN1(x)   : return STR(TOKEN1(x)); 
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) case KEYWORD1(x) : return STR(KEYWORD1(x));
-#include <aw/script/lexer/token_kinds.h>
+#include <aw/script/lexer/tokens.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD
@@ -57,7 +57,7 @@ std::string spellToken(TokenType kind)
 #define TOKEN(x)    case TOKEN1(x)   : return STR(x);
 #define PUNCT(x, y) case TOKEN1(x)   : return y;
 #define KEYWORD(x)  case KEYWORD1(x) : return STR(x);
-#include <aw/script/lexer/token_kinds.h>
+#include <aw/script/lexer/tokens.h>
 #undef TOKEN
 #undef PUNCT
 #undef KEYWORD
@@ -67,6 +67,6 @@ std::string spellToken(TokenType kind)
 
 #undef TOKEN1
 #undef KEYWORD1
-} // namespace hrscript
+} // namespace script
 } // namespace aw
 #endif//aw_script_print_token_h
