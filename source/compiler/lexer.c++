@@ -10,7 +10,7 @@
 #include <aw/script/lexer/lexer.h>
 namespace aw {
 namespace script {
-Lexer::Lexer(SourceBuffer* inputBuffer)
+Lexer::Lexer(source_buffer* inputBuffer)
 	: buf(inputBuffer)
 {
 	// Setup keywords
@@ -204,11 +204,11 @@ char Lexer::peek()
  */
 bool Lexer::lexNextToken(Token& tok)
 {
-	char const* tok_start = cur;
-
 lexNextToken:
 	while (isspace(*cur))
 		++cur;
+
+	char const* tok_start = cur;
 
 	switch (*cur) {
 	case 0:
@@ -287,6 +287,7 @@ lexNextToken:
 			tok.setType(tok_pipe);
 		}
 		// TODO: does daedalus have '|= operator?
+		break;
 	case '!':
 		if (peek() == '=') {
 			tok.setType(tok_bang_equal);

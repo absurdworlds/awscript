@@ -15,7 +15,7 @@ namespace aw {
 namespace script {
 class Lexer {
 public:
-	Lexer(SourceBuffer* inputBuffer);
+	Lexer(source_buffer* inputBuffer);
 
 	Token getCurrentToken();
 	Token getNextToken();
@@ -36,7 +36,7 @@ private: //func
 private: //data
 	Token curToken;
 	keyword_map kwmap;
-	SourceBuffer* buf;
+	source_buffer* buf;
 	char const* cur;
 };
 } // namespace script

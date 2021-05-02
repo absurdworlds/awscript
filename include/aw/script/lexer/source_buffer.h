@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  hedede <haddayn@gmail.com>
+ * Copyright (C) 2016 hedede <haddayn@gmail.com>
  *
  * License LGPLv3 or later:
  * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
@@ -8,21 +8,63 @@
  */
 #ifndef aw_script_source_buffer_h
 #define aw_script_source_buffer_h
-#include <aw/script/common/types.h>
-namespace aw {
-namespace script {
+#include <aw/io/read_file.h>
+#include <aw/io/file.h>
+namespace aw::script {
 /*!
  * Wraps access to source files
  */
-class SourceBuffer {
+class source_buffer {
 public:
-	virtual ~SourceBuffer() = default;
-	// TODO: ptrwrapper
-	char const* begin();
-	char const* end();
+	source_buffer(aw::io::read_file<aw::io::file>& file)
+		: buffer(nullptr)
+		, length(0)
+	{
+		if (!file.is_open())
+			return;
+		
+		length = file.size();
 
-	size_t getLength();
+		buffer = new char[length + 1];
+
+		auto res = file.read(buffer, length);
+
+		if (res < 0)
+			free();
+
+		// Sentinel
+		buffer[length+1] = 0;
+	}
+
+	~source_buffer()
+	{
+	}
+
+	char const* begin()
+	{
+		return buffer;
+	}
+
+	char const* end()
+	{
+		return buffer + length;
+	}
+
+	size_t size()
+	{
+		return length;
+	}
+private:
+	void free()
+	{
+		if (buffer)
+			delete[] buffer;
+		buffer = 0;
+		length = 0;
+	}
+
+	char* buffer;
+	size_t length;
 };
-} // namespace script
-} // namespace aw
+} // namespace aw::script
 #endif//aw_script_source_buffer_h
