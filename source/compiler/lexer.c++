@@ -143,27 +143,33 @@ bool Lexer::lexIllegalToken(Token& token)
 	return true;
 }
 
-void Lexer::skipLineComment()
+void Lexer::skip_line_comment()
 {
-	// crude comment handling
-	do {
-		++cur;
-	} while (*cur != '\n');
+	cur = std::find(cur, end, '\n');
 }
 
-void Lexer::skipBlockComment()
+void Lexer::skip_block_comment()
 {
-	while (*cur != 0) {
-		// TODO: Inefficient! Check multiple chars at once
-		while (*cur != '/' && *cur != 0) {
-			++cur;
-		}
+	// Skip ‘/* ’.
+	constexpr ptrdiff_t skip_count = 3;
+	// Third character:
+	// - If it is '/', then it needs to be skipped or ‘/*/’
+	// would be handled incorrectly
+	// - If it is '*' followed by '/' then it is going to be handled
+	// in the loop below (as a `prev()`)
+	// - If it is anything else, then it doesn't matter and
+	// can be skipped in any case.
+	cur += std::min(skip_count, end - cur);
 
-		char const* prev = cur - 1;
-		if (*prev == '*') {
-			++cur;
+	while (true) {
+		cur = std::find(cur, end, '/');
+
+		if (cur == end)
 			break;
-		}
+
+		if (prev() == '*')
+			break;
+		++cur;
 	}
 }
 
@@ -171,9 +177,9 @@ void Lexer::handleComment()
 {
 	char p = peek();
 	if (p == '*') {
-		skipBlockComment();
+		skip_block_comment();
 	} else if (p == '/') {
-		skipLineComment();
+		skip_line_comment();
 	} else {
 		// Not a comment - we're done.
 		return;

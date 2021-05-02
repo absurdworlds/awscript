@@ -30,8 +30,8 @@ private: //func
 	bool lexStringLiteral(Token& token);
 	bool lex_numeric_constant(Token& token);
 	bool lexNextToken(Token& token);
-	void skipLineComment();
-	void skipBlockComment();
+	void skip_line_comment();
+	void skip_block_comment();
 	void handleComment();
 
 	size_t loc(char const* pos) const
