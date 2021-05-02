@@ -31,11 +31,12 @@ else
 	InstallDir = $(RootPath)/lib
 	OutputShortName = lib$(ProjectName).so
 	OutputName = $(OutputShortName).$(Version)
-	EXTRAFLAGS += -shared 
+	EXTRAFLAGS += -shared
 endif
 BuildDir = $(RootPath)/build/$(ProjectName)
 Includes = -I$(RootPath)/include
-Objects = $(patsubst %.cpp, $(BuildDir)/%.o, $(Sources))
+SourceExt ?= c++
+Objects = $(patsubst %.$(SourceExt), $(BuildDir)/%.o, $(Sources))
 Depends = $(Objects:.o=.d)
 ProjectDefines = $(addprefix -D,$(Defines))
 ProjectDependencies = $(addprefix -l,$(Libraries))
@@ -44,24 +45,26 @@ ProjectDependencies = $(addprefix -l,$(Libraries))
 # User configuration
 include $(RootPath)/Config.mk
 
-ExtraIncludePaths = $(addprefix -I$(RootPath)/,$(CONFIG_INCLUDE_PATHS))
-ExtraLibraryPaths = $(addprefix -L$(RootPath)/,$(CONFIG_LIBRARY_PATHS))
+ExtraIncludePaths = $(addprefix -I,$(CONFIG_INCLUDE_PATHS))
+ExtraLibraryPaths = $(addprefix -L,$(CONFIG_LIBRARY_PATHS))
 
 # Tool configuration
 MKDIR_P = mkdir -p
 ECHO = @echo
 
-CXXFLAGS  = -std=c++14
+CXXFLAGS  = -std=c++17
 CXXFLAGS += -fPIC
-CXXFLAGS += -fno-exceptions
 CXXFLAGS += -fvisibility=default
 CXXFLAGS += -fdiagnostics-color=auto
+CXXFLAGS += -Werror=return-type
 CXXFLAGS_DEBUG   = -g -DDEBUG -D_DEBUG
-CXXFLAGS_RELEASE = -O3 -DNDEBUG
+CXXFLAGS_RELEASE = -g -O3 -DNDEBUG
+CXXFLAGS += $(ProjectFlags)
 
 CCFLAGS  = -std=c11
-CPPFLAGS = $(ProjectDefines) $(Includes) $(ExtraIncludePaths)
-LDFLAGS  = -Wl,-rpath-link,$(RootPath)/lib,-R,'$$ORIGIN/../lib' -L$(RootPath)/lib
+CPPFLAGS = $(ProjectDefines) $(Includes) $(ExtraIncludePaths) $(EXTRA_DEFINES)
+LDFLAGS += -fuse-ld=gold
+LDFLAGS += -Wl,-rpath-link,$(RootPath)/lib,-R,'$$ORIGIN/../lib' -L$(RootPath)/lib
 LDFLAGS += $(ExtraLibraryPaths)
 LDFLAGS += $(ProjectDependencies)
 
@@ -72,10 +75,17 @@ CXXFLAGS += -MMD -MP
 endif
 
 # Colors
+ifeq ($(color),none)
+PRINTF = @true
+PRINTF_BOLD=$(PRINTF)
+PRINTF_RED=$(PRINTF)
+PRINTF_RESET=$(PRINTF)
+else
 PRINTF = @printf
 PRINTF_BOLD=$(PRINTF) '\033[1m'
 PRINTF_RED=$(PRINTF) '\033[31m'
 PRINTF_RESET=$(PRINTF) '\033[0m'
+endif
 
 # Build rules
 all: debug install
@@ -84,11 +94,13 @@ all: debug install
 debug: CXXFLAGS+=$(CXXFLAGS_DEBUG)
 debug: Build
 
-.PHONY: release  
+.PHONY: release
 release: CXXFLAGS+=$(CXXFLAGS_RELEASE)
 release: Build
 
-$(BuildDir)/%.o: %.cpp
+.c++:
+
+$(BuildDir)/%.o: %.$(SourceExt)
 	$(PRINTF_BOLD)
 	$(ECHO) [Build] Compiling $@
 	$(PRINTF_RESET)
