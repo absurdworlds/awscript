@@ -10,28 +10,28 @@
 namespace aw {
 namespace script {
 // Link token to a keyword
-keyword_map& keyword_map::add(std::string def, TokenType kind)
+keyword_map& keyword_map::add(std::string_view name, TokenType kind)
 {
-	theMap[def] = kind;
+	_map[std::string(name)] = kind;
 	return *this;
 }
 
 // Get token type from string
-TokenType keyword_map::get(std::string def)
+TokenType keyword_map::get(std::string_view name) const
 {
-	auto result = theMap.find(def);
+	auto result = _map.find(name);
 
-	if (result == std::end(theMap))
+	if (result == std::end(_map))
 		// TODO: better indication that it is not present
 		return tok_illegal;
 
-	return theMap[def];
+	return result->second;
 }
 
 // Check if keyword is present
-bool keyword_map::is_keyword(std::string def)
+bool keyword_map::is_keyword(std::string_view name) const
 {
-	return get(def) != tok_illegal;
+	return get(name) != tok_illegal;
 }
 } // namespace script
 } // namespace aw

@@ -22,21 +22,21 @@ public:
 	 * Add a symbol to keyword map.
 	 * (Link string to a token)
 	*/
-	keyword_map& add(std::string def, TokenType kind);
+	keyword_map& add(std::string_view name, TokenType kind);
 
 	/*!
 	 * Get token type from string
 	 */ 
-	TokenType get(std::string def);
+	TokenType get(std::string_view name) const;
 
 	/*!
 	 * Check if string is a keyword.
 	 * Checks if it is present in the map.
 	 */
-	bool is_keyword(std::string def);
+	bool is_keyword(std::string_view name) const;
 
 private:
-	std::map<std::string, TokenType> theMap;
+	std::map<std::string, TokenType, std::less<>> _map;
 };
 } // namespace aw::script
 #endif//aw_script_keyword_map_h
