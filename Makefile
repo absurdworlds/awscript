@@ -5,13 +5,13 @@ LexerTest:
 	@ $(MAKE) -C 'tests/lexer_test' $(TARGET)
 
 ParserTest:
-	@ $(MAKE) -C 'tests/ParserTest' $(TARGET)
+	@ $(MAKE) -C 'tests/parser_test' $(TARGET)
 
-libraries: libhrscript libhrscript-utils
+libraries: libawscript libawscript-utils
 .PHONY: libraries
 
-libhrscript:
+libawscript:
 	@ $(MAKE) -C 'source/hrscript' $(TARGET)
 
-libhrscript-utils:
+libawscript-utils:
 	@ $(MAKE) -C 'source/utils' $(TARGET)
