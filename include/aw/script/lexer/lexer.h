@@ -28,7 +28,7 @@ private: //func
 	bool lexIllegalToken(Token& token);
 	bool lex_identifier(Token& token);
 	bool lexStringLiteral(Token& token);
-	bool lexNumericConstant(Token& token);
+	bool lex_numeric_constant(Token& token);
 	bool lexNextToken(Token& token);
 	void skipLineComment();
 	void skipBlockComment();

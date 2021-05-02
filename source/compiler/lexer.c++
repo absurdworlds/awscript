@@ -8,6 +8,7 @@
  */
 #include <cassert>
 #include <aw/types/types.h>
+#include <aw/algorithm/in.h>
 #include <aw/script/lexer/lexer.h>
 
 #include "char_type.h"
@@ -18,26 +19,26 @@ Lexer::Lexer(source_buffer* inputBuffer)
 {
 	// Setup keywords
 	kwmap
-	.add("const", kw_const)
-	.add("var", kw_var)
-	.add("func", kw_func)
-	.add("if", kw_if)
-	.add("else", kw_else)
-	.add("class", kw_class)
-	.add("prototype", kw_prototype)
-	.add("instance", kw_instance)
-	.add("return", kw_return)
-	.add("void", kw_void)
-	.add("float", kw_float)
-	.add("int", kw_int)
-	.add("string", kw_string)
-	.add("import", kw_import)
-	.add("export", kw_export)
-	.add("while",  kw_while)
-	.add("do",     kw_do)
-	.add("extern", kw_extern)
-	.add("break",  kw_break)
-	.add("continue", kw_continue);
+	.add("const",      kw_const)
+	.add("var",        kw_var)
+	.add("func",       kw_func)
+	.add("if",         kw_if)
+	.add("else",       kw_else)
+	.add("class",      kw_class)
+	.add("prototype",  kw_prototype)
+	.add("instance",   kw_instance)
+	.add("return",     kw_return)
+	.add("void",       kw_void)
+	.add("float",      kw_float)
+	.add("int",        kw_int)
+	.add("string",     kw_string)
+	.add("import",     kw_import)
+	.add("export",     kw_export)
+	.add("while",      kw_while)
+	.add("do",         kw_do)
+	.add("extern",     kw_extern)
+	.add("break",      kw_break)
+	.add("continue",   kw_continue);
 
 	cur = buf->begin();
 	end = buf->end();
@@ -83,20 +84,20 @@ bool Lexer::lex_identifier(Token& token)
 	return true;
 }
 
-bool Lexer::lexNumericConstant(Token& token)
+bool Lexer::lex_numeric_constant(Token& token)
 {
 	char const* start = cur;
 
+	// TODO: separate integer and real literals?
+	// TODO: support short form: .05
 	// TODO: "non-greedy" algorithm
-	while (isalnum(*cur) || *cur == '.') {
-		++cur;
-	}
+	cur = std::find_if_not(cur, end, isalnum);
 
-	char const* prev = cur - 1;
-	if ((*cur == '-' || *cur == '+') && (*prev == 'e' || *prev == 'E')) {
-		do {
-			++cur;
-		} while (isalnum(*cur) || *cur == '.');
+	if (*cur == '.') {
+		cur = std::find_if_not(cur+1, end, isalnum);
+
+		if (in(*cur, '-', '+') && in(prev(), 'e', 'E'))
+			cur = std::find_if_not(cur, end, isalnum);
 	}
 
 	std::string_view num(start, cur);
@@ -109,6 +110,7 @@ bool Lexer::lexNumericConstant(Token& token)
 bool Lexer::lexStringLiteral(Token& token)
 {
 	char const* start = cur;
+	// TODO: non-multiline strings
 	while (*cur != '"') {
 		cur = std::find(cur, end, '"');
 		if (cur == end)
@@ -216,7 +218,7 @@ lexNextToken:
 	/* Numeric constants */
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
-		return lexNumericConstant(tok);
+		return lex_numeric_constant(tok);
 	/* String literal */
 	case '"':
 		++ cur; // consume '"'
