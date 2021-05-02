@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	io::read_file<io::file> file(argv[1]);
 	source_buffer buffer(file);
 	Lexer lexer(&buffer);
-	DiagnosticsEngine diag;
+	diagnostics_engine diag;
 	Parser parser(lexer, diag);
 
 	TestWriteStream out;

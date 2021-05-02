@@ -41,12 +41,12 @@ public:
 		return writeAccessible;
 	}
 
-	virtual void setWriteable(bool writeable)
+	virtual void set_const(bool is_const)
 	{
-		writeAccessible = writeable;
+		writeAccessible = !is_const;
 	}
 
-	virtual void setInitialier(std::unique_ptr<Expression> newVal)
+	virtual void set_initialier(std::unique_ptr<Expression> newVal)
 	{
 		val = std::move(newVal);
 	}
@@ -58,13 +58,13 @@ public:
 private:
 	Variable(std::string_view id)
 		: Declaration(Declaration::Variable),
-		  name(id), writeAccessible(true)
+		  name(id)
 	{
 	}
 
 	std::string_view name;
 	std::unique_ptr<Expression> val;
-	bool writeAccessible;
+	bool writeAccessible = true;
 };
 } // namespace ast
 } // namespace script

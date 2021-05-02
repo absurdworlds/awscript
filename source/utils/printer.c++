@@ -70,6 +70,12 @@ void Printer::visit(ast::Variable& node)
 {
 	writer.start_node("var");
 	write_value("name", node.getName());
+	if (auto init = node.getInitializer())
+	{
+		writer.start_node("init");
+		init->accept(*this);
+		writer.end_node();
+	}
 	writer.end_node();
 }
 

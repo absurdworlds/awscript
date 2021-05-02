@@ -23,14 +23,14 @@ class Variable;
 class Expression;
 }
 
-class DiagnosticsEngine;
+class diagnostics_engine;
 
 /*!
  * Parser transforms token stream into the Abstract Syntax Stream (AST).
  */
 class Parser {
 public:
-	Parser(Lexer& lexer, DiagnosticsEngine& diag)
+	Parser(Lexer& lexer, diagnostics_engine& diag)
 		: lexer(lexer), diag(diag)
 	{
 		token = lexer.getCurrentToken();
@@ -50,16 +50,8 @@ public:
 	{
 		return token = lexer.getNextToken();
 	}
+
 private:
-	/*! Current lookahead (peek) token. */
-	Token token;
-
-	/*! Lexer which provides the stream of tokens */
-	Lexer& lexer;
-
-	/*! Diagnostics engine for error reporting */
-	DiagnosticsEngine& diag;
-
 	/*!
 	 * Match token, and consume if matched.
 	 */
@@ -69,8 +61,10 @@ private:
 	uptr<ast::Declaration> parsePrototypeDeclaration();
 	uptr<ast::FunctionProto> parseFunctionPrototype();
 	uptr<ast::Declaration> parseFunctionDefinition();
-	uptr<ast::Variable> parseVariableDeclaration();
+	uptr<ast::Declaration> parse_variable_declaration();
 	uptr<ast::Declaration> parseConstantDeclaration();
+
+	uptr<ast::Variable> parse_variable();
 
 	uptr<ast::StatementBlock> parseStatementBlock();
 	uptr<ast::Statement> parseStatement();
@@ -94,6 +88,16 @@ private:
 	 * Assumes that it is called after failed match()
 	 */
 	std::nullptr_t unexpectedTokenError(TokenType expected);
+
+private:
+	/*! Current lookahead (peek) token. */
+	Token token;
+
+	/*! Lexer which provides the stream of tokens */
+	Lexer& lexer;
+
+	/*! Diagnostics engine for error reporting */
+	diagnostics_engine& diag;
 };
 
 } // namespace script

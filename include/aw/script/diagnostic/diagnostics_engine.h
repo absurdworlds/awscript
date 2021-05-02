@@ -20,17 +20,21 @@ namespace script {
 /*!
  * This class is used to output diagnostic_engine messages.
  */
-class DiagnosticsEngine {
+class diagnostics_engine {
 public:
-	DiagnosticsEngine()
+	diagnostics_engine()
 	{
 	}
 
 	void report(Diagnostic diag)
 	{
-		auto msg = aw::string::compose(
-		             getDiagMsg(diag.id), diag.args);
-		std::cerr << msg << "\n";
+		array_view<std::string> args(diag.args);
+		auto msg = aw::string::compose(getDiagMsg(diag.id), args);
+
+		auto line   = 0;
+		auto column = 0;
+
+		std::cerr << "error:" << line << ":" << column << ": " << msg << "\n";
 	}
 };
 } // namespace script

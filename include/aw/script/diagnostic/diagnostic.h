@@ -10,11 +10,11 @@
 #define aw_script_diagnostic_h
 namespace aw {
 namespace script {
-//! temporary, until implemented
+//TODO: use one from token, but move to a separate header first
 struct Location {
 };
 
-class DiagnosticsEngine;
+class diagnostics_engine;
 
 /*!
  * This class is used to compose diagnostic messages
@@ -38,7 +38,7 @@ public:
 		return *this;
 	}
 private:
-	friend class DiagnosticsEngine;
+	friend class diagnostics_engine;
 
 	Location loc;
 	ID id;
@@ -55,7 +55,7 @@ std::string getDiagMsg(Diagnostic::ID id)
 	return {};
 }
 
-Diagnostic& operator << (Diagnostic& diag, std::string str)
+Diagnostic& operator<<(Diagnostic& diag, std::string str)
 {
 	return diag.arg(str);
 }

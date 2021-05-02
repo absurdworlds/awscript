@@ -31,9 +31,10 @@
 namespace aw {
 namespace script {
 uptr<ast::Declaration>
-ErrorDeclaration(std::string msg)
+ErrorDeclaration(diagnostics_engine& diag, std::string str)
 {
-	//print(msg);
+	Diagnostic msg(Location{}, Diagnostic::generic_error); // TODO
+	diag.report(msg << str);
 	return nullptr;
 }
 
@@ -44,7 +45,7 @@ Parser::parseDeclaration()
 
 	switch(token.type()) {
 	case kw_var:
-		decl = parseVariableDeclaration();
+		decl = parse_variable_declaration();
 		break;
 	case kw_const:
 		decl = parseConstantDeclaration();
@@ -62,19 +63,65 @@ Parser::parseDeclaration()
 		return nullptr;
 	}
 
-	/* TODO: do not forget about global variables
-	if (token.type() != tok_semicolon)
-		return nullptr;
-		*/
+	/* TODO: do not forget about global variables*/
+	while (match(tok_semicolon));
 
 	return decl;
 }
 
 /*
- * variableDecl ::= 'var' id id
+ * variableDecl ::= 'var' id id '=' expr
  */
+uptr<ast::Declaration>
+Parser::parse_variable_declaration()
+{
+	getNextToken(); // consume 'var';
+
+	auto var = parse_variable();
+	if (!var)
+		return nullptr;
+
+	if (match(tok_equal))
+	{
+		auto initializer = parseExpression();
+		var->set_initialier(std::move(initializer));
+	}
+
+	if (!match(tok_semicolon))
+		return ErrorDeclaration(diag, "Expected semicolon");
+
+	return var;
+}
+
+
+/*
+ * constantDecl ::= 'const' id id '=' expr
+ */
+uptr<ast::Declaration>
+Parser::parseConstantDeclaration()
+{
+	getNextToken(); // consume 'const';
+
+	auto var = parse_variable();
+	if (!var)
+		return nullptr;
+
+	var->set_const(true);
+
+	if (!match(tok_equal))
+		return ErrorDeclaration(diag, "Expected initializer");
+
+	auto initializer = parseExpression();
+	var->set_initialier(std::move(initializer));
+
+	if (!match(tok_semicolon))
+		return ErrorDeclaration(diag, "Expected semicolon");
+
+	return ErrorDeclaration(diag, "NYI");
+}
+
 uptr<ast::Variable>
-Parser::parseVariableDeclaration()
+Parser::parse_variable()
 {
 	// Read variable type
 	if (!is_type_name(token))
@@ -87,40 +134,11 @@ Parser::parseVariableDeclaration()
 	// TODO: symbol table lookup
 	std::string_view name = token.data();
 
+	getNextToken(); // consume identifier
+
 	// Variable* var = new Variable(/*symbol*/, /*thingy*/)// TODO ;
 
 	return ast::Variable::create(name);
-}
-
-/*
- * constantDecl ::= 'const' id id '=' expr
- */
-uptr<ast::Declaration>
-Parser::parseConstantDeclaration()
-{
-	return ErrorDeclaration("NYI");
-#if 0
-	// Read variable type
-	if (!is_type_name(getNextToken()))
-		return 0;
-
-	// Read variable name
-	if (!is_identifier(getNextToken()))
-		return 0;
-
-	// TODO: symbol table lookup
-	std::string_view name = token.data();
-
-	// Read constant initializer
-	if (getNextToken().type() != tok_equals)
-		return 0;
-
-	ast::Expression* initializer = parseExpression();
-
-	// Constant* constant = new Constant(/*symbol*/, /*thingy*/); // TODO 
-
-	return new ConstantDeclaration(name, initializer);
-#endif
 }
 
 bool Parser::match(TokenType expected)
@@ -165,7 +183,7 @@ Parser::parseFunctionPrototype()
 	// TODO: 'var int a'  or  'int a'
 	// while ((token == tok_identifier) || (token == kw_var)) {
 	while (match(kw_var)) {
-		auto arg = parseVariableDeclaration();
+		auto arg = parse_variable();
 		if (!arg)
 			return nullptr;
 
@@ -229,7 +247,7 @@ Parser::parseFunctionDefinition()
 uptr<ast::Declaration>
 Parser::parseClassDeclaration()
 {
-	return ErrorDeclaration("NYI");
+	return ErrorDeclaration(diag, "NYI");
 #if 0
 	// Class name
 	if (!is_identifier(getNextToken()))
@@ -243,7 +261,7 @@ Parser::parseClassDeclaration()
 	// Class members
 	std::vector<Variable*> members;
 	while (getNextToken().type() == kw_var) {
-		auto var = parseVariableDeclaration();
+		auto var = parse_variable();
 		if (var == 0)
 			return 0;
 
@@ -268,7 +286,7 @@ Parser::parseClassDeclaration()
 uptr<ast::Declaration>
 Parser::parsePrototypeDeclaration()
 {
-	return ErrorDeclaration("NYI");
+	return ErrorDeclaration(diag, "NYI");
 #if 0
 	// Prototype name
 	if (!is_identifier(getNextToken()))

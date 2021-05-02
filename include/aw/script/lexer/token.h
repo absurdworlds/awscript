@@ -18,8 +18,8 @@ struct location {
 	{
 	}
 
-	u32 fileId = 0;
-	size_t pos = 0;
+	unsigned fileId = 0;
+	size_t   pos = 0;
 };
 
 enum TokenType {
