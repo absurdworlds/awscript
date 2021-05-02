@@ -2,6 +2,6 @@ RootPath = ../..
 Sources = lexer_test.c++
 ProjectName = LexerTest
 Executable = true
-Libraries = hrscript
+Libraries = awio awstring awscript
 
 include $(RootPath)/Rules.mk

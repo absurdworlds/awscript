@@ -7,10 +7,10 @@
  * There is NO WARRANTY, to the extent permitted by law.
  */
 #include <cstdio>
-#include <aw/io/ReadFile.h>
-#include <aw/io/InputFileStream.h>
-#include <hrscript/lexer/Lexer.h>
-#include <hrscript/utility/PrintToken.h>
+#include <aw/io/file.h>
+#include <aw/io/read_file.h>
+#include <aw/script/lexer/lexer.h>
+#include <aw/script/utility/print_token.h>
 namespace aw {
 namespace script {
 void printTokenInfo(Token& token)
@@ -36,14 +36,14 @@ void printTokenInfo(Token& token)
 
 int main(int argc, char** arg)
 {
-	using namespace aw::io;
+	using namespace aw;
 	using namespace aw::script;
 	if (argc < 2)
 		return 2;
 
-	ReadFile file(arg[1]);
-	InputFileStream fstream(file);
-	Lexer lexer(fstream);
+	io::read_file<io::file> file(arg[1]);
+	source_buffer buffer(file);
+	Lexer lexer(&buffer);
 
 	Token token = lexer.getCurrentToken();
 	do {
