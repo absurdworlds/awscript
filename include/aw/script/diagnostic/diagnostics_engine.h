@@ -13,6 +13,7 @@
 #include <aw/script/diagnostic/diagnostic.h>
 namespace aw {
 namespace script {
+class source_buffer;
 // TODO:
 // 1. Start building diagnostic
 // 2. Add details
@@ -26,6 +27,11 @@ public:
 	{
 	}
 
+	diagnostics_engine(source_buffer& buffer)
+		: _buffer(&buffer)
+	{
+	}
+
 	void report(Diagnostic diag)
 	{
 		array_view<std::string> args(diag.args);
@@ -33,9 +39,19 @@ public:
 
 		auto line   = diag.loc.pos;
 		auto column = 0;
+		if (_buffer)
+		{
+			auto pos = count_lines(*_buffer, line);
+			line = pos.row;
+			column = pos.column;
+		}
 
 		std::cerr << "error:" << line << ":" << column << ": " << msg << "\n";
 	}
+
+private:
+	// TODO: replace with source_manager
+	source_buffer* _buffer;
 };
 } // namespace script
 } // namespace aw

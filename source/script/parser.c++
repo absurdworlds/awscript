@@ -50,8 +50,10 @@ Parser::parseDeclaration()
 	case kw_class:
 		decl = parseClassDeclaration();
 		break;
-	default:
+	case tok_eof:
 		return nullptr;
+	default:
+		return error(diag, Diagnostic::expected_declaration, token);
 	}
 
 	/* TODO: do not forget about global variables*/

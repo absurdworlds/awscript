@@ -1,5 +1,5 @@
 RootPath = ../..
-Sources = keyword_map.c++ lexer.c++ parser.c++
+Sources = source_buffer.c++ keyword_map.c++ lexer.c++ parser.c++
 ProjectName = awscript
 Executable = false
 
