@@ -22,7 +22,7 @@ enum class token_kind {
 };
 
 struct token {
-	token_kind  kind = token_kind::illegal;
+	token_kind  kind = token_kind::none;
 	string_view data;
 	location    loc;
 	bool        incomplete = false;

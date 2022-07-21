@@ -13,8 +13,8 @@
 #include "char_type.h"
 
 namespace aw::script {
-lexer::lexer(source_buffer& buffer)
-	: buf(&buffer)
+lexer::lexer(source_buffer* buffer)
+	: buf(buffer)
 	, cur(buf->begin())
 	, end(buf->end())
 {

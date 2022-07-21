@@ -16,7 +16,8 @@ namespace aw::script {
 
 class lexer {
 public:
-	lexer(source_buffer& buffer);
+	// TODO: not_null
+	lexer(source_buffer* buffer);
 	~lexer();
 
 	token current() const;

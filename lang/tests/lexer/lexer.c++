@@ -11,7 +11,7 @@ namespace aw::script {
 auto lex_single_token(string_view string)
 {
 	source_buffer buf(string);
-	return lexer(buf).current();
+	return lexer(&buf).current();
 }
 
 Test(string_token_must_include_quotes) {
@@ -25,7 +25,7 @@ Test(string_token_must_include_quotes) {
 Test(adjacent_string_tokens_must_be_separate) {
 	Checks {
 		source_buffer buf(R"("s1""s2")");
-		lexer lex(buf);
+		lexer lex(&buf);
 
 		std::vector<string_view> tokens;
 		for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
@@ -40,7 +40,7 @@ Test(adjacent_string_tokens_must_be_separate) {
 
 	Checks {
 		source_buffer buf(R"("s1" "s2")");
-		lexer lex(buf);
+		lexer lex(&buf);
 
 		std::vector<string_view> tokens;
 		for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
@@ -58,7 +58,7 @@ Test(incomplete_string_should_be_marked_as_such) {
 	const auto string = R"("this string is ...)"sv;
 
 	source_buffer buf(string);
-	lexer lex(buf);
+	lexer lex(&buf);
 
 	const auto tok = lex.current();
 	TestAssert(tok.incomplete);
@@ -90,7 +90,7 @@ Test(each_comment_is_one_token) {
 	 * a block comment
 	 */
 )");
-	lexer lex(buf);
+	lexer lex(&buf);
 
 	{
 		const auto tok = lex.current();

@@ -4,6 +4,7 @@
  * and other things.
  */
 
+TOKEN(none)
 TOKEN(illegal)
 TOKEN(eof)
 TOKEN(identifier)
