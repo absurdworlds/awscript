@@ -10,39 +10,34 @@
 #define aw_script_print_token_h
 #include <string>
 #include <aw/script/lexer/token.h>
+#include <aw/meta/pp/macro.h>
 namespace aw {
 namespace script {
 /*!
  * Print token name (as in source code)
  */
-inline std::string nameToken(TokenType type);
+inline std::string name_token(token_kind type);
 
 /*!
  * Print sequence of characters which would produce the token
  */
-inline std::string spellToken(TokenType kind);
+inline std::string spell_token(token_kind kind);
 
 /*!
  * Get characters compirising the token.
  */
-inline std::string spellToken(Token token)
+inline std::string spell_token(token token)
 {
-	return std::string(token.data());
+	return std::string(token.data);
 }
 
-
-// some macro magic to print token names
-#define STR1(x) #x
-#define STR(x)  STR1(x)
-#define TOKEN1(x) tok_ ## x
-#define KEYWORD1(x) kw_ ## x
-
-std::string nameToken(TokenType type)
+std::string name_token(token_kind type)
 {
 	switch (type) {
-#define TOKEN(x)   case TOKEN1(x)   : return STR(TOKEN1(x)); 
-#define PUNCT(x, y) TOKEN(x)
-#define KEYWORD(x) case KEYWORD1(x) : return STR(KEYWORD1(x));
+// some macro magic to print token names
+#define TOKEN(x)    case token_kind::x: return AW_TO_STR(x);
+#define PUNCT(x, y) case token_kind::x: return AW_TO_STR(x);
+#define KEYWORD(x)  case token_kind::kw_##x: return AW_TO_STR(x);
 #include <aw/script/lexer/tokens.h>
 #undef TOKEN
 #undef PUNCT
@@ -51,12 +46,12 @@ std::string nameToken(TokenType type)
 	return {};
 }
 
-std::string spellToken(TokenType kind)
+std::string spell_token(token_kind kind)
 {
 	switch (kind) {
-#define TOKEN(x)    case TOKEN1(x)   : return STR(x);
-#define PUNCT(x, y) case TOKEN1(x)   : return y;
-#define KEYWORD(x)  case KEYWORD1(x) : return STR(x);
+#define TOKEN(x)    case token_kind::x: return AW_TO_STR(x);
+#define PUNCT(x, y) case token_kind::x: return y;
+#define KEYWORD(x)  case token_kind::kw_##x: return AW_TO_STR(x);
 #include <aw/script/lexer/tokens.h>
 #undef TOKEN
 #undef PUNCT
