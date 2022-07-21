@@ -8,65 +8,57 @@
  */
 #ifndef aw_script_diagnostic_h
 #define aw_script_diagnostic_h
+#include <vector>
+
 #include <aw/script/utility/location.h>
 #include <aw/script/utility/print_token.h>
-namespace aw {
-namespace script {
+namespace aw::script {
 class diagnostics_engine;
+
+enum class diagnostic_id {
+#define DIAG(type, id, msg) id,
+#include <aw/script/diag/messages.h>
+#undef DIAG
+};
 
 /*!
  * This class is used to compose diagnostic messages
  */
-class Diagnostic {
+class diagnostic {
 public:
-	enum ID {
-#define DIAG(type, id, msg) id,
-#include <aw/script/diagnostic/messages.h>
-#undef DIAG
-	};
-
-	Diagnostic(location loc, ID id)
+	diagnostic(location loc, diagnostic_id id)
 		: id(id), loc(loc)
 	{
 	}
 
-	Diagnostic& arg(std::string str)
+	diagnostic& arg(std::string str)
 	{
-		args.push_back(str);
+		args.push_back(std::move(str));
 		return *this;
 	}
 private:
 	friend class diagnostics_engine;
 
 	location loc;
-	ID id;
+	diagnostic_id id;
 	std::vector<std::string> args;
 };
 
-std::string getDiagMsg(Diagnostic::ID id)
-{
-	switch (id) {
-#define DIAG(type, id, msg) case Diagnostic::id: return msg;
-#include <aw/script/diagnostic/messages.h>
-#undef DIAG
-	}
-	return {};
-}
+std::string diag_message_template(diagnostic_id id);
 
-Diagnostic& operator<<(Diagnostic& diag, std::string str)
+inline diagnostic& operator<<(diagnostic& diag, std::string str)
 {
 	return diag.arg(str);
 }
 
-Diagnostic& operator<<(Diagnostic& diag, std::string_view str)
+inline diagnostic& operator<<(diagnostic& diag, std::string_view str)
 {
 	return diag.arg(std::string(str));
 }
 
-Diagnostic& operator<<(Diagnostic& diag, TokenType type)
+inline diagnostic& operator<<(diagnostic& diag, token_kind type)
 {
-	return diag.arg(spellToken(type));
+	return diag.arg(spell_token(type));
 }
-} // namespace script
-} // namespace aw
+} // namespace aw::script
 #endif//aw_script_diagnostic_h

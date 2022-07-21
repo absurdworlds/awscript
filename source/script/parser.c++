@@ -35,31 +35,6 @@ namespace script {
 uptr<ast::Declaration>
 Parser::parseDeclaration()
 {
-	uptr<ast::Declaration> decl;
-
-	switch(token.type()) {
-	case kw_var:
-		decl = parse_variable_declaration();
-		break;
-	case kw_const:
-		decl = parseConstantDeclaration();
-		break;
-	case kw_func:
-		decl = parseFunctionDefinition();
-		break;
-	case kw_class:
-		decl = parseClassDeclaration();
-		break;
-	case tok_eof:
-		return nullptr;
-	default:
-		return error(diag, Diagnostic::expected_declaration, token);
-	}
-
-	/* TODO: do not forget about global variables*/
-	while (match(tok_semicolon));
-
-	return decl;
 }
 
 /*
@@ -134,15 +109,6 @@ Parser::parse_variable()
 	return ast::Variable::create(name);
 }
 
-bool Parser::match(TokenType expected)
-{
-	if (token.type() != expected)
-		return false;
-
-	// consume token
-	getNextToken();
-	return true;
-}
 
 /*
  * functionDecl ::= 'func' id id '(' args ')'
@@ -500,6 +466,7 @@ Parser::parseNumberExpr()
 	getNextToken();
 
 	return std::make_unique<ast::NumberExpr>(tok.data());
-}
+	}
+
 } // namespace script
 } // namespace aw

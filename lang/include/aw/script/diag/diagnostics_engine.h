@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Hedede <haddayn@gmail.com>
+ * Copyright (C) 2015-2022 Hudd <haddayn@gmail.com>
  *
  * License LGPLv3 or later:
  * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
@@ -8,11 +8,9 @@
  */
 #ifndef aw_script_diagnostic_engine_h
 #define aw_script_diagnostic_engine_h
-#include <iostream> //temporary
 #include <aw/utility/string/compose.h>
-#include <aw/script/diagnostic/diagnostic.h>
-namespace aw {
-namespace script {
+#include <aw/script/diag/diagnostic.h>
+namespace aw::script {
 class source_buffer;
 // TODO:
 // 1. Start building diagnostic
@@ -32,27 +30,12 @@ public:
 	{
 	}
 
-	void report(Diagnostic diag)
-	{
-		array_view<std::string> args(diag.args);
-		auto msg = aw::string::compose(getDiagMsg(diag.id), args);
-
-		auto line   = diag.loc.pos;
-		auto column = 0;
-		if (_buffer)
-		{
-			auto pos = count_lines(*_buffer, line);
-			line = pos.row;
-			column = pos.column;
-		}
-
-		std::cerr << "error:" << line << ":" << column << ": " << msg << "\n";
-	}
+	// TODO: customizable output
+	void report(diagnostic diag);
 
 private:
 	// TODO: replace with source_manager
 	source_buffer* _buffer;
 };
-} // namespace script
-} // namespace aw
+} // namespace aw::script
 #endif//aw_script_diagnostic_engine_h
