@@ -2,6 +2,8 @@
 
 #include <aw/test/test.h>
 
+#include <aw/algorithm/join.h>
+
 TestFile("lexer-test")
 
 using namespace std::string_view_literals;
@@ -134,5 +136,43 @@ Test(block_comments_are_at_least_4_chars_long) {
 		TestAssert(tok.kind == token_kind::block_comment);
 		TestEqual(tok.data, "/**/"sv);
 	}
+}
+
+Test(all_defined_operators_should_be_lexed) {
+	using namespace std::string_literals;
+
+	const std::vector punct_tokens = {
+#define TOKEN(...)
+#define PUNCT(x, y) token_kind::x,
+#define KEYWORD(...)
+#include <aw/script/lexer/tokens.h>
+#undef TOKEN
+#undef PUNCT
+#undef KEYWORD
+	};
+
+	const std::vector punct_spellings = {
+#define TOKEN(...)
+#define PUNCT(x, y) y##sv,
+#define KEYWORD(...)
+#include <aw/script/lexer/tokens.h>
+#undef TOKEN
+#undef PUNCT
+#undef KEYWORD
+	};
+
+	auto string = aw::join(begin(punct_spellings), end(punct_spellings), " "s);
+
+	int index = 0;
+	source_buffer buf(string);
+	lexer lex(&buf);
+	std::vector<string_view> tokens;
+	for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
+	{
+		TestAssert(!tok.incomplete);
+		TestEqual(tok.data, punct_spellings[index]);
+		TestAssert(tok.kind == punct_tokens[index++]);
+	}
+
 }
 } // namespace aw::script

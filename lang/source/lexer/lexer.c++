@@ -171,6 +171,32 @@ bool lexer::lex_operator(token& token)
 	case ':':
 		token.kind = token_kind::colon;
 		break;
+	case '{':
+		token.kind = token_kind::l_brace;
+		break;
+	case '}':
+		token.kind = token_kind::r_brace;
+		break;
+	case '(':
+		token.kind = token_kind::l_paren;
+		break;
+	case ')':
+		token.kind = token_kind::r_paren;
+		break;
+	case '[':
+		token.kind = token_kind::l_square;
+		break;
+	case ']':
+		token.kind = token_kind::r_square;
+		break;
+	case '=':
+		if (peek() == '=') {
+			token.kind = token_kind::equal_equal;
+			++cur;
+		} else {
+			token.kind = token_kind::equal;
+		}
+		break;
 	case '%':
 		if (peek() == '=') {
 			token.kind = token_kind::percent_equal;
