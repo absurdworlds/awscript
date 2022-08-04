@@ -30,6 +30,8 @@ public:
 
 private:
 	bool match(token_kind expected);
+	bool match(string_view identifier);
+	bool match_id(string_view identifier);
 
 	std::unique_ptr<ast::declaration> parse_declaration();
 

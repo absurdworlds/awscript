@@ -28,6 +28,31 @@ bool parser::match(token_kind expected)
 	return true;
 }
 
+bool parser::match(string_view identifier)
+{
+	if (tok.kind != token_kind::identifier)
+		return false;
+
+	if (tok.data != identifier)
+		return false;
+
+	// consume token
+	tok = lex.next();
+	return true;
+}
+
+bool parser::match_id(string_view identifier)
+{
+	assert(tok.kind == token_kind::identifier);
+
+	if (tok.data != identifier)
+		return false;
+
+	// consume token
+	tok = lex.next();
+	return true;
+}
+
 std::unique_ptr<ast::declaration> parser::parse_top_level()
 {
 	if (tok == token_kind::eof)
@@ -36,9 +61,7 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_declaration, tok);
 
-
 	std::unique_ptr<ast::declaration> decl = parse_declaration();
-
 
 	/* TODO: do not forget about global variables*/
 	while (match(token_kind::semicolon));
@@ -48,19 +71,22 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 
 std::unique_ptr<ast::declaration> parser::parse_declaration()
 {
-	if (tok.data == "var")
+	using namespace std::string_view_literals;
+
+	// awscript employs context-sensitive keywords
+	if (match_id("var"sv))
 	{
 		return parse_variable_declaration(ast::access::variable);
 	}
-	else if (tok.data == "const")
+	else if (match_id("const"sv))
 	{
 		return parse_variable_declaration(ast::access::constant);
 	}
-	else if (tok.data == "func")
+	else if (tok.data == "func"sv)
 	{
 		return parse_function_declaration();
 	}
-	else if (tok.data == "class")
+	else if (tok.data == "class"sv)
 	{
 		return parse_class_declaration();
 	}
