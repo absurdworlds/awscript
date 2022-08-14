@@ -22,12 +22,11 @@ using argument_list = std::vector<std::unique_ptr<variable>>;
 class function : public declaration
 {
 public:
-	function()
-	    : declaration(decl_kind::function)
+	function(std::string_view name)
+	    : declaration(decl_kind::function, name)
 	{}
 
-private:
-
+	type* return_type = nullptr;
 	argument_list args;
 };
 

@@ -5,7 +5,7 @@
 
 namespace aw::script {
 template<typename...Args>
-std::nullptr_t error(diagnostics_engine& diag, diagnostic_id id, token tok, Args&&... args)
+inline std::nullptr_t error(diagnostics_engine& diag, diagnostic_id id, token tok, Args&&... args)
 {
 	diagnostic msg(tok.loc, id);
 	msg << tok.data;
@@ -16,13 +16,13 @@ std::nullptr_t error(diagnostics_engine& diag, diagnostic_id id, token tok, Args
 	return nullptr;
 }
 
-std::nullptr_t
+inline std::nullptr_t
 error_not_implemented_yet(diagnostics_engine& diag, token tok)
 {
 	return error(diag, diagnostic_id::not_implemented_yet, tok);
 }
 
-std::nullptr_t
+inline std::nullptr_t
 error_unexpected_token(diagnostics_engine& diag, token tok, token_kind expected)
 {
 	return error(diag, diagnostic_id::unexpected_token, tok, expected);

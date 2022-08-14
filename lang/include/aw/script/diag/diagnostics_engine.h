@@ -9,6 +9,7 @@
 #ifndef aw_script_diagnostic_engine_h
 #define aw_script_diagnostic_engine_h
 #include <aw/utility/string/compose.h>
+
 #include <aw/script/diag/diagnostic.h>
 namespace aw::script {
 class source_buffer;

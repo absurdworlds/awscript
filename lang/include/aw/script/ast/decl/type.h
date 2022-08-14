@@ -15,8 +15,8 @@ namespace aw::script::ast {
 
 class type : public declaration {
 public:
-	type()
-	    : declaration(decl_kind::type)
+	type(string_view name)
+	    : declaration(decl_kind::type, name)
 	{}
 };
 

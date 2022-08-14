@@ -9,9 +9,10 @@
 #ifndef aw_script_ast_decl_variable_h
 #define aw_script_ast_decl_variable_h
 
-#include <aw/script/ast/decl/type.h>
+#include <aw/script/ast/declaration.h>
 
 namespace aw::script::ast {
+class type;
 
 enum class access {
 	variable,
@@ -22,13 +23,13 @@ class variable : public declaration {
 public:
 	variable(string_view name, access access)
 		: declaration(decl_kind::variable, name)
-		, _access(access)
+		, access(access)
 	{
 	}
 
-private:
+
 	type* type;
-	access _access;
+	access access;
 };
 
 } // namespace aw::script::ast

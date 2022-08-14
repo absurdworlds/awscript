@@ -8,19 +8,48 @@
  */
 #include <aw/script/parser/parser.h>
 
+#include <aw/algorithm/in.h>
+
+#include <aw/script/ast/decl/type.h>
+
 #include "errors.h"
 
 namespace aw::script {
 
-parser::parser(lexer& lexer, diagnostics_engine& diag)
-	: lex(lexer), diag(diag)
+parser::parser(dependencies deps)
+	: lex(deps.lexer), symtab(deps.symtab), diag(deps.diag)
 {
-	tok = lexer.current();
+	tok = lex.current();
 }
 
 bool parser::match(token_kind expected)
 {
 	if (tok.kind != expected)
+		return false;
+
+	// consume token
+	tok = lex.next();
+	return true;
+}
+
+bool parser::match(string_view identifier)
+{
+	if (tok.kind != token_kind::identifier)
+		return false;
+
+	if (tok.data != identifier)
+		return false;
+
+	// consume token
+	tok = lex.next();
+	return true;
+}
+
+bool parser::match_id(string_view identifier)
+{
+	assert(tok.kind == token_kind::identifier);
+
+	if (tok.data != identifier)
 		return false;
 
 	// consume token
@@ -36,9 +65,7 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_declaration, tok);
 
-
 	std::unique_ptr<ast::declaration> decl = parse_declaration();
-
 
 	/* TODO: do not forget about global variables*/
 	while (match(token_kind::semicolon));
@@ -48,29 +75,41 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 
 std::unique_ptr<ast::declaration> parser::parse_declaration()
 {
-	if (tok.data == "var")
-	{
+	using namespace std::string_view_literals;
+
+	// awscript employs context-sensitive keywords
+	if (match_id("var"sv))
 		return parse_variable_declaration(ast::access::variable);
-	}
-	else if (tok.data == "const")
-	{
+
+	if (match_id("const"sv))
 		return parse_variable_declaration(ast::access::constant);
-	}
-	else if (tok.data == "func")
-	{
+
+	if (match_id("func"sv))
 		return parse_function_declaration();
-	}
-	else if (tok.data == "class")
-	{
+
+	if (match_id("class"sv))
 		return parse_class_declaration();
-	}
 
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
 std::unique_ptr<ast::declaration> parser::parse_variable_declaration(ast::access access)
 {
-	return nullptr;
+	const auto type = parse_type();
+	if (type.empty())
+		return nullptr;
+
+	if (tok != token_kind::identifier)
+		return error(diag, diagnostic_id::expected_identifier, tok);
+
+	const auto name = tok.data;
+	tok = lex.next();
+
+	auto var = std::make_unique<ast::variable>(name, access);
+
+	symtab.add_unresolved(type, &var->type);
+
+	return var;
 }
 
 std::unique_ptr<ast::declaration> parser::parse_function_declaration()
@@ -81,6 +120,29 @@ std::unique_ptr<ast::declaration> parser::parse_function_declaration()
 std::unique_ptr<ast::declaration> parser::parse_class_declaration()
 {
 	return nullptr;
+}
+
+std::string_view parser::parse_type()
+{
+	if (tok != token_kind::identifier)
+		return error(diag, diagnostic_id::expected_type_name, tok);
+
+#if 0 // we have to do this in 2 passes anyway, so no point in making in more complicated
+	auto symbol = symtab.lookup(tok.data);
+	if (symbol)
+	{
+		if (!in(symbol->kind(), ast::decl_kind::type, ast::decl_kind::class_type))
+		{
+			return error(diag, diagnostic_id::expected_a_type, tok);
+		}
+		return static_cast<ast::type*>(symbol);
+	}
+#endif
+	// TODO
+	auto name = tok.data;
+	tok = lex.next();
+
+	return name;
 }
 
 } // namespace aw::script

@@ -6,6 +6,7 @@ DIAG(error, expected_identifier, "Unexpected token ‘%0’: expected identifier
 DIAG(error, expected_expression, "Unexpected token ‘%0’: expected expression.")
 DIAG(error, expected_declaration, "Unexpected token ‘%0’: expected declaraion.")
 DIAG(error, expected_type_name, "Unexpected token ‘%0’: expected type name.")
+DIAG(error, expected_a_type, "Expected a type. ‘%0’ is not a type.")
 DIAG(error, expected_semicolon_after_expression, "Expected ‘;’ after expression.")
 DIAG(error, expected_semicolon_after_var, "Expected ‘;’ after variable declaration.")
 DIAG(error, expected_semicolon_after_do_while, "Expected ‘;’ after do-while statement.")

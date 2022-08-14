@@ -18,11 +18,22 @@
 #include <aw/script/ast/declaration.h>
 #include <aw/script/ast/decl/variable.h>
 
+#include <aw/script/symtab/symbol_table.h>
+
 namespace aw::script {
+namespace ast {
+class type;
+}
 
 class parser {
 public:
-	parser(lexer& lexer, diagnostics_engine& diag);
+	struct dependencies {
+		lexer& lexer;
+		symbol_table& symtab;
+		diagnostics_engine& diag;
+	};
+
+	parser(dependencies deps);
 
 	~parser() = default;
 
@@ -30,6 +41,10 @@ public:
 
 private:
 	bool match(token_kind expected);
+	bool match(string_view identifier);
+
+	/// Matches an identifier. Expects that the token kind was already checked.
+	bool match_id(string_view identifier);
 
 	std::unique_ptr<ast::declaration> parse_declaration();
 
@@ -37,12 +52,17 @@ private:
 	std::unique_ptr<ast::declaration> parse_function_declaration();
 	std::unique_ptr<ast::declaration> parse_class_declaration();
 
+	std::string_view parse_type();
+
 private:
 	/*! Current lookahead (peek) token. */
 	token tok;
 
 	/*! Lexer which provides the stream of tokens */
 	lexer& lex;
+
+	/*! Symbol table (for symbol lookups) */
+	symbol_table& symtab;
 
 	/*! Diagnostics engine for error reporting */
 	diagnostics_engine& diag;
