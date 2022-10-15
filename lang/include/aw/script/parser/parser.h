@@ -17,18 +17,19 @@
 
 #include <aw/script/ast/declaration.h>
 #include <aw/script/ast/decl/variable.h>
+#include <aw/script/ast/decl/function.h>
 
 #include <aw/script/symtab/symbol_table.h>
 
 namespace aw::script {
 namespace ast {
 class type;
-}
+} // namespace ast
 
 class parser {
 public:
 	struct dependencies {
-		lexer& lexer;
+		script::lexer& lexer;
 		symbol_table& symtab;
 		diagnostics_engine& diag;
 	};
@@ -48,10 +49,14 @@ private:
 
 	std::unique_ptr<ast::declaration> parse_declaration();
 
-	std::unique_ptr<ast::declaration> parse_variable_declaration(ast::access access);
+	std::unique_ptr<ast::variable> parse_variable_declaration(ast::access access);
 	std::unique_ptr<ast::declaration> parse_function_declaration();
 	std::unique_ptr<ast::declaration> parse_class_declaration();
 
+	std::unique_ptr<ast::function> parse_function_prototype();
+	ast::argument_list parse_function_arguments();
+
+	std::string_view parse_identifier();
 	std::string_view parse_type();
 
 private:

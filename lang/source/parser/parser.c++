@@ -93,7 +93,7 @@ std::unique_ptr<ast::declaration> parser::parse_declaration()
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
-std::unique_ptr<ast::declaration> parser::parse_variable_declaration(ast::access access)
+std::unique_ptr<ast::variable> parser::parse_variable_declaration(ast::access access)
 {
 	const auto type = parse_type();
 	if (type.empty())
@@ -114,6 +114,8 @@ std::unique_ptr<ast::declaration> parser::parse_variable_declaration(ast::access
 
 std::unique_ptr<ast::declaration> parser::parse_function_declaration()
 {
+	auto func = parse_function_prototype();
+
 	return nullptr;
 }
 
@@ -122,10 +124,85 @@ std::unique_ptr<ast::declaration> parser::parse_class_declaration()
 	return nullptr;
 }
 
+/*
+ * functionDecl ::= 'func' id '(' args ')' : id
+ *         args ::= arg (',' args)?
+ *          arg ::= variableDecl
+ */
+std::unique_ptr<ast::function> parser::parse_function_prototype()
+{
+	const auto name = parse_identifier();
+	if (name.empty())
+		return nullptr;
+
+	auto func = std::make_unique<ast::function>(name);
+
+	if (!match(token_kind::l_paren))
+		return error_unexpected_token(diag, tok, token_kind::l_paren);
+
+	func->args = parse_function_arguments();
+
+	if (!match(token_kind::r_paren))
+		return error_unexpected_token(diag, tok, token_kind::r_paren);
+
+	// TODO: check for stuff...
+	if (!match(token_kind::colon))
+		return func;
+
+	const auto type = parse_type();
+	if (type.empty())
+		return nullptr;
+
+	symtab.add_unresolved(type, &func->return_type);
+
+	return func;
+}
+
+ast::argument_list parser::parse_function_arguments()
+{
+	using namespace std::string_view_literals;
+	// TODO: return optional<> on error
+	// TODO: return argument_list, status for partial error recovery
+
+	ast::argument_list args;
+
+	// TODO: support both 'var int a' and 'int a'
+	// TODO: support const
+	while (match("var"sv)) {
+		auto arg = parse_variable_declaration(ast::access::variable);
+		if (!arg)
+			return {};
+
+		args.push_back(std::move(arg));
+
+		if (tok == token_kind::r_paren)
+			break;
+
+		if (!match(token_kind::comma))
+			// TODO: remove comma operator
+			return error_unexpected_token(diag, tok, token_kind::comma), std::move(args);
+	}
+
+	return args;
+
+}
+
+std::string_view parser::parse_identifier()
+{
+	// TODO: get rid of , ""
+	if (tok != token_kind::identifier)
+		return error(diag, diagnostic_id::expected_type_name, tok), "";
+
+	auto name = tok.data;
+	tok = lex.next();
+
+	return name;
+}
+
 std::string_view parser::parse_type()
 {
 	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok);
+		return error(diag, diagnostic_id::expected_type_name, tok), "";
 
 #if 0 // we have to do this in 2 passes anyway, so no point in making in more complicated
 	auto symbol = symtab.lookup(tok.data);

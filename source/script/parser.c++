@@ -110,11 +110,6 @@ Parser::parse_variable()
 }
 
 
-/*
- * functionDecl ::= 'func' id id '(' args ')'
- *         args ::= arg (',' args)?
- *          arg ::= variableDecl
- */
 uptr<ast::FunctionProto>
 Parser::parseFunctionPrototype()
 {
@@ -139,21 +134,6 @@ Parser::parseFunctionPrototype()
 	// Argument list
 	std::vector<uptr<ast::Variable>> args;
 
-	// TODO: 'var int a'  or  'int a'
-	// while ((token == tok_identifier) || (token == kw_var)) {
-	while (match(kw_var)) {
-		auto arg = parse_variable();
-		if (!arg)
-			return nullptr;
-
-		args.push_back(std::move(arg));
-
-		if (token.type() == tok_r_paren)
-			break;
-
-		if (!match(tok_comma))
-			return error_unexpected_token(diag, token, tok_comma);
-	}
 	
 	if (!match(tok_r_paren))
 		return error(diag, Diagnostic::expected_variable_decl, token, tok_r_paren);

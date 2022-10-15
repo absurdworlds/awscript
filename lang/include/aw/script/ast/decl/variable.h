@@ -28,8 +28,8 @@ public:
 	}
 
 
-	type* type;
-	access access;
+	ast::type* type;
+	ast::access access;
 };
 
 } // namespace aw::script::ast

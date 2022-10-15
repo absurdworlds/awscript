@@ -14,13 +14,13 @@
 
 #include <aw/script/ast/decl/type.h>
 #include <aw/script/ast/decl/variable.h>
+#include <aw/script/ast/stmt/statement_block.h>
 
 namespace aw::script::ast {
 
 using argument_list = std::vector<std::unique_ptr<variable>>;
 
-class function : public declaration
-{
+class function : public declaration {
 public:
 	function(std::string_view name)
 	    : declaration(decl_kind::function, name)
@@ -28,6 +28,8 @@ public:
 
 	type* return_type = nullptr;
 	argument_list args;
+
+	std::unique_ptr<statement_block> body;
 };
 
 } // namespace aw::script::ast
