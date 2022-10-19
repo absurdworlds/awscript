@@ -49,14 +49,14 @@ Parser::parse_variable_declaration()
 	if (!var)
 		return nullptr;
 
-	if (match(tok_equal))
+	if (match(token_kind::equal))
 	{
 		auto initializer = parseExpression();
 		var->set_initialier(std::move(initializer));
 	}
 
-	if (!match(tok_semicolon))
-		return error_unexpected_token(diag, token, tok_semicolon);
+	if (!match(token_kind::semicolon))
+		return error_unexpected_token(diag, token, token_kind::semicolon);
 
 	return var;
 }
@@ -76,14 +76,14 @@ Parser::parseConstantDeclaration()
 
 	var->set_const(true);
 
-	if (!match(tok_equal))
+	if (!match(token_kind::equal))
 		return error(diag, Diagnostic::expected_initializer, token);
 
 	auto initializer = parseExpression();
 	var->set_initialier(std::move(initializer));
 
-	if (!match(tok_semicolon))
-		return error_unexpected_token(diag, token, tok_semicolon);
+	if (!match(token_kind::semicolon))
+		return error_unexpected_token(diag, token, token_kind::semicolon);
 
 	return var;
 }
@@ -123,7 +123,7 @@ Parser::parseFunctionDefinition()
 	if (!proto)
 		return nullptr;
 
-	if (token.type() == tok_semicolon)
+	if (token.type() == token_kind::semicolon)
 		return std::move(proto);
 
 	auto body = parseStatementBlock();
@@ -152,10 +152,10 @@ Parser::parseClassDeclaration()
 
 	getNextToken(); // consume name;
 
-	if (!match(tok_l_brace))
+	if (!match(token_kind::l_brace))
 	{
-		if (!match(tok_semicolon))
-			return error_unexpected_token(diag, token, tok_semicolon);
+		if (!match(token_kind::semicolon))
+			return error_unexpected_token(diag, token, token_kind::semicolon);
 		return std::make_unique<ast::ClassDeclaration>(name);
 	}
 
@@ -168,12 +168,12 @@ Parser::parseClassDeclaration()
 
 		members.emplace_back(std::move(var));
 
-		if (!match(tok_semicolon))
-			return error_unexpected_token(diag, token, tok_semicolon);
+		if (!match(token_kind::semicolon))
+			return error_unexpected_token(diag, token, token_kind::semicolon);
 	}
 
-	if (!match(tok_r_brace))
-		return error_unexpected_token(diag, token, tok_r_brace);
+	if (!match(token_kind::r_brace))
+		return error_unexpected_token(diag, token, token_kind::r_brace);
 
 	return std::make_unique<ast::ClassDeclaration>(name, std::move(members));
 }
@@ -186,7 +186,7 @@ Parser::parseStatement()
 	case kw_if:
 		getNextToken(); // consume 'if'
 		return parseBranchStatement();
-	case tok_l_brace:
+	case token_kind::l_brace:
 		return parseStatementBlock();
 	default:
 		return parseExprStatement();
@@ -198,7 +198,7 @@ Parser::parseExprStatement()
 {
 	auto expr = parseExpression();
 
-	if (!match(tok_semicolon))
+	if (!match(token_kind::semicolon))
 		return error(diag, Diagnostic::expected_semicolon_after_expression, token);
 
 	return std::move(expr);
@@ -207,15 +207,15 @@ Parser::parseExprStatement()
 uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
-	if (!match(tok_l_paren))
-		return error_unexpected_token(diag, token, tok_l_paren);
+	if (!match(token_kind::l_paren))
+		return error_unexpected_token(diag, token, token_kind::l_paren);
 
 	uptr<ast::Expression> ifExpr = parseExpression();
 	if (!ifExpr)
 		return nullptr;
 
-	if (!match(tok_r_paren))
-		return error_unexpected_token(diag, token, tok_r_paren);
+	if (!match(token_kind::r_paren))
+		return error_unexpected_token(diag, token, token_kind::r_paren);
 
 	uptr<ast::Statement> ifBody = parseStatement();
 	if (!ifBody)
@@ -251,13 +251,13 @@ uptr<ast::Expression>
 Parser::parsePrimaryExpr()
 {
 	switch(token.type()) {
-	case tok_l_paren:
+	case token_kind::l_paren:
 		return parseParenExpr();
-	case tok_identifier:
+	case token_kind::identifier:
 		return parseIdentifierExpr();
-	case tok_numeric_constant:
+	case token_kind::numeric_constant:
 		return parseNumberExpr();
-	case tok_string_literal:
+	case token_kind::string_literal:
 		return parseStringExpr();
 	default:
 		return 0; // expected expression
@@ -267,13 +267,13 @@ Parser::parsePrimaryExpr()
 uptr<ast::Expression>
 Parser::parseParenExpr()
 {
-	if (!match(tok_l_paren))
-		return error_unexpected_token(diag, token, tok_l_paren); // Expected (
+	if (!match(token_kind::l_paren))
+		return error_unexpected_token(diag, token, token_kind::l_paren); // Expected (
 
 	uptr<ast::Expression> expr = parseExpression();
 
-	if (!match(tok_r_paren))
-		return error_unexpected_token(diag, token, tok_r_paren);
+	if (!match(token_kind::r_paren))
+		return error_unexpected_token(diag, token, token_kind::r_paren);
 
 	return expr;
 }
@@ -335,7 +335,7 @@ Parser::parseIdentifierExpr()
 	std::string_view name = token.data();
 
 	getNextToken(); // consume identifier
-	if (match(tok_l_paren))
+	if (match(token_kind::l_paren))
 		return parse_call_expr(name);
 	
 	// TODO: postfix operators
@@ -348,7 +348,7 @@ Parser::parse_call_expr(std::string_view func)
 {
 	std::vector<uptr<ast::Expression>> args;
 
-	if (!match(tok_r_paren)) {
+	if (!match(token_kind::r_paren)) {
 		while (true) {
 			auto arg = parseExpression();
 
@@ -357,11 +357,11 @@ Parser::parse_call_expr(std::string_view func)
 
 			args.push_back(std::move(arg));
 
-			if (match(tok_r_paren))
+			if (match(token_kind::r_paren))
 				break;
 
-			if (!match(tok_comma))
-				return error_unexpected_token(diag, token, tok_comma); // expected ,
+			if (!match(token_kind::comma))
+				return error_unexpected_token(diag, token, token_kind::comma); // expected ,
 		}
 	}
 
@@ -372,7 +372,7 @@ Parser::parse_call_expr(std::string_view func)
 uptr<ast::Expression>
 Parser::parseStringExpr()
 {
-	assert(token == tok_string_literal && "parseStringExpr called when there's no string literal!");
+	assert(token == token_kind::string_literal && "parseStringExpr called when there's no string literal!");
 
 	Token tok = token;
 	// Consume string
@@ -384,7 +384,7 @@ Parser::parseStringExpr()
 uptr<ast::Expression>
 Parser::parseNumberExpr()
 {
-	assert(token == tok_numeric_constant && "parseNumberExpr called when there's no number!");
+	assert(token == token_kind::numeric_constant && "parseNumberExpr called when there's no number!");
 
 	// store token, because we need to consume it
 	Token tok = token;
