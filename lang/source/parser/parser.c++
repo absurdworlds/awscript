@@ -57,6 +57,47 @@ bool parser::match_id(string_view identifier)
 	return true;
 }
 
+std::string_view parser::parse_identifier()
+{
+	// TODO: get rid of , ""
+	if (tok != token_kind::identifier)
+		return error(diag, diagnostic_id::expected_type_name, tok), "";
+
+
+	std::string_view parse_identifier();
+	std::string_view parse_type();
+	auto name = tok.data;
+	tok = lex.next();
+
+	return name;
+}
+
+std::string_view parser::parse_type()
+{
+	if (tok != token_kind::identifier)
+		return error(diag, diagnostic_id::expected_type_name, tok), "";
+
+#if 0 // we have to do this in 2 passes
+
+	std::string_view parse_identifier();
+	std::string_view parse_type(); anyway, so no point in making in more complicated
+	auto symbol = symtab.lookup(tok.data);
+	if (symbol)
+	{
+		if (!in(symbol->kind(), ast::decl_kind::type, ast::decl_kind::class_type))
+		{
+			return error(diag, diagnostic_id::expected_a_type, tok);
+		}
+		return static_cast<ast::type*>(symbol);
+	}
+#endif
+	// TODO
+	auto name = tok.data;
+	tok = lex.next();
+
+	return name;
+}
+
 std::unique_ptr<ast::declaration> parser::parse_top_level()
 {
 	if (tok == token_kind::eof)
@@ -116,7 +157,12 @@ std::unique_ptr<ast::declaration> parser::parse_function_declaration()
 {
 	auto func = parse_function_prototype();
 
-	return nullptr;
+	if (tok == token_kind::l_brace) {
+		// TODO: add error code
+		func->body = parse_function_body();
+	}
+
+	return func;
 }
 
 std::unique_ptr<ast::declaration> parser::parse_class_declaration()
@@ -125,7 +171,7 @@ std::unique_ptr<ast::declaration> parser::parse_class_declaration()
 }
 
 /*
- * functionDecl ::= 'func' id '(' args ')' : id
+ * functionDecl ::= 'func' id '(' args ')' (':' id)?
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
@@ -145,15 +191,8 @@ std::unique_ptr<ast::function> parser::parse_function_prototype()
 	if (!match(token_kind::r_paren))
 		return error_unexpected_token(diag, tok, token_kind::r_paren);
 
-	// TODO: check for stuff...
-	if (!match(token_kind::colon))
-		return func;
-
-	const auto type = parse_type();
-	if (type.empty())
+	if (!parse_function_return_type(*func))
 		return nullptr;
-
-	symtab.add_unresolved(type, &func->return_type);
 
 	return func;
 }
@@ -184,42 +223,53 @@ ast::argument_list parser::parse_function_arguments()
 	}
 
 	return args;
-
 }
 
-std::string_view parser::parse_identifier()
+bool parser::parse_function_return_type(ast::function& func)
 {
-	// TODO: get rid of , ""
-	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok), "";
+	std::string_view type_name;
 
-	auto name = tok.data;
-	tok = lex.next();
-
-	return name;
-}
-
-std::string_view parser::parse_type()
-{
-	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok), "";
-
-#if 0 // we have to do this in 2 passes anyway, so no point in making in more complicated
-	auto symbol = symtab.lookup(tok.data);
-	if (symbol)
-	{
-		if (!in(symbol->kind(), ast::decl_kind::type, ast::decl_kind::class_type))
-		{
-			return error(diag, diagnostic_id::expected_a_type, tok);
-		}
-		return static_cast<ast::type*>(symbol);
+	if (match(token_kind::colon)) {
+		type_name = parse_type();
+		if (type_name.empty())
+			return false;
+	} else {
+		type_name = "void";
 	}
-#endif
-	// TODO
-	auto name = tok.data;
-	tok = lex.next();
 
-	return name;
+	symtab.add_unresolved(type_name, &func.return_type);
+	return true;
 }
+
+/*
+ * functionDef  ::= functionDecl '{' stmts '}'
+ */
+std::unique_ptr<ast::statement_block> parser::parse_function_body()
+{
+	return parse_statement_block();
+}
+
+std::unique_ptr<ast::statement_block> parser::parse_statement_block()
+{
+	if (!match(token_kind::l_brace))
+		return error_unexpected_token(diag, tok, token_kind::l_brace);
+
+	ast::statement_list statements;
+	while (!match(token_kind::r_brace)) {
+		auto statement = parse_statement();
+		if (!statement)
+			return nullptr;
+
+		statements.push_back(std::move(statement));
+	}
+
+	return std::make_unique<ast::statement_block>(std::move(statements));
+}
+
+std::unique_ptr<ast::statement> parser::parse_statement()
+{
+	return nullptr;
+}
+
 
 } // namespace aw::script

@@ -49,6 +49,9 @@ private:
 	/// Matches an identifier. Expects that the token kind was already checked.
 	bool match_id(string_view identifier);
 
+	std::string_view parse_identifier();
+	std::string_view parse_type();
+
 	std::unique_ptr<ast::declaration> parse_declaration();
 
 	std::unique_ptr<ast::variable> parse_variable_declaration(ast::access access);
@@ -57,9 +60,11 @@ private:
 
 	std::unique_ptr<ast::function> parse_function_prototype();
 	ast::argument_list parse_function_arguments();
+	bool parse_function_return_type(ast::function& func);
+	std::unique_ptr<ast::statement_block> parse_function_body();
 
-	std::string_view parse_identifier();
-	std::string_view parse_type();
+	std::unique_ptr<ast::statement_block> parse_statement_block();
+	std::unique_ptr<ast::statement> parse_statement();
 
 private:
 	/*! Current lookahead (peek) token. */

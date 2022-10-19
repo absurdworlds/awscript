@@ -204,24 +204,6 @@ Parser::parseExprStatement()
 	return std::move(expr);
 }
 
-uptr<ast::StatementBlock>
-Parser::parseStatementBlock()
-{
-	if (!match(tok_l_brace))
-		return error_unexpected_token(diag, token, tok_l_brace);
-
-	std::vector<uptr<ast::Statement>> statements;
-	while (!match(tok_r_brace)) {
-		auto statement = parseStatement();
-		if(!statement)
-			return nullptr;
-
-		statements.push_back(std::move(statement));
-	}
-
-	return std::make_unique<ast::StatementBlock>(std::move(statements));
-}
-
 uptr<ast::Statement>
 Parser::parseBranchStatement()
 {
