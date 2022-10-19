@@ -13,6 +13,8 @@
 
 #include <aw/script/lexer/lexer.h>
 
+#include <aw/script/parser/operators.h>
+
 #include <aw/script/diag/diagnostics_engine.h>
 
 #include <aw/script/ast/declaration.h>
@@ -24,6 +26,7 @@
 namespace aw::script {
 namespace ast {
 class type;
+class expression;
 } // namespace ast
 
 // TODO: split it into declaration_parser, statement_parser and expression_parser
@@ -65,6 +68,15 @@ private:
 
 	std::unique_ptr<ast::statement_block> parse_statement_block();
 	std::unique_ptr<ast::statement> parse_statement();
+	std::unique_ptr<ast::statement> parse_statement_inner();
+	std::unique_ptr<ast::statement> parse_if_statement();
+	std::unique_ptr<ast::statement> parse_for_statement();
+	std::unique_ptr<ast::statement> parse_while_statement();
+
+	std::unique_ptr<ast::expression> parse_expression();
+	std::unique_ptr<ast::expression> parse_unary_expression();
+	std::unique_ptr<ast::expression> parse_binary_expression(
+		std::unique_ptr<ast::expression> lhs, precedence min_prec);
 
 private:
 	/*! Current lookahead (peek) token. */

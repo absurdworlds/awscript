@@ -20,6 +20,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/diag/diagnostics_engine.h
 		include/aw/script/diag/messages.h
 		include/aw/script/parser/parser.h
+		include/aw/script/parser/operators.h
 		include/aw/script/symtab/scope.h
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h

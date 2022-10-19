@@ -234,18 +234,6 @@ Parser::parseBranchStatement()
 	        std::move(ifExpr), std::move(ifBody), std::move(elseBody));
 }
 
-/********************** Expressions **********************/
-uptr<ast::Expression>
-Parser::parseExpression()
-{
-	// Parse left hand side
-	uptr<ast::Expression> lhs = parseUnaryExpr();
-
-	if (!lhs)
-		return nullptr;
-
-	return parseBinaryExpr(std::move(lhs), prec::Unknown);
-}
 
 uptr<ast::Expression>
 Parser::parsePrimaryExpr()

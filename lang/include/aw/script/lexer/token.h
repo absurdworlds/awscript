@@ -38,5 +38,10 @@ inline bool operator==(token tok, token_kind kind)
 {
 	return tok.kind == kind;
 }
+
+inline bool operator==(token tok, std::string_view sv)
+{
+	return tok.data == sv;
+}
 } // namespace aw::script
 #endif//aw_script_token_h

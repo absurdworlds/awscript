@@ -9,10 +9,13 @@
 #ifndef aw_script_ast_expression_h
 #define aw_script_ast_expression_h
 
+#include <aw/script/ast/statement.h>
 
+// TODO: expression inherits from a statement so that I don't have to make
+// a separate expr_statement type, but I am not sure it this is the best way
 namespace aw::script::ast {
 
-class expression {
+class expression : public statement {
 public:
 	virtual ~expression() = default;
 };

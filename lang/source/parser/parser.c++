@@ -11,6 +11,7 @@
 #include <aw/algorithm/in.h>
 
 #include <aw/script/ast/decl/type.h>
+#include <aw/script/ast/expression.h>
 
 #include "errors.h"
 
@@ -249,6 +250,7 @@ std::unique_ptr<ast::statement_block> parser::parse_function_body()
 	return parse_statement_block();
 }
 
+/********************** Statements **********************/
 std::unique_ptr<ast::statement_block> parser::parse_statement_block()
 {
 	if (!match(token_kind::l_brace))
@@ -268,8 +270,68 @@ std::unique_ptr<ast::statement_block> parser::parse_statement_block()
 
 std::unique_ptr<ast::statement> parser::parse_statement()
 {
+	auto stmt = parse_statement_inner();
+
+	while (match(token_kind::semicolon));
+
+	return stmt;
+}
+
+std::unique_ptr<ast::statement> parser::parse_statement_inner()
+{
+	using namespace std::string_view_literals;
+
+	switch (tok.kind)
+	{
+	case token_kind::l_brace:
+		return parse_statement_block();
+	case token_kind::identifier:
+		if (tok == "if"sv)
+			return parse_if_statement();
+		if (tok == "while"sv)
+			return parse_while_statement();
+		if (tok == "for"sv)
+			return parse_while_statement();
+		[[fallthrough]];
+	default:
+		return parse_expression();
+	}
+}
+
+std::unique_ptr<ast::statement> parser::parse_if_statement()
+{
 	return nullptr;
 }
 
+std::unique_ptr<ast::statement> parser::parse_for_statement()
+{
+	return nullptr;
+}
+
+std::unique_ptr<ast::statement> parser::parse_while_statement()
+{
+	return nullptr;
+}
+
+/********************** Expressions **********************/
+std::unique_ptr<ast::expression> parser::parse_expression()
+{
+	auto lhs = parse_unary_expression();
+	if (!lhs)
+		return nullptr;
+
+	return parse_binary_expression(std::move(lhs), precedence::unknown);
+}
+
+std::unique_ptr<ast::expression> parser::parse_unary_expression()
+{
+	return nullptr;
+}
+
+std::unique_ptr<ast::expression> parser::parse_binary_expression(
+	std::unique_ptr<ast::expression> lhs, precedence min_prec)
+{
+	return lhs;
+}
 
 } // namespace aw::script
