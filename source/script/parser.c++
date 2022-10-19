@@ -110,42 +110,6 @@ Parser::parse_variable()
 }
 
 
-uptr<ast::FunctionProto>
-Parser::parseFunctionPrototype()
-{
-	// Return type
-	if (!is_type_name(token))
-		return error(diag, Diagnostic::expected_type_name, token);
-
-	std::string_view ret = token.data();
-
-	// Function name
-	if (!is_identifier(getNextToken()))
-		return error(diag, Diagnostic::expected_identifier, token);
-
-	// TODO: symbol table lookup
-	std::string_view name = token.data();
-
-	// consume identifier
-	getNextToken();
-	if (!match(tok_l_paren))
-		return nullptr;
-
-	// Argument list
-	std::vector<uptr<ast::Variable>> args;
-
-	
-	if (!match(tok_r_paren))
-		return error(diag, Diagnostic::expected_variable_decl, token, tok_r_paren);
-
-	return ast::FunctionProto::create(name, ret, std::move(args));
-}
-/*
-std::nullptr_t Parser::error(Diagnostic::ID id)
-{
-	return nullptr;
-}*/
-
 /*
  * functionDef  ::= functionDecl '{' stmts '}'
  */

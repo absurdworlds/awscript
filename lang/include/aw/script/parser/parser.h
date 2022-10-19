@@ -26,6 +26,8 @@ namespace ast {
 class type;
 } // namespace ast
 
+// TODO: split it into declaration_parser, statement_parser and expression_parser
+
 class parser {
 public:
 	struct dependencies {

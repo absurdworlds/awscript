@@ -9,9 +9,6 @@
 #ifndef aw_script_ast_decl_function_h
 #define aw_script_ast_decl_function_h
 
-#include <vector>
-#include <memory>
-
 #include <aw/script/ast/decl/type.h>
 #include <aw/script/ast/decl/variable.h>
 #include <aw/script/ast/stmt/statement_block.h>

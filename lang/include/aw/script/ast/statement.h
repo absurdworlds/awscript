@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015   Hedede <haddayn@gmail.com>
+ * Copyright (C) 2015-2022 Hudd <haddayn@gmail.com>
  *
  * License LGPLv3 or later:
  * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
@@ -8,20 +8,14 @@
  */
 #ifndef aw_script_ast_statement_h
 #define aw_script_ast_statement_h
-#include <aw/script/ast/node.h>
 
-namespace aw {
-namespace script {
-namespace ast {
+namespace aw::script::ast {
 
-class Statement : public Node {
+class statement {
 public:
-	virtual ~Statement() = default;
-
-	virtual void accept(ast::Visitor& visitor) = 0;
+	virtual ~statement() = default;
 };
 
-} // namespace ast
-} // namespace script
-} // namespace aw
+} // namespace aw::script::ast
+
 #endif//aw_script_ast_statement_h
