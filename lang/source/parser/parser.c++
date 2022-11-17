@@ -17,6 +17,13 @@
 
 namespace aw::script {
 
+// TODO: evaluate idea
+// sub-parsers, for each language construct
+// with parse and bail-out methods
+// bail-out: discard invalid source until you can parse again
+// for example, func my_func( garbage_hsfjkflnkjashnlfkjl ) { }
+// would discard `garbage_hsfjkflnkjashnlfkjl` and try to parse everything else
+
 parser::parser(dependencies deps)
 	: lex(deps.lexer), symtab(deps.symtab), diag(deps.diag)
 {
@@ -64,9 +71,6 @@ std::string_view parser::parse_identifier()
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_type_name, tok), "";
 
-
-	std::string_view parse_identifier();
-	std::string_view parse_type();
 	auto name = tok.data;
 	tok = lex.next();
 

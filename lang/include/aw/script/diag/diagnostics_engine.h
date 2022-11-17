@@ -22,9 +22,8 @@ class source_buffer;
  */
 class diagnostics_engine {
 public:
-	diagnostics_engine()
-	{
-	}
+	// TODO: add source manager
+	diagnostics_engine() = delete;
 
 	diagnostics_engine(source_buffer& buffer)
 		: _buffer(&buffer)

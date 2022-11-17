@@ -28,7 +28,7 @@ public:
 	}
 
 
-	ast::type* type;
+	ast::type* type = nullptr;
 	ast::access access;
 };
 

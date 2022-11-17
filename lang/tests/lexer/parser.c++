@@ -15,13 +15,18 @@ namespace aw::script {
 
 Test(basic_function) {
 	auto source = source_buffer(R"(
-	func test_func() : int;
+	func test_func(var int x) : int;
+
+	func add(var int x, var int y) : int
+	{
+		return x + y;
+	}
 )");
 
 	aw::script::lexer lexer(&source);
 
 	aw::script::symbol_table symtab;
-	aw::script::diagnostics_engine diag;
+	aw::script::diagnostics_engine diag(source);
 
 	aw::script::parser parser({
 		.lexer = lexer,

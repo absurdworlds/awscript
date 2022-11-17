@@ -10,8 +10,8 @@
 #define aw_script_OperatorPrecedence_
 #include <aw/script/lexer/token.h>
 
-namespace aw {
-namespace script {
+namespace aw::script {
+
 enum class precedence {
 	none           = -1, // Not an operator
 	unknown        = 0,
@@ -28,7 +28,7 @@ enum class precedence {
 	multiplicative = 11  // *, *, %
 };
 
-precedence token_precedence(token tok)
+inline precedence token_precedence(token tok)
 {
 	switch(tok.kind) {
 	default:
@@ -66,15 +66,15 @@ precedence token_precedence(token tok)
 	}
 }
 
-bool is_right_associative(token tok)
+inline bool is_right_associative(token tok)
 {
 	return token_precedence(tok) == precedence::assignment;
 }
 
-bool is_binary_operator(token tok)
+inline bool is_binary_operator(token tok)
 {
 	return token_precedence(tok) > precedence::unknown;
 }
-} // namespace script
-} // namespace aw
+
+} // namespace aw::script
 #endif //aw_script_OperatorPrecedence_
