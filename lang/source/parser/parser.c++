@@ -30,13 +30,19 @@ parser::parser(dependencies deps)
 	tok = lex.current();
 }
 
+bool parser::advance()
+{
+	tok = lex.next();
+	return true; // TODO:
+}
+
 bool parser::match(token_kind expected)
 {
 	if (tok.kind != expected)
 		return false;
 
 	// consume token
-	tok = lex.next();
+	advance();
 	return true;
 }
 
@@ -49,7 +55,7 @@ bool parser::match(string_view identifier)
 		return false;
 
 	// consume token
-	tok = lex.next();
+	advance();
 	return true;
 }
 
@@ -61,7 +67,7 @@ bool parser::match_id(string_view identifier)
 		return false;
 
 	// consume token
-	tok = lex.next();
+	advance();
 	return true;
 }
 
@@ -72,7 +78,7 @@ std::string_view parser::parse_identifier()
 		return error(diag, diagnostic_id::expected_type_name, tok), "";
 
 	auto name = tok.data;
-	tok = lex.next();
+	advance();
 
 	return name;
 }
@@ -329,13 +335,77 @@ std::unique_ptr<ast::expression> parser::parse_expression()
 
 std::unique_ptr<ast::expression> parser::parse_unary_expression()
 {
-	return nullptr;
+	auto op = parse_unary_operator(tok);
+	if (!op)
+		return parse_primary_expression();
+
+	ast::unary_expression expr {
+		.op = *op,
+		.lhs = parse_unary_expression()
+	};
+
+	if (!expr.lhs)
+		return nullptr;
+
+	return std::make_unique<ast::expression>(expr);
 }
 
 std::unique_ptr<ast::expression> parser::parse_binary_expression(
 	std::unique_ptr<ast::expression> lhs, precedence min_prec)
 {
 	return lhs;
+}
+
+std::unique_ptr<ast::expression> parser::parse_primary_expression()
+{
+	switch(tok.kind) {
+	case token_kind::l_paren:
+		return parse_paren_expression();
+	case token_kind::identifier:
+		return parse_identifier_expression();
+	case token_kind::numeric_constant:
+		return parse_numeric_literal_expression();
+	case token_kind::string_literal:
+		return parse_string_literal_expression();
+	default:
+		return nullptr; // expected expression
+	}
+}
+
+std::unique_ptr<ast::expression> parser::parse_paren_expression()
+{
+	return nullptr;
+}
+
+std::unique_ptr<ast::expression> parser::parse_identifier_expression()
+{
+	std::string_view name = parse_identifier();
+	if (name.empty())
+		return nullptr;
+
+	if (match(token_kind::l_paren))
+		return parse_call_expression(name);
+
+	// TODO: postfix operators ?
+
+	ast::value_expression expr{ .name = name };
+
+	return std::make_unique<ast::expression>(expr);
+}
+
+std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
+{
+	return nullptr;
+}
+
+std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
+{
+	return nullptr;
+}
+
+std::unique_ptr<ast::expression> parser::parse_call_expression(std::string_view names)
+{
+	return nullptr;
 }
 
 } // namespace aw::script

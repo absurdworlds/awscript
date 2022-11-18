@@ -6,8 +6,8 @@
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef aw_script_OperatorPrecedence_
-#define aw_script_OperatorPrecedence_
+#ifndef aw_script_parser_operators_h
+#define aw_script_parser_operators_h
 #include <aw/script/lexer/token.h>
 
 namespace aw::script {
@@ -62,7 +62,7 @@ inline precedence token_precedence(token tok)
 		return precedence::additive;
 	case token_kind::ast:
 	case token_kind::slash:
-		return precedence::multiplicative;	
+		return precedence::multiplicative;
 	}
 }
 
@@ -77,4 +77,4 @@ inline bool is_binary_operator(token tok)
 }
 
 } // namespace aw::script
-#endif //aw_script_OperatorPrecedence_
+#endif //aw_script_parser_operators_h

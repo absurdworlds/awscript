@@ -29,6 +29,7 @@ aw_add_library(awscript-lang STATIC
 		source/diag/messages.c++
 		source/diag/diagnostics_engine.c++
 		source/parser/parser.c++
+		source/parser/operators.c++
 		source/parser/errors.h
 		source/symtab/scope.c++
 		source/symtab/symbol_table.c++

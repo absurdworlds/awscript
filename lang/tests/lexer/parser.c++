@@ -19,6 +19,7 @@ Test(basic_function) {
 
 	func add(var int x, var int y) : int
 	{
+		-x;
 		return x + y;
 	}
 )");

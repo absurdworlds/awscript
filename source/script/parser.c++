@@ -301,23 +301,6 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 }
 
 uptr<ast::Expression>
-Parser::parseUnaryExpr()
-{
-	if (!isOperator(token))
-		return parsePrimaryExpr();
-
-	Token opcode = token;
-	getNextToken(); // consume operator
-
-	uptr<ast::Expression> operand = parseUnaryExpr();
-	if (!operand)
-		return nullptr;
-
-	return std::make_unique<ast::UnaryExpr>(
-	        opcode.type(), std::move(operand));
-}
-
-uptr<ast::Expression>
 Parser::parseIdentifierExpr()
 {
 	std::string_view name = token.data();

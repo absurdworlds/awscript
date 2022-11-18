@@ -10,6 +10,7 @@
 #define aw_script_parser_h
 
 #include <memory>
+#include <optional>
 
 #include <aw/script/lexer/lexer.h>
 
@@ -18,6 +19,7 @@
 #include <aw/script/diag/diagnostics_engine.h>
 
 #include <aw/script/ast/declaration.h>
+#include <aw/script/ast/expression.h>
 #include <aw/script/ast/decl/variable.h>
 #include <aw/script/ast/decl/function.h>
 
@@ -46,6 +48,7 @@ public:
 	std::unique_ptr<ast::declaration> parse_top_level();
 
 private:
+	bool advance();
 	bool match(token_kind expected);
 	bool match(string_view identifier);
 
@@ -77,6 +80,16 @@ private:
 	std::unique_ptr<ast::expression> parse_unary_expression();
 	std::unique_ptr<ast::expression> parse_binary_expression(
 		std::unique_ptr<ast::expression> lhs, precedence min_prec);
+
+	std::unique_ptr<ast::expression> parse_primary_expression();
+
+	std::unique_ptr<ast::expression> parse_paren_expression();
+	std::unique_ptr<ast::expression> parse_identifier_expression();
+	std::unique_ptr<ast::expression> parse_string_literal_expression();
+	std::unique_ptr<ast::expression> parse_numeric_literal_expression();
+	std::unique_ptr<ast::expression> parse_call_expression(std::string_view name);
+
+	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
 
 private:
 	/*! Current lookahead (peek) token. */
