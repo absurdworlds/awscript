@@ -11,12 +11,8 @@
 
 #include <memory>
 
-#include <aw/script/ast/statement.h>
-
 #include <variant>
 
-// TODO: expression inherits from a statement so that I don't have to make
-// a separate expr_statement type, but I am not sure it this is the best way
 namespace aw::script::ast {
 
 class expression;
@@ -48,20 +44,16 @@ struct value_expression {
 	std::string_view name;
 };
 
-class expression : public statement {
-public:
-	virtual ~expression() = default;
+using expression_variant = std::variant<
+	unary_expression,
+	binary_expression,
+	value_expression
+>;
 
-	template<typename T> // TODO: remove, turn expression into using
-	expression(T&& tmp)
-		: operand(std::move(tmp))
-	{
-	}
-
-	std::variant<
-		unary_expression,
-		binary_expression,
-		value_expression> operand;
+struct expression : expression_variant
+{
+	template<typename T>
+	expression(T&& data) : expression_variant(std::forward<T>(data)) {}
 };
 
 } // namespace aw::script::ast

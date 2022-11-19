@@ -67,9 +67,9 @@ private:
 	std::unique_ptr<ast::function> parse_function_prototype();
 	ast::argument_list parse_function_arguments();
 	bool parse_function_return_type(ast::function& func);
-	std::unique_ptr<ast::statement_block> parse_function_body();
+	auto parse_function_body() -> std::unique_ptr<ast::statement>;
 
-	std::unique_ptr<ast::statement_block> parse_statement_block();
+	auto parse_statement_block() -> std::unique_ptr<ast::statement>;
 	std::unique_ptr<ast::statement> parse_statement();
 	std::unique_ptr<ast::statement> parse_statement_inner();
 	std::unique_ptr<ast::statement> parse_if_statement();

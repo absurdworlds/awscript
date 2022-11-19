@@ -15,6 +15,8 @@
 
 #include "errors.h"
 
+using namespace std::string_view_literals;
+
 namespace aw::script {
 
 // TODO: evaluate idea
@@ -75,7 +77,7 @@ std::string_view parser::parse_identifier()
 {
 	// TODO: get rid of , ""
 	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok), "";
+		return error(diag, diagnostic_id::expected_type_name, tok);
 
 	auto name = tok.data;
 	advance();
@@ -127,8 +129,6 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 
 std::unique_ptr<ast::declaration> parser::parse_declaration()
 {
-	using namespace std::string_view_literals;
-
 	// awscript employs context-sensitive keywords
 	if (match_id("var"sv))
 		return parse_variable_declaration(ast::access::variable);
@@ -210,7 +210,6 @@ std::unique_ptr<ast::function> parser::parse_function_prototype()
 
 ast::argument_list parser::parse_function_arguments()
 {
-	using namespace std::string_view_literals;
 	// TODO: return optional<> on error
 	// TODO: return argument_list, status for partial error recovery
 
@@ -255,13 +254,13 @@ bool parser::parse_function_return_type(ast::function& func)
 /*
  * functionDef  ::= functionDecl '{' stmts '}'
  */
-std::unique_ptr<ast::statement_block> parser::parse_function_body()
+auto parser::parse_function_body() -> std::unique_ptr<ast::statement>
 {
 	return parse_statement_block();
 }
 
 /********************** Statements **********************/
-std::unique_ptr<ast::statement_block> parser::parse_statement_block()
+auto parser::parse_statement_block() -> std::unique_ptr<ast::statement>
 {
 	if (!match(token_kind::l_brace))
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
@@ -270,12 +269,12 @@ std::unique_ptr<ast::statement_block> parser::parse_statement_block()
 	while (!match(token_kind::r_brace)) {
 		auto statement = parse_statement();
 		if (!statement)
-			return nullptr;
+			return {};
 
 		statements.push_back(std::move(statement));
 	}
 
-	return std::make_unique<ast::statement_block>(std::move(statements));
+	return std::make_unique<ast::statement>(std::move(statements));
 }
 
 std::unique_ptr<ast::statement> parser::parse_statement()
@@ -289,12 +288,11 @@ std::unique_ptr<ast::statement> parser::parse_statement()
 
 std::unique_ptr<ast::statement> parser::parse_statement_inner()
 {
-	using namespace std::string_view_literals;
-
 	switch (tok.kind)
 	{
 	case token_kind::l_brace:
 		return parse_statement_block();
+
 	case token_kind::identifier:
 		if (tok == "if"sv)
 			return parse_if_statement();
@@ -304,7 +302,10 @@ std::unique_ptr<ast::statement> parser::parse_statement_inner()
 			return parse_while_statement();
 		[[fallthrough]];
 	default:
-		return parse_expression();
+		auto expr = parse_expression();
+		if (expr)
+			return std::make_unique<ast::statement>(std::move(*expr));
+		return nullptr;
 	}
 }
 
@@ -347,7 +348,7 @@ std::unique_ptr<ast::expression> parser::parse_unary_expression()
 	if (!expr.lhs)
 		return nullptr;
 
-	return std::make_unique<ast::expression>(expr);
+	return std::make_unique<ast::expression>(std::move(expr));
 }
 
 std::unique_ptr<ast::expression> parser::parse_binary_expression(
@@ -379,6 +380,9 @@ std::unique_ptr<ast::expression> parser::parse_paren_expression()
 
 std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 {
+	if (tok == "if"sv)
+		return nullptr; // if expression
+
 	std::string_view name = parse_identifier();
 	if (name.empty())
 		return nullptr;

@@ -11,7 +11,7 @@
 
 #include <aw/script/ast/decl/type.h>
 #include <aw/script/ast/decl/variable.h>
-#include <aw/script/ast/stmt/statement_block.h>
+#include <aw/script/ast/statement.h>
 
 namespace aw::script::ast {
 
@@ -26,7 +26,7 @@ public:
 	type* return_type = nullptr;
 	argument_list args;
 
-	std::unique_ptr<statement_block> body;
+	std::unique_ptr<statement> body;
 };
 
 } // namespace aw::script::ast
