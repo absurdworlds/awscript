@@ -301,20 +301,6 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 }
 
 uptr<ast::Expression>
-Parser::parseIdentifierExpr()
-{
-	std::string_view name = token.data();
-
-	getNextToken(); // consume identifier
-	if (match(token_kind::l_paren))
-		return parse_call_expr(name);
-	
-	// TODO: postfix operators
-
-	return std::make_unique<ast::IdentifierExpr>(name);
-}
-
-uptr<ast::Expression>
 Parser::parse_call_expr(std::string_view func)
 {
 	std::vector<uptr<ast::Expression>> args;
@@ -339,31 +325,6 @@ Parser::parse_call_expr(std::string_view func)
 	return std::make_unique<ast::CallExpr>(
 	        std::move(func), std::move(args));
 }
-
-uptr<ast::Expression>
-Parser::parseStringExpr()
-{
-	assert(token == token_kind::string_literal && "parseStringExpr called when there's no string literal!");
-
-	Token tok = token;
-	// Consume string
-	getNextToken();
-
-	return std::make_unique<ast::StringExpr>(tok.data());
-}
-
-uptr<ast::Expression>
-Parser::parseNumberExpr()
-{
-	assert(token == token_kind::numeric_constant && "parseNumberExpr called when there's no number!");
-
-	// store token, because we need to consume it
-	Token tok = token;
-	// consume number
-	getNextToken();
-
-	return std::make_unique<ast::NumberExpr>(tok.data());
-	}
 
 } // namespace script
 } // namespace aw

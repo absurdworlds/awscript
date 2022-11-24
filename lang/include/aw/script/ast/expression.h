@@ -44,10 +44,20 @@ struct value_expression {
 	std::string_view name;
 };
 
+struct numeric_literal {
+	std::string_view value;
+};
+
+struct string_literal {
+	std::string_view value;
+};
+
 using expression_variant = std::variant<
 	unary_expression,
 	binary_expression,
-	value_expression
+	value_expression,
+	numeric_literal,
+	string_literal
 >;
 
 struct expression : expression_variant

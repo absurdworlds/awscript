@@ -88,7 +88,7 @@ std::string_view parser::parse_identifier()
 std::string_view parser::parse_type()
 {
 	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok), "";
+		return error(diag, diagnostic_id::expected_type_name, tok);
 
 #if 0 // we have to do this in 2 passes
 
@@ -399,12 +399,26 @@ std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 
 std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
 {
-	return nullptr;
+	assert(tok == token_kind::string_literal &&
+	       "parse_string_literal_expression called when there's no string literal!");
+
+	ast::string_literal str{ .value = tok.data };
+
+	// consume string
+	advance();
+
+
+	return std::make_unique<ast::expression>(str);
 }
 
 std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 {
-	return nullptr;
+	assert(tok == token_kind::numeric_constant &&
+	       "parse_numeric_literal_expression called when there's no number!");
+
+	ast::numeric_literal num{ .value = tok.data };
+
+	return std::make_unique<ast::expression>(num);
 }
 
 std::unique_ptr<ast::expression> parser::parse_call_expression(std::string_view names)
