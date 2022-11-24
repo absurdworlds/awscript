@@ -87,7 +87,7 @@ private:
 	std::unique_ptr<ast::expression> parse_identifier_expression();
 	std::unique_ptr<ast::expression> parse_string_literal_expression();
 	std::unique_ptr<ast::expression> parse_numeric_literal_expression();
-	std::unique_ptr<ast::expression> parse_call_expression(std::string_view name);
+	auto parse_call_expression(std::string_view name) -> std::unique_ptr<ast::expression>;
 
 	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
 

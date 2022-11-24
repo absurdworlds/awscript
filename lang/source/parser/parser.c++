@@ -407,7 +407,6 @@ std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
 	// consume string
 	advance();
 
-
 	return std::make_unique<ast::expression>(str);
 }
 
@@ -421,9 +420,29 @@ std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 	return std::make_unique<ast::expression>(num);
 }
 
-std::unique_ptr<ast::expression> parser::parse_call_expression(std::string_view names)
+auto parser::parse_call_expression(std::string_view name) -> std::unique_ptr<ast::expression>
 {
-	return nullptr;
+	ast::call_expression expr;
+
+	expr.func = name;
+
+	if (!match(token_kind::r_paren)) {
+		while (true) {
+			auto arg = parse_expression();
+			if (!arg)
+				return nullptr;
+
+			expr.args.push_back(std::move(*arg));
+
+			if (match(token_kind::r_paren))
+				break;
+
+			if (!match(token_kind::comma))
+				return error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+		}
+	}
+
+	return std::make_unique<ast::expression>(std::move(expr));
 }
 
 } // namespace aw::script

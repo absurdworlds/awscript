@@ -10,8 +10,8 @@
 #define aw_script_ast_expression_h
 
 #include <memory>
-
 #include <variant>
+#include <vector>
 
 namespace aw::script::ast {
 
@@ -44,6 +44,11 @@ struct value_expression {
 	std::string_view name;
 };
 
+struct call_expression {
+	std::string_view func;
+	std::vector<expression> args;
+};
+
 struct numeric_literal {
 	std::string_view value;
 };
@@ -55,6 +60,7 @@ struct string_literal {
 using expression_variant = std::variant<
 	unary_expression,
 	binary_expression,
+	call_expression,
 	value_expression,
 	numeric_literal,
 	string_literal

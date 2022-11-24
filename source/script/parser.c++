@@ -300,31 +300,5 @@ Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
 	}
 }
 
-uptr<ast::Expression>
-Parser::parse_call_expr(std::string_view func)
-{
-	std::vector<uptr<ast::Expression>> args;
-
-	if (!match(token_kind::r_paren)) {
-		while (true) {
-			auto arg = parseExpression();
-
-			if (!arg)
-				return nullptr;
-
-			args.push_back(std::move(arg));
-
-			if (match(token_kind::r_paren))
-				break;
-
-			if (!match(token_kind::comma))
-				return error_unexpected_token(diag, token, token_kind::comma); // expected ,
-		}
-	}
-
-	return std::make_unique<ast::CallExpr>(
-	        std::move(func), std::move(args));
-}
-
 } // namespace script
 } // namespace aw
