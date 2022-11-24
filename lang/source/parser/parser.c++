@@ -375,7 +375,14 @@ std::unique_ptr<ast::expression> parser::parse_primary_expression()
 
 std::unique_ptr<ast::expression> parser::parse_paren_expression()
 {
-	return nullptr;
+	assert(tok == token_kind::l_paren);
+
+	auto expr = parse_expression();
+
+	if (!match(token_kind::r_paren))
+		return error_unexpected_token(diag, tok, token_kind::r_paren); // expected ')'
+
+	return expr;
 }
 
 std::unique_ptr<ast::expression> parser::parse_identifier_expression()
@@ -416,6 +423,9 @@ std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 	       "parse_numeric_literal_expression called when there's no number!");
 
 	ast::numeric_literal num{ .value = tok.data };
+
+	// consume number
+	advance();
 
 	return std::make_unique<ast::expression>(num);
 }

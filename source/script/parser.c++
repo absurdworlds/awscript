@@ -234,38 +234,6 @@ Parser::parseBranchStatement()
 	        std::move(ifExpr), std::move(ifBody), std::move(elseBody));
 }
 
-
-uptr<ast::Expression>
-Parser::parsePrimaryExpr()
-{
-	switch(token.type()) {
-	case token_kind::l_paren:
-		return parseParenExpr();
-	case token_kind::identifier:
-		return parseIdentifierExpr();
-	case token_kind::numeric_constant:
-		return parseNumberExpr();
-	case token_kind::string_literal:
-		return parseStringExpr();
-	default:
-		return 0; // expected expression
-	}
-}
-
-uptr<ast::Expression>
-Parser::parseParenExpr()
-{
-	if (!match(token_kind::l_paren))
-		return error_unexpected_token(diag, token, token_kind::l_paren); // Expected (
-
-	uptr<ast::Expression> expr = parseExpression();
-
-	if (!match(token_kind::r_paren))
-		return error_unexpected_token(diag, token, token_kind::r_paren);
-
-	return expr;
-}
-
 uptr<ast::Expression>
 Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
                         prec::Level minPrec)
