@@ -12,6 +12,7 @@ DIAG(error, expected_semicolon_after_var, "Expected ‘;’ after variable decla
 DIAG(error, expected_semicolon_after_do_while, "Expected ‘;’ after do-while statement.")
 DIAG(error, uninitialized_constant, "Constant must be initialized.")
 DIAG(error, not_implemented_yet, "Not implemented yet: %0.")
+DIAG(error, undefined_variable, "Undefined variable: ‘%0’.")
 DIAG(error, redefined_variable, "Redefined variable: ‘%0’.")
 DIAG(error, symbol_already_defined, "Symbol already defined: ‘%0’.")
 DIAG(error, unknown_type, "Unknown type: ‘%0’.")

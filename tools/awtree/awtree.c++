@@ -7,6 +7,8 @@
 #include <aw/script/symtab/scope.h>
 #include <aw/script/diag/diagnostics_engine.h>
 
+#include <aw/script/codegen/llvm/backend_llvm.h>
+
 #include <aw/io/file.h>
 
 #include <iostream>
@@ -50,4 +52,9 @@ int main(int argc, char** argv)
 
 	for (const auto& decl : decls)
 		printer.print_declaration(*decl);
+
+	backend_llvm backend(diag);
+	for (const auto& decl : decls)
+		backend.gen(decl);
+	backend.create_object();
 }
