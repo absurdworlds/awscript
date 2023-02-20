@@ -36,7 +36,8 @@ aw_add_library(awscript-lang STATIC
 
 target_link_libraries(awscript-lang
 	PUBLIC
-		aw::io)
+		aw::io
+		aw::string)
 
 
 if (AWSCRIPT_MAKE_TESTS)

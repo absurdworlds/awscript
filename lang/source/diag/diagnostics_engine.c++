@@ -42,7 +42,7 @@ source_position count_lines(source_buffer& buffer, ptrdiff_t offset)
 void diagnostics_engine::report(diagnostic diag)
 {
 	array_view<std::string> args(diag.args);
-	auto msg = aw::string::compose(diag_message_template(diag.id), args);
+	auto msg = aw::string::compose_v(diag_message_template(diag.id), args);
 
 	auto line   = diag.loc.pos;
 	auto column = 0;
