@@ -76,28 +76,33 @@ void ast_printer_default::print_indent()
 
 void ast_printer_default::print(const ast::function& decl)
 {
-	start("function", mixed_scope);
+	start("func", mixed_scope);
+
+	print_type(decl.return_type);
 	print_inline(decl.name());
 	start_line();
-	start("fn-args");
-	for (const auto& arg : decl.args)
 	{
-		print(*arg);
-		start_line();
+		start("fn-args");
+		for (const auto& arg : decl.args)
+		{
+			print(*arg);
+			start_line();
+		}
+		end();
 	}
-	end();
-
-	start("fn-body");
-	if (decl.body)
-		print(*decl.body);
-	end();
+	{
+		start("fn-body");
+		if (decl.body)
+			print(*decl.body);
+		end();
+	}
 	end();
 }
 
 void ast_printer_default::print(const ast::variable& var)
 {
 	start("var", inline_scope);
-	print_inline(var.type ? var.type->name() : "<unresolved type>");
+	print_type(var.type);
 	print_inline(var.name());
 	end();
 }
@@ -105,6 +110,11 @@ void ast_printer_default::print(const ast::variable& var)
 void ast_printer_default::print(const ast::statement& stmt)
 {
 	std::visit([this] (auto&& node) { print_stmt(node); }, stmt);
+}
+
+void ast_printer_default::print_type(const ast::type* type)
+{
+	print_inline(type ? type->name() : "<unresolved type>");
 }
 
 void ast_printer_default::print_stmt(const ast::statement_list& list)

@@ -19,6 +19,8 @@ private:
 	void print(const ast::variable& var);
 	void print(const ast::statement& stmt);
 
+	void print_type(const ast::type* type);
+
 	void print_stmt(const ast::statement_list& list);
 	void print_stmt(const ast::if_else_statement& stmt);
 	void print_stmt(const ast::expression& expr);
