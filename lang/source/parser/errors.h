@@ -33,6 +33,11 @@ inline error_t error_unexpected_token(diagnostics_engine& diag, token tok, token
 {
 	return error(diag, diagnostic_id::unexpected_token, tok, expected);
 }
+
+inline error_t error_expected_expression(diagnostics_engine& diag, token tok)
+{
+	return error(diag, diagnostic_id::expected_expression, tok);
+}
 } // namespace aw::script
 
 #endif//aw_script_parser_errors_h

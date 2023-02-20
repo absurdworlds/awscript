@@ -204,35 +204,6 @@ Parser::parseExprStatement()
 	return std::move(expr);
 }
 
-uptr<ast::Statement>
-Parser::parseBranchStatement()
-{
-	if (!match(token_kind::l_paren))
-		return error_unexpected_token(diag, token, token_kind::l_paren);
-
-	uptr<ast::Expression> ifExpr = parseExpression();
-	if (!ifExpr)
-		return nullptr;
-
-	if (!match(token_kind::r_paren))
-		return error_unexpected_token(diag, token, token_kind::r_paren);
-
-	uptr<ast::Statement> ifBody = parseStatement();
-	if (!ifBody)
-		return nullptr;
-
-	uptr<ast::Statement> elseBody = nullptr;
-
-	if (match(kw_else)) {
-		elseBody = parseStatement();
-
-		if (!elseBody)
-			return nullptr;
-	}
-
-	return std::make_unique<ast::IfElseStatement>(
-	        std::move(ifExpr), std::move(ifBody), std::move(elseBody));
-}
 
 uptr<ast::Expression>
 Parser::parseBinaryExpr(uptr<ast::Expression> LHS,

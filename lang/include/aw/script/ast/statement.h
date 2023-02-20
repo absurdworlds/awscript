@@ -22,7 +22,7 @@ struct statement;
 using statement_list = std::vector<std::unique_ptr<statement>>;
 using statement_block = statement_list;
 
-class if_else_statement {
+struct if_else_statement {
 	std::unique_ptr<expression> if_expr;
 	std::unique_ptr<statement>  if_body;
 	std::unique_ptr<statement>  else_body;

@@ -69,7 +69,7 @@ using expression_variant = std::variant<
 struct expression : expression_variant
 {
 	template<typename T>
-	expression(T&& data) : expression_variant(std::forward<T>(data)) {}
+	explicit expression(T&& data) : expression_variant(std::forward<T>(data)) {}
 };
 
 } // namespace aw::script::ast

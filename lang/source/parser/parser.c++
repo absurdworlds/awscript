@@ -38,6 +38,19 @@ bool parser::advance()
 	return true; // TODO:
 }
 
+bool parser::advance(token_kind expected)
+{
+	assert(tok == expected);
+	return advance();
+}
+
+bool parser::advance(string_view identifier)
+{
+	assert(tok == token_kind::identifier &&
+	       tok == identifier);
+	return advance();
+}
+
 bool parser::match(token_kind expected)
 {
 	if (tok.kind != expected)
@@ -311,7 +324,22 @@ std::unique_ptr<ast::statement> parser::parse_statement_inner()
 
 std::unique_ptr<ast::statement> parser::parse_if_statement()
 {
-	return nullptr;
+	advance("if");
+
+	ast::if_else_statement stmt;
+
+	stmt.if_expr = parse_expression();
+	if (!stmt.if_expr)
+		return error_expected_expression(diag, tok);
+
+	stmt.if_body = parse_statement();
+
+	if (match("else"))
+	{
+		stmt.else_body = parse_statement();
+	}
+
+	return std::make_unique<ast::statement>(std::move(stmt));
 }
 
 std::unique_ptr<ast::statement> parser::parse_for_statement()
@@ -375,7 +403,7 @@ std::unique_ptr<ast::expression> parser::parse_primary_expression()
 
 std::unique_ptr<ast::expression> parser::parse_paren_expression()
 {
-	assert(tok == token_kind::l_paren);
+	advance(token_kind::l_paren);
 
 	auto expr = parse_expression();
 

@@ -49,6 +49,8 @@ public:
 
 private:
 	bool advance();
+	bool advance(token_kind expected);
+	bool advance(string_view identifier);
 	bool match(token_kind expected);
 	bool match(string_view identifier);
 
