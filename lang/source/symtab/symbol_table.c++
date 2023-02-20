@@ -2,7 +2,17 @@
 
 #include <aw/script/symtab/scope.h>
 
+#include <aw/script/ast/decl/type.h>
+
 namespace aw::script {
+symbol_table::symbol_table()
+{
+	top_scope = create_scope();
+
+	// TODO: move this out of here
+	top_scope->add_symbol("int", new ast::type("int"));
+}
+
 std::unique_ptr<ast::scope> symbol_table::create_scope()
 {
 	auto* cur_scope = current_scope();
@@ -36,6 +46,15 @@ void symbol_table::add_unresolved(std::string_view type_name, ast::type** type)
 		.type = type,
 		.name = type_name
 	});
+}
+
+void symbol_table::resolve()
+{
+	for (const auto& ref : unresolved_types) {
+		auto decl = ref.scope->find_symbol(ref.name);
+		if (decl && decl->kind() == ast::decl_kind::type)
+			*ref.type = static_cast<ast::type*>(decl);
+	}
 }
 
 } // namespace aw::script

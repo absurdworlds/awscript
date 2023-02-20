@@ -230,9 +230,7 @@ void ast_printer_default::print_expr(const ast::call_expression& expr)
 
 void ast_printer_default::print_expr(const ast::value_expression& expr)
 {
-	start("val", inline_scope);
 	print_inline(expr.name);
-	end();
 }
 
 void ast_printer_default::print_expr(const ast::numeric_literal& expr)

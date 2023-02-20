@@ -37,12 +37,17 @@ int main(int argc, char** argv)
 
 	ast_printer_default printer;
 
-	std::unique_ptr<ast::declaration> decl;
+	std::vector<std::unique_ptr<ast::declaration>> decls;
 
 	while(true) {
-		decl = parser.parse_top_level();
+		auto decl = parser.parse_top_level();
 		if (!decl)
 			break;
-		printer.print_declaration(*decl);
+		decls.push_back(std::move(decl));
 	}
+
+	symtab.resolve();
+
+	for (const auto& decl : decls)
+		printer.print_declaration(*decl);
 }

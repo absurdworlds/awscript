@@ -23,12 +23,15 @@ class scope;
 
 struct unresolved_type {
 	ast::scope* scope;
+	// TODO: this is unsafe, as it might create dangling pointers
 	ast::type** type;
 	std::string_view name;
 };
 
 class symbol_table {
 public:
+	symbol_table();
+
 	std::unique_ptr<ast::scope> create_scope();
 
 	void pop_scope();
@@ -39,6 +42,8 @@ public:
 	ast::scope* current_scope();
 
 	void add_unresolved(std::string_view type_name, ast::type** type);
+
+	void resolve();
 
 private:
 	std::unique_ptr<ast::scope> top_scope;

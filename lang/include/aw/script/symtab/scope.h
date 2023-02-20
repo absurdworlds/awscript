@@ -32,6 +32,12 @@ public:
 
 	declaration* find_symbol(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
 
+	void add_symbol(std::string_view name, declaration* decl)
+	{
+		// TODO: handle conflicts
+		symbols[name] = decl;
+	}
+
 private:
 	scope* parent_scope = nullptr;
 
