@@ -42,7 +42,6 @@ protected:
 		_name = other.name();
 		return *this;
 	}
-
 public:
 	declaration(const declaration& other) = delete;
 	declaration(declaration&& other) = delete;
@@ -51,6 +50,12 @@ public:
 
 	decl_kind   kind() const { return _kind; }
 	string_view name() const { return _name; }
+
+	template<typename T>
+	T& as() { return static_cast<T&>(*this); }
+
+	template<typename T>
+	const T& as() const { return static_cast<const T&>(*this); }
 
 private:
 	decl_kind   _kind;
