@@ -197,6 +197,12 @@ std::string_view spell_operator(ast::binary_operator op)
 		return "-";
 	case ast::binary_operator::plus:
 		return "+";
+	case ast::binary_operator::multiply:
+		return "*";
+	case ast::binary_operator::divide:
+		return "/";
+	case ast::binary_operator::assignment:
+		return "=";
 	}
 	return "<invalid-binary-op>";
 }

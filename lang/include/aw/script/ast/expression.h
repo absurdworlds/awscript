@@ -32,6 +32,9 @@ struct unary_expression {
 enum class binary_operator {
 	minus,
 	plus,
+	multiply,
+	divide,
+	assignment,
 };
 
 struct binary_expression {

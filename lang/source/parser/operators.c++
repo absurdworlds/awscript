@@ -38,6 +38,12 @@ auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_ope
 		return ast::binary_operator::minus;
 	case token_kind::plus:
 		return ast::binary_operator::plus;
+	case token_kind::ast:
+		return ast::binary_operator::multiply;
+	case token_kind::slash:
+		return ast::binary_operator::divide;
+	case token_kind::equal:
+		return ast::binary_operator::assignment;
 	default:
 		return std::nullopt;
 	}
