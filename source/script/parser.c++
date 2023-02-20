@@ -204,40 +204,5 @@ Parser::parseExprStatement()
 	return std::move(expr);
 }
 
-
-uptr<ast::Expression>
-Parser::parseBinaryExpr(uptr<ast::Expression> LHS,
-                        prec::Level minPrec)
-{
-	while (1) {
-		prec::Level curPrec = getOperatorPrecedence(token);
-		if (curPrec < minPrec)
-			return LHS;
-
-		Token opcode = token;
-		getNextToken(); // consume operator
-
-		uptr<ast::Expression> RHS = parseUnaryExpr();
-		if(!RHS)
-			return nullptr;
-
-
-		prec::Level nextPrec = getOperatorPrecedence(token);
-		bool isRightAssoc = isRightAssociative(token);
-
-		if (curPrec < nextPrec ||
-		   (curPrec == nextPrec && isRightAssoc)) {
-			RHS = parseBinaryExpr(
-			       std::move(RHS),
-			       prec::Level(curPrec + !isRightAssoc));
-			if (!RHS)
-				return nullptr;
-		}
-
-		LHS = std::make_unique<ast::BinaryExpr>(
-		       opcode.type(), std::move(LHS), std::move(RHS));
-	}
-}
-
 } // namespace script
 } // namespace aw

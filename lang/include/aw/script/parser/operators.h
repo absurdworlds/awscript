@@ -25,7 +25,8 @@ enum class precedence {
 	relational     = 8,  // >=, <=, <, >
 	shift          = 9,  // <<, >>
 	additive       = 10, // +, -
-	multiplicative = 11  // *, *, %
+	multiplicative = 11, // *, *, %
+	max
 };
 
 inline precedence token_precedence(token tok)

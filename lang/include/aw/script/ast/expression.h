@@ -35,11 +35,12 @@ enum class binary_operator {
 };
 
 struct binary_expression {
-	unary_operator op;
+	binary_operator op;
 	std::unique_ptr<expression> lhs;
 	std::unique_ptr<expression> rhs;
 };
 
+// TODO: tell apart lvalue and rvalue
 struct value_expression {
 	std::string_view name;
 };

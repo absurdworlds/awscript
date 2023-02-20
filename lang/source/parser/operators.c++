@@ -30,4 +30,25 @@ auto parser::parse_unary_operator(token tok) -> std::optional<ast::unary_operato
 	return result;
 }
 
+auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_operator>
+{
+	switch (tok.kind)
+	{
+	case token_kind::minus:
+		return ast::binary_operator::minus;
+	case token_kind::plus:
+		return ast::binary_operator::plus;
+	default:
+		return std::nullopt;
+	}
+}
+
+auto parser::parse_binary_operator(token tok) -> std::optional<ast::binary_operator>
+{
+	auto result = token_to_binary_operator(tok);
+	if (result)
+		advance();
+	return result;
+}
+
 } // namespace aw::script

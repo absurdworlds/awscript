@@ -92,6 +92,7 @@ private:
 	auto parse_call_expression(std::string_view name) -> std::unique_ptr<ast::expression>;
 
 	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
+	auto parse_binary_operator(token tok) -> std::optional<ast::binary_operator>;
 
 private:
 	/*! Current lookahead (peek) token. */

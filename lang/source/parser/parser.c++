@@ -9,6 +9,7 @@
 #include <aw/script/parser/parser.h>
 
 #include <aw/algorithm/in.h>
+#include <aw/types/support/enum.h>
 
 #include <aw/script/ast/decl/type.h>
 #include <aw/script/ast/expression.h>
@@ -104,7 +105,6 @@ std::string_view parser::parse_type()
 		return error(diag, diagnostic_id::expected_type_name, tok);
 
 #if 0 // we have to do this in 2 passes
-
 	std::string_view parse_identifier();
 	std::string_view parse_type(); anyway, so no point in making in more complicated
 	auto symbol = symtab.lookup(tok.data);
@@ -379,9 +379,53 @@ std::unique_ptr<ast::expression> parser::parse_unary_expression()
 	return std::make_unique<ast::expression>(std::move(expr));
 }
 
-std::unique_ptr<ast::expression> parser::parse_binary_expression(
-	std::unique_ptr<ast::expression> lhs, precedence min_prec)
+static precedence move_prec(precedence prec, int count)
 {
+	auto result = precedence( to_underlying(prec) + count );
+	assert(result < precedence::max);
+	return result;
+}
+
+auto parser::parse_binary_expression(std::unique_ptr<ast::expression> lhs, precedence min_prec) ->
+	std::unique_ptr<ast::expression>
+{
+	while (true) {
+		precedence cur_prec = token_precedence(tok);
+		if (cur_prec < min_prec)
+			break;
+
+		auto op = parse_binary_operator(tok);
+		if (!op)
+			return nullptr;
+
+		auto rhs = parse_unary_expression();
+		if (!rhs)
+			return nullptr;
+
+		const precedence next_prec = token_precedence(tok);
+		const bool is_right_assoc = is_right_associative(tok);
+
+		if (cur_prec < next_prec ||
+		   (cur_prec == next_prec && is_right_assoc)) {
+			rhs = parse_binary_expression(
+				std::move(rhs),
+				move_prec(cur_prec, !is_right_assoc)
+			);
+
+			if (!rhs)
+				return nullptr;
+		}
+
+		ast::binary_expression expr {
+			.op = *op,
+			.lhs = std::move(lhs),
+			.rhs = std::move(rhs),
+		};
+
+		lhs = std::make_unique<ast::expression>(std::move(expr));
+
+	}
+
 	return lhs;
 }
 

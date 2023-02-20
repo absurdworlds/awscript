@@ -189,9 +189,24 @@ void ast_printer_default::print_expr(const ast::unary_expression& expr)
 	end();
 }
 
+std::string_view spell_operator(ast::binary_operator op)
+{
+	switch(op)
+	{
+	case ast::binary_operator::minus:
+		return "-";
+	case ast::binary_operator::plus:
+		return "+";
+	}
+	return "<invalid-binary-op>";
+}
+
 void ast_printer_default::print_expr(const ast::binary_expression& expr)
 {
-
+	start(spell_operator(expr.op), inline_scope);
+	print_expr(expr.lhs);
+	print_expr(expr.rhs);
+	end();
 }
 
 void ast_printer_default::print_expr(const ast::call_expression& expr)
