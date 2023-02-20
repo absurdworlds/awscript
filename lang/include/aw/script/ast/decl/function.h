@@ -15,17 +15,21 @@
 
 namespace aw::script::ast {
 
+class scope;
+
 using argument_list = std::vector<std::unique_ptr<variable>>;
 
-class function : public declaration {
-public:
-	function(std::string_view name)
-	    : declaration(decl_kind::function, name)
-	{}
+struct function : public declaration {
+	function(std::string_view name);
+
+	~function();
+
+	void add_arg(std::unique_ptr<variable> var);
 
 	type* return_type = nullptr;
 	argument_list args;
 
+	std::unique_ptr<ast::scope> scope;
 	std::unique_ptr<statement> body;
 };
 

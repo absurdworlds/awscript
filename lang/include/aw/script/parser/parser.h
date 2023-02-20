@@ -67,7 +67,7 @@ private:
 	std::unique_ptr<ast::declaration> parse_class_declaration();
 
 	std::unique_ptr<ast::function> parse_function_prototype();
-	ast::argument_list parse_function_arguments();
+	bool parse_function_arguments(ast::function& func);
 	bool parse_function_return_type(ast::function& func);
 	auto parse_function_body() -> std::unique_ptr<ast::statement>;
 

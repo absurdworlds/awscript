@@ -13,6 +13,7 @@
 
 #include <aw/script/ast/decl/type.h>
 #include <aw/script/ast/expression.h>
+#include <aw/script/symtab/scope.h>
 
 #include "errors.h"
 
@@ -210,7 +211,9 @@ std::unique_ptr<ast::function> parser::parse_function_prototype()
 	if (!match(token_kind::l_paren))
 		return error_unexpected_token(diag, tok, token_kind::l_paren);
 
-	func->args = parse_function_arguments();
+	func->scope = symtab.create_scope();
+
+	parse_function_arguments(*func);
 
 	if (!match(token_kind::r_paren))
 		return error_unexpected_token(diag, tok, token_kind::r_paren);
@@ -221,13 +224,8 @@ std::unique_ptr<ast::function> parser::parse_function_prototype()
 	return func;
 }
 
-ast::argument_list parser::parse_function_arguments()
+bool parser::parse_function_arguments(ast::function& func)
 {
-	// TODO: return optional<> on error
-	// TODO: return argument_list, status for partial error recovery
-
-	ast::argument_list args;
-
 	// TODO: support both 'var int a' and 'int a'
 	// TODO: support const
 	while (match("var"sv)) {
@@ -235,17 +233,17 @@ ast::argument_list parser::parse_function_arguments()
 		if (!arg)
 			return {};
 
-		args.push_back(std::move(arg));
+		func.add_arg(std::move(arg));
 
 		if (tok == token_kind::r_paren)
 			break;
 
 		if (!match(token_kind::comma))
 			// TODO: remove comma operator
-			return error_unexpected_token(diag, tok, token_kind::comma), std::move(args);
+			return error_unexpected_token(diag, tok, token_kind::comma);
 	}
 
-	return args;
+	return true;
 }
 
 bool parser::parse_function_return_type(ast::function& func)

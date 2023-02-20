@@ -24,6 +24,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_name.h
 	SOURCES
 		source/lexer/lexer.c++
+		source/ast/function.c++
 		source/diag/messages.c++
 		source/diag/diagnostics_engine.c++
 		source/parser/parser.c++
