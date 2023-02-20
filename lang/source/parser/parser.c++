@@ -432,12 +432,17 @@ std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 	return std::make_unique<ast::expression>(expr);
 }
 
+static string_view trim_string(string_view s)
+{
+	return s.substr(1, s.size() - 2);
+}
+
 std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
 {
 	assert(tok == token_kind::string_literal &&
 	       "parse_string_literal_expression called when there's no string literal!");
 
-	ast::string_literal str{ .value = tok.data };
+	ast::string_literal str{ .value = trim_string(tok.data) };
 
 	// consume string
 	advance();
