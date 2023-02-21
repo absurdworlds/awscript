@@ -24,6 +24,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/codegen/backend.h
+		source/codegen/llvm/backend_llvm.h
 	SOURCES
 		source/lexer/lexer.c++
 		source/ast/function.c++
@@ -34,12 +35,27 @@ aw_add_library(awscript-lang STATIC
 		source/parser/errors.h
 		source/symtab/scope.c++
 		source/symtab/symbol_table.c++
+		source/codegen/llvm/backend_llvm.c++
 	)
 
 target_link_libraries(awscript-lang
 	PUBLIC
 		aw::io
 		aw::string)
+
+set (AWSCRIPT_USE_LLVM ON)
+if (AWSCRIPT_USE_LLVM)
+	find_package(LLVM REQUIRED CONFIG)
+
+	execute_process(COMMAND llvm-config --libs all
+	                OUTPUT_VARIABLE LLVM_LIBRARIES
+	                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	target_link_libraries(awscript-lang
+			PUBLIC
+				${LLVM_LIBRARIES})
+endif()
+
 
 if (AWSCRIPT_MAKE_TESTS)
 	add_subdirectory(tests)
