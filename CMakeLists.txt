@@ -21,5 +21,5 @@ find_package(awlib)
 
 option(AWSCRIPT_MAKE_TESTS "Build test executables" ON)
 
-add_subdirectory(lang)
+add_subdirectory(libs)
 add_subdirectory(tools)
