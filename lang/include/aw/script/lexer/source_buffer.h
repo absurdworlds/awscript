@@ -68,7 +68,7 @@ private:
 			free();
 
 		// Sentinel
-		buffer[length+1] = 0;
+		buffer[length] = 0;
 		return std::string_view(buffer, length);
 	}
 
