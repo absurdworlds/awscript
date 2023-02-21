@@ -47,33 +47,41 @@ backend_llvm::backend_llvm(diagnostics_engine& diag)
 	InitializeAllTargetMCs();
 	InitializeAllAsmParsers();
 	InitializeAllAsmPrinters();
+}
+
+bool backend_llvm::setup_target(string_view request_triple)
+{
+	using namespace std::string_view_literals;
+
+	const std::string target_triple = request_triple.empty() ?
+		sys::getDefaultTargetTriple() :
+		std::string(request_triple);
 
 	std::string error;
-
-	auto TargetTriple = sys::getDefaultTargetTriple();
-	auto Target = TargetRegistry::lookupTarget(TargetTriple, error);
-
-	// Print an error and exit if we couldn't find the requested target.
-	// This generally occurs if we've forgotten to initialise the
-	// TargetRegistry or we have a bogus target triple.
-	if (!Target) {
+	auto target = TargetRegistry::lookupTarget(target_triple, error);
+	if (!target) {
 		errs() << error;
+		return false;
 	}
 
-	auto CPU = "generic";
-	auto Features = "";
+	auto cpu = "generic"sv;
+	auto features = string_view{};
 
 	TargetOptions opt;
-	auto RM = Optional<Reloc::Model>();
-	target_machine = Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+
+	auto reloc_model = Optional<Reloc::Model>();
+
+	target_machine = target->createTargetMachine(target_triple, cpu, features, opt, reloc_model);
 
 	cur_module->setDataLayout(target_machine->createDataLayout());
 
-
+	// TODO: this is temporary I implement external functions
 	std::vector<Type*> args(1, Type::getInt64Ty(context));
 	auto signature = FunctionType::get(Type::getVoidTy(context), args, false);
 	auto func = Function::Create(signature, Function::ExternalLinkage, "putchar", cur_module.get());
 	func->args().begin()->setName("i");
+
+	return true;
 }
 
 void backend_llvm::create_object()

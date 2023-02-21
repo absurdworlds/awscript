@@ -28,6 +28,7 @@ class backend_llvm {
 public:
 	backend_llvm(diagnostics_engine& diag);
 
+	bool setup_target(string_view request_triple = {});
 	void create_object();
 
 	auto gen(const std::unique_ptr<ast::declaration>& decl) -> llvm::Value*;
