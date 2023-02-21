@@ -1,5 +1,6 @@
 #include "backend_llvm.h"
 
+#include <aw/script/diag/error_t.h>
 #include <aw/script/symtab/scope.h>
 
 #include <llvm/IR/Constant.h>
@@ -18,31 +19,21 @@ using namespace llvm;
 
 namespace aw::script {
 
-struct error_t {
-	template <typename T>
-	constexpr operator T() const { return {}; }
-};
-
-template<typename...Args>
-inline error_t error(diagnostics_engine& diag, diagnostic_id id, Args&&... args)
+static error_t error_undefined_variable(diagnostics_engine& diag, string_view name)
 {
-	diagnostic msg(location(), id);
-	if constexpr(sizeof...(args) > 0)
-		(msg << ... << args);
-	diag.report(msg);
-
-	return {};
+	return error(diag, diagnostic_id::undefined_variable, location(), name);
 }
 
-inline error_t error_undefined_variable(diagnostics_engine& diag, string_view name)
+static error_t error_not_implemented_yet(diagnostics_engine& diag)
 {
-	return error(diag, diagnostic_id::undefined_variable, name);
+	return error(diag, diagnostic_id::not_implemented_yet, location());
 }
 
-inline error_t error_not_implemented_yet(diagnostics_engine& diag)
+static error_t error_is_not_declared(diagnostics_engine& diag, string_view name)
 {
-	return error(diag, diagnostic_id::not_implemented_yet);
+	return error(diag, diagnostic_id::is_not_declared, location(), name);
 }
+
 
 extern "C" void print_int(int i) { std::cout << i; }
 
@@ -243,7 +234,7 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 {
 	Function* callee = cur_module->getFunction(expr.func);
 	if (!callee)
-		return error_undefined_variable(diag, expr.func); // undefined function
+		return error_is_not_declared(diag, expr.func);
 
 	if (callee->arg_size() != expr.args.size())
 		return error_not_implemented_yet(diag); // argument mismatch

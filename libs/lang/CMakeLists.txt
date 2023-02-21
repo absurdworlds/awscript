@@ -16,6 +16,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/ast/expression.h
 		include/aw/script/diag/diagnostic.h
 		include/aw/script/diag/diagnostics_engine.h
+		include/aw/script/diag/error_t.h
 		include/aw/script/diag/messages.h
 		include/aw/script/parser/parser.h
 		include/aw/script/parser/operators.h
