@@ -32,7 +32,7 @@ inline error_t error(diagnostics_engine& diag, diagnostic_id id, location loc, A
 template<typename...Args>
 inline error_t error(diagnostics_engine& diag, diagnostic_id id, token tok, Args&&... args)
 {
-	return error(diag, id, tok.loc, tok, std::forward<Args>(args)...);
+	return error(diag, id, tok.loc, tok.data, std::forward<Args>(args)...);
 }
 
 }//namespace aw::script
