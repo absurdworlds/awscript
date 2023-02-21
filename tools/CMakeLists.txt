@@ -2,3 +2,5 @@
 add_subdirectory(awlex)
 # Parses the input file and prints the AST
 add_subdirectory(awtree)
+# Actual compiler executable
+add_subdirectory(awscriptc)
