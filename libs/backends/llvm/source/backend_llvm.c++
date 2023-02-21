@@ -1,4 +1,4 @@
-#include "aw/script/codegen/llvm/backend_llvm.h"
+#include "backend_llvm.h"
 
 #include <aw/script/symtab/scope.h>
 
