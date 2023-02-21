@@ -35,6 +35,7 @@ aw_add_library(awscript-lang STATIC
 		source/parser/errors.h
 		source/symtab/scope.c++
 		source/symtab/symbol_table.c++
+		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
 	)
 

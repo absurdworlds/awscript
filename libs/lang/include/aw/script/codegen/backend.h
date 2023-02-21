@@ -9,6 +9,8 @@
 #ifndef aw_script_codegen_backend_h
 #define aw_script_codegen_backend_h
 
+#include <aw/utility/factory_registry.h>
+
 #include <aw/types/string_view.h>
 
 namespace aw::script {
@@ -24,6 +26,8 @@ class declaration;
 class backend {
 public:
 	virtual ~backend() = default;
+
+	static std::unique_ptr<backend> create(std::string_view name, diagnostics_engine& diag);
 
 	virtual bool set_target(string_view target_triple = {}) = 0;
 
