@@ -34,9 +34,6 @@ static error_t error_is_not_declared(diagnostics_engine& diag, string_view name)
 	return error(diag, diagnostic_id::is_not_declared, location(), name);
 }
 
-
-extern "C" void print_int(int i) { std::cout << i; }
-
 backend_llvm::backend_llvm(diagnostics_engine& diag)
 	: diag(diag)
 {
@@ -49,7 +46,7 @@ backend_llvm::backend_llvm(diagnostics_engine& diag)
 	InitializeAllAsmPrinters();
 }
 
-bool backend_llvm::setup_target(string_view request_triple)
+bool backend_llvm::set_target(string_view request_triple)
 {
 	using namespace std::string_view_literals;
 
@@ -84,14 +81,15 @@ bool backend_llvm::setup_target(string_view request_triple)
 	return true;
 }
 
-void backend_llvm::create_object()
+
+bool backend_llvm::write_object_file(string_view out_path)
 {
-	auto Filename = "codegen.o";
 	std::error_code EC;
-	raw_fd_ostream dest(Filename, EC, sys::fs::OF_None);
+	raw_fd_ostream dest(out_path, EC, sys::fs::OF_None);
 
 	if (EC) {
 		errs() << "Could not open file: " << EC.message();
+		return false;
 	}
 
 	legacy::PassManager pass;
@@ -99,15 +97,13 @@ void backend_llvm::create_object()
 
 	if (target_machine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
 		errs() << "TheTargetMachine can't emit a file of this type";
+		return false;
 	}
 
 	pass.run(*cur_module);
 	dest.flush();
-}
 
-auto backend_llvm::gen(const std::unique_ptr<ast::declaration>& decl) -> llvm::Value*
-{
-	return decl ? gen(*decl) : nullptr;
+	return true;
 }
 
 auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
@@ -229,6 +225,7 @@ auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 	case ast::binary_operator::assignment:
 		return error_not_implemented_yet(diag);
 	}
+	return nullptr;
 }
 
 
@@ -250,7 +247,7 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 	std::vector<Value *> argv;
 	for (const auto& arg : expr.args)
 	{
-		auto res = gen(arg);
+		auto* res = gen(arg);
 		if (!res)
 			return nullptr;
 		argv.push_back(res);

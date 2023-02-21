@@ -15,6 +15,8 @@
 
 #include <aw/script/diag/diagnostics_engine.h>
 
+#include <aw/script/codegen/backend.h>
+
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Value.h>
@@ -24,14 +26,20 @@
 
 namespace aw::script {
 
-class backend_llvm {
+class backend_llvm : public backend {
 public:
-	backend_llvm(diagnostics_engine& diag);
+	explicit backend_llvm(diagnostics_engine& diag);
 
-	bool setup_target(string_view request_triple = {});
+	bool set_target(string_view target_triple) override;
 	void create_object();
 
-	auto gen(const std::unique_ptr<ast::declaration>& decl) -> llvm::Value*;
+	bool handle_declaration(const ast::declaration& decl) override
+	{
+		return gen(decl) != nullptr;
+	}
+
+	bool write_object_file(string_view out_path) override;
+
 	auto gen(const ast::declaration& decl) -> llvm::Value*;
 	auto gen(const ast::function& decl) -> llvm::Value*;
 	auto gen(const ast::variable& var) -> llvm::Value*;

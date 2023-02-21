@@ -23,6 +23,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/scope.h
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
+		include/aw/script/codegen/backend.h
 	SOURCES
 		source/lexer/lexer.c++
 		source/ast/function.c++
