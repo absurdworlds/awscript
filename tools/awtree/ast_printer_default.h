@@ -64,7 +64,7 @@ private:
 	void print_inline(string_view text);
 
 	std::vector<scope_type> scope_stack;
-	state state;
+	state state = line_start;
 };
 
 } // namespace aw::script

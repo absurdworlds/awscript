@@ -17,12 +17,12 @@ int main(int argc, char** argv)
 		return 1;
 
 	const std::filesystem::path input(argv[1]);
-	const auto output = [input] (const char* arg) -> std::filesystem::path {
+	const auto output = [input, arg = argv[2]] () -> std::filesystem::path {
 		if (arg)
 			return arg;
 		auto output = input;
 		return output.replace_extension("o");
-	}(argv[2]);
+	}();
 
 	std::cout << input << " -> " << output << std::endl;
 
