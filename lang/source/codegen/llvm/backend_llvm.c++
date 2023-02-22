@@ -106,6 +106,11 @@ bool backend_llvm::write_object_file(string_view out_path)
 	return true;
 }
 
+void backend_llvm::dump_ir()
+{
+	cur_module->print(errs(), nullptr);
+}
+
 auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
 {
 	switch (decl.kind())

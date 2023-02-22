@@ -40,6 +40,8 @@ public:
 
 	bool write_object_file(string_view out_path) override;
 
+	void dump_ir();
+
 	auto gen(const ast::declaration& decl) -> llvm::Value*;
 	auto gen(const ast::function& decl) -> llvm::Value*;
 	auto gen(const ast::variable& var) -> llvm::Value*;
