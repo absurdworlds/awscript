@@ -154,6 +154,7 @@ auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
 		return func;
 	}
 
+	// TODO: this bit crashes sometimes
 	func->eraseFromParent();
 	return nullptr;
 }
@@ -228,7 +229,7 @@ auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
 
 auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
 {
-	Value* ret = nullptr;
+	Value* ret = UndefValue::get(Type::getVoidTy(context));
 	for (const auto& stmt : list)
 		ret = gen(stmt);
 	return ret;
