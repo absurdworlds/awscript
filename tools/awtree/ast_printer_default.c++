@@ -157,6 +157,12 @@ void ast_printer_default::print_stmt(const ast::if_else_statement& stmt)
 	end();
 }
 
+void ast_printer_default::print_stmt(const ast::empty_statement& stmt)
+{
+	start("", inline_scope);
+	end();
+}
+
 void ast_printer_default::print_stmt(const ast::expression& expr)
 {
 	print_expr(expr);

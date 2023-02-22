@@ -301,6 +301,9 @@ std::unique_ptr<ast::statement> parser::parse_statement_inner()
 {
 	switch (tok.kind)
 	{
+	case token_kind::semicolon:
+		return std::make_unique<ast::statement>(ast::empty_statement());
+
 	case token_kind::l_brace:
 		return parse_statement_block();
 

@@ -182,6 +182,11 @@ auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
 	return ret;
 }
 
+auto backend_llvm::gen(const ast::empty_statement& stmt) -> llvm::Value*
+{
+	return UndefValue::get(Type::getVoidTy(context));
+}
+
 auto backend_llvm::gen(const ast::numeric_literal& expr) -> llvm::Value*
 {
 	return ConstantInt::get(context, APInt(64, expr.value, 10));
