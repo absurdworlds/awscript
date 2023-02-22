@@ -207,8 +207,7 @@ void ast_printer_default::print_expr(const ast::unary_expression& expr)
 
 std::string_view spell_operator(ast::binary_operator op)
 {
-	switch(op)
-	{
+	switch(op) {
 	case ast::binary_operator::minus:
 		return "-";
 	case ast::binary_operator::plus:
@@ -217,6 +216,10 @@ std::string_view spell_operator(ast::binary_operator op)
 		return "*";
 	case ast::binary_operator::divide:
 		return "/";
+	case ast::binary_operator::less:
+		return "<";
+	case ast::binary_operator::greater:
+		return ">";
 	case ast::binary_operator::assignment:
 		return "=";
 	}

@@ -169,9 +169,47 @@ auto backend_llvm::gen(const ast::statement& stmt) -> llvm::Value*
 	return std::visit([this] (auto&& stmt) { return gen(stmt); }, stmt);
 }
 
+
 auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
 {
-	return nullptr;
+	auto* cond_v = gen(stmt.if_expr);
+	if (!cond_v)
+		return nullptr;
+
+	if (cond_v->getType() == Type::getInt64Ty(context))
+		cond_v = builder.CreateICmpNE(cond_v, ConstantInt::get(context, APInt(64, 0, true)), "ifcond");
+
+	auto* function = builder.GetInsertBlock()->getParent();
+
+	auto* then_bb  = BasicBlock::Create(context, "then", function);
+	auto* merge_bb = BasicBlock::Create(context, "ifcont");
+	auto* else_bb  = !stmt.else_body ? merge_bb : BasicBlock::Create(context, "else");
+
+	builder.CreateCondBr(cond_v, then_bb, else_bb);
+
+	builder.SetInsertPoint(then_bb);
+
+	auto then_v = gen(stmt.if_body);
+	if (!then_v)
+		return nullptr;
+	builder.CreateBr(merge_bb);
+	// Codegen can change the current block, update then_bb for the PHI.
+	then_bb = builder.GetInsertBlock();
+
+	if (stmt.else_body) {
+		function->getBasicBlockList().push_back(else_bb);
+		builder.SetInsertPoint(else_bb);
+		auto else_v = gen(stmt.else_body);
+		if (!else_v)
+			return nullptr;
+		builder.CreateBr(merge_bb);
+		else_bb = builder.GetInsertBlock();
+	}
+
+	function->getBasicBlockList().push_back(merge_bb);
+	builder.SetInsertPoint(merge_bb);
+
+	return UndefValue::get(Type::getVoidTy(context));
 }
 
 auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
@@ -226,6 +264,10 @@ auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 		return builder.CreateAdd(L, R, "addtmp");
 	case ast::binary_operator::multiply:
 		return builder.CreateMul(L, R, "multmp");
+	case ast::binary_operator::less:
+		return builder.CreateICmpSLT(L, R, "lttmp");
+	case ast::binary_operator::greater:
+		return builder.CreateICmpSGT(L, R, "gttmp");
 	case ast::binary_operator::divide:
 	case ast::binary_operator::assignment:
 		return error_not_implemented_yet(diag);

@@ -34,6 +34,8 @@ enum class binary_operator {
 	plus,
 	multiply,
 	divide,
+	less,
+	greater,
 	assignment,
 };
 
