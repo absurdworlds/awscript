@@ -15,7 +15,7 @@ namespace aw::script::ast {
 class type;
 
 enum class access {
-	variable,
+	variable, // a.k.a mutable
 	constant
 };
 

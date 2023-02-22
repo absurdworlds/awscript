@@ -1,5 +1,7 @@
 #include "backend_llvm.h"
 
+#include "llvm_helpers.h"
+
 #include <aw/script/diag/error_t.h>
 #include <aw/script/symtab/scope.h>
 
@@ -71,13 +73,6 @@ bool backend_llvm::set_target(string_view request_triple)
 	target_machine = target->createTargetMachine(target_triple, cpu, features, opt, reloc_model);
 
 	cur_module->setDataLayout(target_machine->createDataLayout());
-
-	// TODO: this is temporary I implement external functions
-	std::vector<Type*> args(1, Type::getInt64Ty(context));
-	auto signature = FunctionType::get(Type::getVoidTy(context), args, false);
-	auto func = Function::Create(signature, Function::ExternalLinkage, "putchar", cur_module.get());
-	func->args().begin()->setName("i");
-
 	return true;
 }
 
@@ -127,24 +122,70 @@ auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
 	return nullptr;
 }
 
+struct backend_llvm::arg_info {
+	std::string_view name;
+	llvm::Type* type = nullptr;
+	llvm::Argument* value = nullptr;
+	bool is_mutable = false;
+
+	void set_value(llvm::Argument& arg)
+	{
+		value = &arg;
+		arg.setName(name);
+	}
+};
+
+auto backend_llvm::create_function(const ast::function& decl, const std::vector<arg_info>& args)
+	-> llvm::Function*
+{
+	std::vector<Type*> args_types(args.size());
+	std::transform(args.begin(), args.end(), args_types.begin(),
+	               [] (const arg_info& arg) { return arg.type; });
+
+	auto signature = FunctionType::get(Type::getInt64Ty(context), args_types, false);
+	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name(), cur_module.get());
+	return func;
+}
+
 auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
 {
-	std::vector<Type*> args(decl.args.size(), Type::getInt64Ty(context));
-	auto signature = FunctionType::get(Type::getInt64Ty(context), args, false);
-	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name(), cur_module.get());
+	std::vector<arg_info> args;
 
-	// Set names for all arguments.
+	for (const auto& arg : decl.args)
+	{
+		arg_info info;
+		info.type = Type::getInt64Ty(context);
+		info.name = arg->name();
+		info.is_mutable = arg->access == ast::access::variable;
+		args.push_back(info);
+	}
+
+	auto* func = create_function(decl, args);
+
 	unsigned i = 0;
 	for (auto& arg : func->args())
-		arg.setName(decl.args[i++]->name());
+		args[i++].set_value(arg);
 
-	// Create a new basic block to start insertion into.
+	// TODO: this is temporary, until we have FFI modules
+	if (!decl.body)
+		return func;
+
 	auto* bb = BasicBlock::Create(context, "entry", func);
 	builder.SetInsertPoint(bb);
 
 	symtab.clear();
-	for (auto& arg : func->args())
-		symtab[std::string(arg.getName())] = &arg;
+	for (auto& arg : args)
+	{
+		if (!arg.is_mutable) {
+			symtab[std::string(arg.name)] = arg.value;
+		} else {
+			auto* alloca = CreateEntryBlockAlloca(context, func, arg.name);
+
+			builder.CreateStore(arg.value, alloca);
+
+			symtab[std::string(arg.name)] = alloca;
+		}
+	}
 
 	if (Value* res = gen(decl.body)) {
 		builder.CreateRet(res);
@@ -251,6 +292,7 @@ auto backend_llvm::gen(const ast::value_expression& expr) -> llvm::Value*
 	if (it == symtab.end())
 		return error_undefined_variable(diag, expr.name);
 	return it->second;
+
 }
 
 auto backend_llvm::gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
@@ -261,35 +303,66 @@ auto backend_llvm::gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Va
 
 auto backend_llvm::gen(const ast::expression& expr) -> llvm::Value*
 {
-	return std::visit([this] (auto&& expr) { return gen(expr); }, expr);
+	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
+	if (!value)
+		return value;
+
+	auto* type = value->getType();
+	if (type->isPointerTy()) {
+		if (auto alloca = dyn_cast<AllocaInst>(value))
+			value = builder.CreateLoad(alloca->getAllocatedType(), alloca, value->getName());
+	}
+	return value;
+}
+
+auto backend_llvm::gen_lvalue(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
+{
+	return expr ? gen_lvalue(*expr) : nullptr;
 }
 
 
+auto backend_llvm::gen_lvalue(const ast::expression& expr) -> llvm::Value*
+{
+	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
+	if (!value)
+		return value;
+
+	auto* type = value->getType();
+	return type->isPointerTy() ? value : nullptr;
+}
+
+
+
+bool requires_lvalue(const ast::binary_operator op)
+{
+	return op == ast::binary_operator::assignment;
+}
+
 auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 {
-	auto* L = gen(expr.lhs);
-	auto* R = gen(expr.rhs);
-	if (!L || !R)
+	auto* lhs = requires_lvalue(expr.op) ? gen_lvalue(expr.lhs) : gen(expr.lhs);
+	auto* rhs = gen(expr.rhs);
+	if (!lhs || !rhs)
 		return nullptr;
 
 	switch (expr.op) {
 	case ast::binary_operator::minus:
-		return builder.CreateSub(L, R, "subtmp");
+		return builder.CreateSub(lhs, rhs, "subtmp");
 	case ast::binary_operator::plus:
-		return builder.CreateAdd(L, R, "addtmp");
+		return builder.CreateAdd(lhs, rhs, "addtmp");
 	case ast::binary_operator::multiply:
-		return builder.CreateMul(L, R, "multmp");
+		return builder.CreateMul(lhs, rhs, "multmp");
 	case ast::binary_operator::less:
-		return builder.CreateICmpSLT(L, R, "lttmp");
+		return builder.CreateICmpSLT(lhs, rhs, "lttmp");
 	case ast::binary_operator::greater:
-		return builder.CreateICmpSGT(L, R, "gttmp");
+		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
 	case ast::binary_operator::divide:
+		return builder.CreateSDiv(lhs, rhs, "gttmp");
 	case ast::binary_operator::assignment:
-		return error_not_implemented_yet(diag);
+		return builder.CreateStore(rhs, lhs);
 	}
 	return nullptr;
 }
-
 
 auto backend_llvm::gen(const ast::unary_expression& expr) -> llvm::Value*
 {
@@ -357,7 +430,6 @@ auto backend_llvm::gen(const ast::if_expression& expr) -> llvm::Value*
 
 	return phi;
 }
-
 
 auto backend_llvm::gen(const ast::string_literal& expr) -> llvm::Value*
 {

@@ -54,6 +54,8 @@ public:
 
 	auto gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
 	auto gen(const ast::expression& expr) -> llvm::Value*;
+	auto gen_lvalue(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
+	auto gen_lvalue(const ast::expression& expr) -> llvm::Value*;
 	auto gen(const ast::numeric_literal& expr) -> llvm::Value*;
 	auto gen(const ast::string_literal& expr) -> llvm::Value*;
 	auto gen(const ast::value_expression& expr) -> llvm::Value*;
@@ -64,13 +66,18 @@ public:
 
 	auto gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
 
+	struct arg_info;
+
+	auto create_function(const ast::function& decl, const std::vector<arg_info>& args) -> llvm::Function*;
+
 private:
 	diagnostics_engine& diag;
 	llvm::LLVMContext context;
 	llvm::IRBuilder<> builder{context};
 	llvm::TargetMachine* target_machine = nullptr;
 	std::unique_ptr<llvm::Module> cur_module;
-	std::map<std::string, llvm::Value *, std::less<>> symtab;
+
+	std::map<std::string, llvm::Value*, std::less<>> symtab;
 };
 
 } // namespace aw::script

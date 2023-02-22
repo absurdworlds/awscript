@@ -1,3 +1,12 @@
+
+function putchar(var int ch);
+
+function test(var int x, var int y) : int
+{
+	putchar(x)
+	putchar(y)
+}
+
 function main(var int argc) : int
 {
 	putchar(83);
@@ -8,4 +17,12 @@ function main(var int argc) : int
 	putchar(83);
 	putchar(72);
 	if (argc > 2) putchar(10);
+
+	argc=32
+	putchar(argc)
+
+	argc=65
+	putchar(argc)
+
+	test(66, 67);
 }
