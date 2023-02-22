@@ -37,6 +37,8 @@ parser::parser(dependencies deps)
 bool parser::advance()
 {
 	tok = lex.next();
+	while (in(tok, token_kind::line_comment, token_kind::block_comment))
+		tok = lex.next();
 	return true; // TODO:
 }
 
@@ -120,7 +122,7 @@ std::string_view parser::parse_type()
 #endif
 	// TODO
 	auto name = tok.data;
-	tok = lex.next();
+	advance();
 
 	return name;
 }
@@ -169,7 +171,7 @@ std::unique_ptr<ast::variable> parser::parse_variable_declaration(ast::access ac
 		return error(diag, diagnostic_id::expected_identifier, tok);
 
 	const auto name = tok.data;
-	tok = lex.next();
+	advance();
 
 	auto var = std::make_unique<ast::variable>(name, access);
 
