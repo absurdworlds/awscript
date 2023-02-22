@@ -458,10 +458,30 @@ std::unique_ptr<ast::expression> parser::parse_paren_expression()
 	return expr;
 }
 
+std::unique_ptr<ast::expression> parser::parse_if_expression()
+{
+	advance("if");
+
+	ast::if_expression expr;
+
+	expr.if_expr = parse_expression();
+	if (!expr.if_expr)
+		return error_expected_expression(diag, tok);
+
+	expr.if_body = parse_expression();
+
+	if (!match("else"))
+		return error_unexpected_token(diag, tok, "else"sv);
+
+	expr.else_body = parse_expression();
+
+	return std::make_unique<ast::expression>(std::move(expr));
+}
+
 std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 {
 	if (tok == "if"sv)
-		return nullptr; // if expression
+		return parse_if_expression();
 
 	std::string_view name = parse_identifier();
 	if (name.empty())

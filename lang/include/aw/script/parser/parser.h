@@ -79,6 +79,7 @@ private:
 	std::unique_ptr<ast::statement> parse_while_statement();
 
 	std::unique_ptr<ast::expression> parse_expression();
+	std::unique_ptr<ast::expression> parse_if_expression();
 	std::unique_ptr<ast::expression> parse_unary_expression();
 	std::unique_ptr<ast::expression> parse_binary_expression(
 		std::unique_ptr<ast::expression> lhs, precedence min_prec);

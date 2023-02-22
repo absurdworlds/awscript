@@ -182,6 +182,30 @@ void ast_printer_default::print_expr(const ast::expression& expr)
 	std::visit([this] (auto&& node) { print_expr(node); }, expr);
 }
 
+void ast_printer_default::print_expr(const ast::if_expression& expr)
+{
+	start("if", inline_scope);
+
+	print_expr(expr.if_expr);
+	start_line();
+
+	{
+		start("then", inline_scope);
+		if (expr.if_body)
+			print_expr(*expr.if_body);
+		end();
+	}
+
+	{
+		start("else", inline_scope);
+		if (expr.else_body)
+			print_expr(*expr.else_body);
+		end();
+	}
+
+	end();
+}
+
 std::string_view spell_operator(ast::unary_operator op)
 {
 	switch(op)

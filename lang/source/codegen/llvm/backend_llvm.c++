@@ -170,14 +170,23 @@ auto backend_llvm::gen(const ast::statement& stmt) -> llvm::Value*
 }
 
 
-auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
+auto backend_llvm::gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
 {
-	auto* cond_v = gen(stmt.if_expr);
+	auto* cond_v = gen(expr);
 	if (!cond_v)
 		return nullptr;
 
 	if (cond_v->getType() == Type::getInt64Ty(context))
 		cond_v = builder.CreateICmpNE(cond_v, ConstantInt::get(context, APInt(64, 0, true)), "ifcond");
+
+	return cond_v;
+}
+
+auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
+{
+	auto* cond_v = gen_if_condition(stmt.if_expr);
+	if (!cond_v)
+		return nullptr;
 
 	auto* function = builder.GetInsertBlock()->getParent();
 
@@ -302,6 +311,47 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 
 	return builder.CreateCall(callee, argv, "calltmp");
 }
+
+auto backend_llvm::gen(const ast::if_expression& expr) -> llvm::Value*
+{
+	auto* cond_v = gen_if_condition(expr.if_expr);
+	if (!cond_v)
+		return nullptr;
+
+	auto* function = builder.GetInsertBlock()->getParent();
+
+	auto* then_bb  = BasicBlock::Create(context, "ifethen", function);
+	auto* else_bb  = BasicBlock::Create(context, "ifeelse");
+	auto* merge_bb = BasicBlock::Create(context, "ifecont");
+
+	builder.CreateCondBr(cond_v, then_bb, else_bb);
+
+	builder.SetInsertPoint(then_bb);
+	auto* then_v = gen(*expr.if_body);
+	if (!then_v)
+		return nullptr;
+	builder.CreateBr(merge_bb);
+	then_bb = builder.GetInsertBlock();
+
+	function->getBasicBlockList().push_back(else_bb);
+	builder.SetInsertPoint(else_bb);
+	auto* else_v = gen(expr.else_body);
+	if (!else_v)
+		return nullptr;
+	builder.CreateBr(merge_bb);
+	else_bb = builder.GetInsertBlock();
+
+	function->getBasicBlockList().push_back(merge_bb);
+	builder.SetInsertPoint(merge_bb);
+
+	auto* phi = builder.CreatePHI(then_v->getType(), 2, "ifetmp");
+
+	phi->addIncoming(then_v, then_bb);
+	phi->addIncoming(else_v, else_bb);
+
+	return phi;
+}
+
 
 auto backend_llvm::gen(const ast::string_literal& expr) -> llvm::Value*
 {

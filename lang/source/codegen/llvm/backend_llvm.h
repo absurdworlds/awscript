@@ -58,6 +58,9 @@ public:
 	auto gen(const ast::binary_expression& expr) -> llvm::Value*;
 	auto gen(const ast::unary_expression& expr) -> llvm::Value*;
 	auto gen(const ast::call_expression& expr) -> llvm::Value*;
+	auto gen(const ast::if_expression& expr) -> llvm::Value*;
+
+	auto gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
 
 private:
 	diagnostics_engine& diag;

@@ -63,10 +63,17 @@ struct string_literal {
 	std::string_view value;
 };
 
+struct if_expression {
+	std::unique_ptr<expression> if_expr;
+	std::unique_ptr<expression> if_body;
+	std::unique_ptr<expression> else_body;
+};
+
 using expression_variant = std::variant<
 	unary_expression,
 	binary_expression,
 	call_expression,
+	if_expression,
 	value_expression,
 	numeric_literal,
 	string_literal
