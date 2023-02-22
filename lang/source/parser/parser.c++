@@ -333,6 +333,8 @@ std::unique_ptr<ast::statement> parser::parse_if_statement()
 	if (!stmt.if_expr)
 		return error_expected_expression(diag, tok);
 
+	match("then");
+
 	stmt.if_body = parse_statement();
 
 	if (match("else"))
@@ -467,6 +469,8 @@ std::unique_ptr<ast::expression> parser::parse_if_expression()
 	expr.if_expr = parse_expression();
 	if (!expr.if_expr)
 		return error_expected_expression(diag, tok);
+
+	match("then");
 
 	expr.if_body = parse_expression();
 
