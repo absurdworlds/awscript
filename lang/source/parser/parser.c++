@@ -503,9 +503,49 @@ std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 	return std::make_unique<ast::expression>(expr);
 }
 
-static string_view trim_string(string_view s)
+char escape_char(char c)
 {
-	return s.substr(1, s.size() - 2);
+	switch(c) {
+	case 'n':
+		return '\n';
+	case 't':
+		return '\t';
+	case 'v':
+		return '\v';
+	case 'r':
+		return '\r';
+	case '\\':
+	case '"':
+	default:
+		return c;
+	}
+}
+
+static std::string parse_string(string_view s)
+{
+	std::string result;
+
+	const auto str = s.substr(1, s.size() - 2);
+
+	bool slash = false;
+	for (char c : str)
+	{
+		if (c == '\\') {
+			slash = true;
+			continue;
+		}
+
+		if (slash) {
+			slash = false;
+			if (c == '\n')
+				continue;
+			c = escape_char(c);
+		}
+
+		result += c;
+	}
+
+	return result;
 }
 
 std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
@@ -513,7 +553,7 @@ std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
 	assert(tok == token_kind::string_literal &&
 	       "parse_string_literal_expression called when there's no string literal!");
 
-	ast::string_literal str{ .value = trim_string(tok.data) };
+	ast::string_literal str{ .value = parse_string(tok.data) };
 
 	// consume string
 	advance();

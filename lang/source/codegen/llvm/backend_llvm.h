@@ -78,6 +78,7 @@ private:
 	std::unique_ptr<llvm::Module> cur_module;
 
 	std::map<std::string, llvm::Value*, std::less<>> symtab;
+	std::map<std::string_view, llvm::Value*, std::less<>> strings;
 };
 
 } // namespace aw::script

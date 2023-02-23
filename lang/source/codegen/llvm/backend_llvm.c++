@@ -470,9 +470,39 @@ auto backend_llvm::gen(const ast::if_expression& expr) -> llvm::Value*
 	return phi;
 }
 
+auto mangle_string(std::string_view str) -> std::string
+{
+	// Just for fun. In the future I'll replace it
+	// TODO: replace with a proper mangling scheme
+	auto mstr = std::string(str.substr(0, 8));
+	int i = 0;
+	for (auto& c : mstr)
+	{
+		if (!isAlnum(c))
+			c = '0' + char(i++ % 10);
+	}
+	return "_str_" + mstr;
+}
+
 auto backend_llvm::gen(const ast::string_literal& expr) -> llvm::Value*
 {
-	return nullptr;
+	using namespace std::string_literals;
+	auto it = strings.find(expr.value);
+	if (it == strings.end())
+	{
+		// TODO: strings in awscript are not zero-terminated
+		// but I don't have a proper string type for now
+		bool is_zstring = true;
+		auto* const_data = ConstantDataArray::getString(context, expr.value, is_zstring);
+		auto* string_global = new GlobalVariable(
+			*cur_module, const_data->getType(), true,
+			GlobalValue::ExternalLinkage, const_data, mangle_string(expr.value));
+		auto res = strings.emplace(expr.value, string_global);
+		assert(res.second);
+		it = res.first;
+	}
+
+	return it->second;
 }
 
 

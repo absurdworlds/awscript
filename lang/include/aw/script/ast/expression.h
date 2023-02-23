@@ -63,7 +63,7 @@ struct numeric_literal {
 };
 
 struct string_literal {
-	std::string_view value;
+	std::string value;
 };
 
 struct if_expression {
