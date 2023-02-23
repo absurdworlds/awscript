@@ -405,6 +405,21 @@ auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 
 auto backend_llvm::gen(const ast::unary_expression& expr) -> llvm::Value*
 {
+	auto* val = gen(expr.lhs);
+	if (!val)
+		return nullptr;
+	switch (expr.op) {
+	case ast::unary_operator::minus:
+		return builder.CreateNeg(val, "neg");
+	case ast::unary_operator::plus:
+		return val;
+	case ast::unary_operator::logical_negation:
+		// should work only on bools
+		[[fallthrough]];
+	case ast::unary_operator::binary_negation:
+		return builder.CreateNot(val, "not");
+	};
+
 	return nullptr;
 }
 
