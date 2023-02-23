@@ -33,11 +33,13 @@ public:
 	symbol_table();
 
 	std::unique_ptr<ast::scope> create_scope();
+	ast::type* create_type(std::string_view name);
 
 	void pop_scope();
 
 	// TODO: create a dedicated structure to represent a symbol name
 	ast::declaration* lookup(std::string_view name);
+	ast::type* lookup_type(std::string_view name);
 
 	ast::scope* current_scope();
 
@@ -46,11 +48,13 @@ public:
 	void resolve();
 
 private:
+	void create_builtin_types();
+
 	std::unique_ptr<ast::scope> top_scope;
 
 	std::vector<ast::scope*> stack;
 
-	std::vector<std::unique_ptr<ast::declaration>> types;
+	std::vector<std::unique_ptr<ast::type>> types;
 
 	std::vector<unresolved_type> unresolved_types;
 };

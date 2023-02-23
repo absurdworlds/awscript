@@ -526,7 +526,11 @@ std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 	assert(tok == token_kind::numeric_constant &&
 	       "parse_numeric_literal_expression called when there's no number!");
 
-	ast::numeric_literal num{ .value = tok.data };
+	ast::numeric_literal num{
+		.value = tok.data,
+		// TODO: infer from the context
+		.type = symtab.lookup_type("int")
+	};
 
 	// consume number
 	advance();

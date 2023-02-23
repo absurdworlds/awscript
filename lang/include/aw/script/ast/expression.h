@@ -15,6 +15,7 @@
 
 namespace aw::script::ast {
 
+class type;
 class expression;
 
 enum class unary_operator {
@@ -57,6 +58,8 @@ struct call_expression {
 
 struct numeric_literal {
 	std::string_view value;
+	ast::type* type = nullptr;
+	int base = 10;
 };
 
 struct string_literal {
