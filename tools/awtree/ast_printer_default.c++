@@ -284,6 +284,7 @@ void ast_printer_default::print_expr(const ast::numeric_literal& expr)
 
 void ast_printer_default::print_expr(const ast::string_literal& expr)
 {
+	// TODO: escape special chars
 	std::string tmp;
 	tmp += '"';
 	tmp += expr.value;

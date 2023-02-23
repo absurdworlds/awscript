@@ -24,6 +24,9 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/codegen/backend.h
+		include/aw/script/driver/main.h
+		include/aw/script/driver/options.h
+		include/aw/script/driver/callbacks.h
 		source/codegen/llvm/backend_llvm.h
 		source/codegen/llvm/llvm_helpers.h
 	SOURCES
@@ -38,6 +41,7 @@ aw_add_library(awscript-lang STATIC
 		source/symtab/symbol_table.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
+		source/driver/main.c++
 	)
 
 target_link_libraries(awscript-lang

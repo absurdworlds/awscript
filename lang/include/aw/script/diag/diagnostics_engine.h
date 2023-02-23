@@ -23,7 +23,7 @@ class source_buffer;
 class diagnostics_engine {
 public:
 	// TODO: add source manager
-	diagnostics_engine() = delete;
+	diagnostics_engine() = default;
 
 	diagnostics_engine(source_buffer& buffer)
 		: _buffer(&buffer)
@@ -35,7 +35,7 @@ public:
 
 private:
 	// TODO: replace with source_manager
-	source_buffer* _buffer;
+	source_buffer* _buffer = nullptr;
 };
 } // namespace aw::script
 #endif//aw_script_diagnostic_engine_h

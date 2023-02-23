@@ -29,10 +29,27 @@ public:
 	{
 	}
 
+	source_buffer(source_buffer&& other) noexcept
+		: buffer(other.buffer)
+		, length(other.length)
+		, owns_buffer(other.owns_buffer)
+	{
+		other.owns_buffer = false;
+	}
+
+	source_buffer& operator=(source_buffer&& other) noexcept
+	{
+		free();
+		buffer = other.buffer;
+		length = other.length;
+		owns_buffer = other.owns_buffer;
+		other.owns_buffer = false;
+		return *this;
+	}
+
 	~source_buffer()
 	{
-		if (owns_buffer)
-			free();
+		free();
 	}
 
 	char const* begin()
@@ -59,6 +76,7 @@ private:
 			return {};
 
 		length = file.size();
+		owns_buffer = true;
 
 		auto buffer = new char[length + 1];
 
@@ -72,15 +90,16 @@ private:
 		return std::string_view(buffer, length);
 	}
 
-private:
 	void free()
 	{
-		if (buffer)
-			delete[] buffer;
-		buffer = 0;
+		if (!owns_buffer)
+			return;
+		delete[] buffer;
+		buffer = nullptr;
 		length = 0;
 	}
 
+private:
 	const char* buffer  = nullptr;
 	size_t length = 0;
 	bool owns_buffer = false;

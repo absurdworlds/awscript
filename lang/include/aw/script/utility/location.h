@@ -17,7 +17,7 @@ struct location {
 	explicit location(size_t offset)
 		: pos(offset)
 	{
-		assert(offset < (1u << 31));
+		assert(offset < (1u << 31u));
 	}
 	u32 fileId = 0;
 	u32 pos    = 0;
