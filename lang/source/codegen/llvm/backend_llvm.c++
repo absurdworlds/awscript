@@ -39,8 +39,6 @@ static error_t error_is_not_declared(diagnostics_engine& diag, string_view name)
 backend_llvm::backend_llvm(diagnostics_engine& diag)
 	: diag(diag)
 {
-	cur_module = std::make_unique<Module>("awscript", context);
-
 	InitializeAllTargetInfos();
 	InitializeAllTargets();
 	InitializeAllTargetMCs();
@@ -71,11 +69,25 @@ bool backend_llvm::set_target(string_view request_triple)
 	auto reloc_model = Optional<Reloc::Model>();
 
 	target_machine = target->createTargetMachine(target_triple, cpu, features, opt, reloc_model);
+	return true;
+}
 
+bool backend_llvm::create_module(string_view name)
+{
+	cur_module = std::make_unique<Module>(name, context);
 	cur_module->setDataLayout(target_machine->createDataLayout());
 	return true;
 }
 
+bool backend_llvm::optimize_module()
+{
+	return true;
+}
+
+bool backend_llvm::optimize_lto()
+{
+	return true;
+}
 
 bool backend_llvm::write_object_file(string_view out_path)
 {

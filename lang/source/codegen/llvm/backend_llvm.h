@@ -31,7 +31,8 @@ public:
 	explicit backend_llvm(diagnostics_engine& diag);
 
 	bool set_target(string_view target_triple) override;
-	void create_object();
+
+	bool create_module(string_view name) override;
 
 	bool handle_declaration(const ast::declaration& decl) override
 	{
@@ -40,7 +41,10 @@ public:
 
 	bool write_object_file(string_view out_path) override;
 
-	void dump_ir();
+	void dump_ir() override;
+
+	bool optimize_module() override;
+	bool optimize_lto() override;
 
 	auto gen(const ast::declaration& decl) -> llvm::Value*;
 	auto gen(const ast::function& decl) -> llvm::Value*;

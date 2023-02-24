@@ -90,6 +90,8 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 	for (const auto& [input,decls] : decl_source_map)
 	{
+		auto input_path = std::filesystem::path(input);
+		backend->create_module(input_path.stem().generic_string());
 		for (const auto& decl : decls)
 		{
 			backend->handle_declaration(*decl);
@@ -97,9 +99,11 @@ int run_compiler(const options& options, callbacks* callbacks)
 		//TODO: write objects to a temporaty directory when mode == mode::link
 		//if (options.mode == mode::make_obj)
 		{
-			auto output = std::filesystem::path(input).replace_extension("o").generic_string();
+			auto output = input_path.replace_extension("o").generic_string();
 			backend->write_object_file(output);
 			objects.push_back(output);
+			if (options.dump_ir)
+				backend->dump_ir();
 		}
 	}
 

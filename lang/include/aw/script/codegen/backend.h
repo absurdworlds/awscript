@@ -31,9 +31,16 @@ public:
 
 	virtual bool set_target(string_view target_triple = {}) = 0;
 
+	virtual bool create_module(string_view name) = 0;
+
 	virtual bool handle_declaration(const ast::declaration& decl) = 0;
 
+	virtual bool optimize_module() = 0;
+	virtual bool optimize_lto() = 0;
+
 	virtual bool write_object_file(string_view out_path) = 0;
+
+	virtual void dump_ir() = 0;
 };
 
 
