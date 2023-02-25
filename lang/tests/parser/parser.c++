@@ -15,9 +15,9 @@ namespace aw::script {
 
 Test(basic_function) {
 	auto source = source_buffer(R"(
-	func test_func(var int x) : int;
+	function test_func(var int x) : int;
 
-	func add(var int x, var int y) : int
+	function add(var int x, var int y) : int
 	{
 		-x;
 		return x + y;

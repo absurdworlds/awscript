@@ -158,7 +158,7 @@ std::unique_ptr<ast::declaration> parser::parse_declaration()
 	if (match_id("const"sv))
 		return parse_variable_declaration(ast::access::constant);
 
-	if (match_id("func"sv))
+	if (match_id("function"sv))
 		return parse_function_declaration();
 
 	if (match_id("class"sv))
