@@ -36,6 +36,19 @@ int main(int argc, char** argv)
 			options.output_file = value;
 		} else if (in(name, "dump-ir")) {
 			options.dump_ir = true;
+		} else if (in(name, "c")) {
+			options.mode = aw::script::driver::mode::make_obj;
+		} else if (in(name, "O")) {
+			if (value.empty())
+				value = parser.get_param();
+			if (value == "0")
+				options.opt_level = aw::script::optimization_level::O0;
+			if (value == "1")
+				options.opt_level = aw::script::optimization_level::O1;
+			if (value == "2")
+				options.opt_level = aw::script::optimization_level::O2;
+			if (value == "3")
+				options.opt_level = aw::script::optimization_level::O3;
 		}
 	}
 

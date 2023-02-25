@@ -85,8 +85,10 @@ int run_compiler(const options& options, callbacks* callbacks)
 		return EXIT_FAILURE;
 
 	backend->set_target();
+	backend->set_optimization_level(options.opt_level);
 
 	std::vector<std::string> objects;
+
 
 	for (const auto& [input,decls] : decl_source_map)
 	{
@@ -96,6 +98,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 		{
 			backend->handle_declaration(*decl);
 		}
+		backend->optimize_module();
 		//TODO: write objects to a temporaty directory when mode == mode::link
 		//if (options.mode == mode::make_obj)
 		{

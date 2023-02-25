@@ -9,8 +9,10 @@
 #ifndef aw_script_driver_options_h
 #define aw_script_driver_options_h
 
-#include <vector>
+#include <aw/script/codegen/optimization_level.h>
+
 #include <string>
+#include <vector>
 
 namespace aw::script::driver {
 
@@ -25,6 +27,7 @@ struct options {
 	driver::mode mode = mode::link;
 	std::vector<std::string> input_files;
 	std::string output_file;
+	optimization_level opt_level = optimization_level::O0;
 	bool dump_ast = false;
 	bool dump_ir = false;
 };

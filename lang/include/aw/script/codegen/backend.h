@@ -9,6 +9,8 @@
 #ifndef aw_script_codegen_backend_h
 #define aw_script_codegen_backend_h
 
+#include <aw/script/codegen/optimization_level.h>
+
 #include <aw/utility/factory_registry.h>
 
 #include <aw/types/string_view.h>
@@ -30,6 +32,7 @@ public:
 	static std::unique_ptr<backend> create(std::string_view name, diagnostics_engine& diag);
 
 	virtual bool set_target(string_view target_triple = {}) = 0;
+	virtual void set_optimization_level(optimization_level level) = 0;
 
 	virtual bool create_module(string_view name) = 0;
 

@@ -1,6 +1,7 @@
 #include "backend_llvm.h"
 
 #include "llvm_helpers.h"
+#include "optimizer_llvm.h"
 
 #include <aw/script/diag/error_t.h>
 #include <aw/script/symtab/scope.h>
@@ -36,14 +37,30 @@ static error_t error_is_not_declared(diagnostics_engine& diag, string_view name)
 	return error(diag, diagnostic_id::is_not_declared, location(), name);
 }
 
+
 backend_llvm::backend_llvm(diagnostics_engine& diag)
 	: diag(diag)
 {
+#if AWSCRIPT_DEBUG_LLVM
+	// I don't want to pull everything, because it takes forever to load
+	// the debugger, so I link only what I need
+	LLVMInitializeX86TargetInfo();
+	LLVMInitializeX86Target();
+	LLVMInitializeX86TargetMC();
+	LLVMInitializeX86AsmParser();
+	LLVMInitializeX86AsmPrinter();
+#else
 	InitializeAllTargetInfos();
 	InitializeAllTargets();
 	InitializeAllTargetMCs();
 	InitializeAllAsmParsers();
 	InitializeAllAsmPrinters();
+#endif
+}
+
+backend_llvm::~backend_llvm()
+{
+
 }
 
 bool backend_llvm::set_target(string_view request_triple)
@@ -72,6 +89,16 @@ bool backend_llvm::set_target(string_view request_triple)
 	return true;
 }
 
+void backend_llvm::set_optimization_level(optimization_level level)
+{
+	if (level == optimization_level::O0) {
+		optimizer.reset();
+	} else {
+		assert(target_machine);
+		optimizer = std::make_unique<optimizer_llvm>(level, *target_machine);
+	}
+}
+
 bool backend_llvm::create_module(string_view name)
 {
 	cur_module = std::make_unique<Module>(name, context);
@@ -81,6 +108,9 @@ bool backend_llvm::create_module(string_view name)
 
 bool backend_llvm::optimize_module()
 {
+	if (!optimizer)
+		return false;
+	optimizer->run(*cur_module);
 	return true;
 }
 
@@ -99,15 +129,16 @@ bool backend_llvm::write_object_file(string_view out_path)
 		return false;
 	}
 
-	legacy::PassManager pass;
+	legacy::PassManager emit_pass;
 	auto FileType = CGFT_ObjectFile;
 
-	if (target_machine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+	if (target_machine->addPassesToEmitFile(emit_pass, dest, nullptr, FileType)) {
 		errs() << "TheTargetMachine can't emit a file of this type";
 		return false;
 	}
 
-	pass.run(*cur_module);
+	emit_pass.run(*cur_module);
+
 	dest.flush();
 
 	return true;
@@ -454,7 +485,10 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 		argv.push_back(res);
 	}
 
-	return builder.CreateCall(callee, argv, "calltmp");
+
+	return callee->getReturnType()->isVoidTy() ?
+		builder.CreateCall(callee, argv):
+		builder.CreateCall(callee, argv, "calltmp");
 }
 
 auto backend_llvm::gen(const ast::if_expression& expr) -> llvm::Value*

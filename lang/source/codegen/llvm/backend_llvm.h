@@ -20,17 +20,23 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Value.h>
+#include <llvm/IR/PassManager.h>
 
 #include <llvm/Target/TargetMachine.h>
 #include <map>
 
 namespace aw::script {
 
+class optimizer_llvm;
+
 class backend_llvm : public backend {
 public:
 	explicit backend_llvm(diagnostics_engine& diag);
 
+	~backend_llvm();
+
 	bool set_target(string_view target_triple) override;
+	void set_optimization_level(optimization_level level) override;
 
 	bool create_module(string_view name) override;
 
@@ -79,6 +85,8 @@ private:
 	llvm::LLVMContext context;
 	llvm::IRBuilder<> builder{context};
 	llvm::TargetMachine* target_machine = nullptr;
+
+	std::unique_ptr<optimizer_llvm> optimizer;
 	std::unique_ptr<llvm::Module> cur_module;
 
 	std::map<std::string, llvm::Value*, std::less<>> symtab;

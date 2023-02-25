@@ -24,10 +24,12 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/codegen/backend.h
+		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h
 		include/aw/script/driver/options.h
 		include/aw/script/driver/callbacks.h
 		source/codegen/llvm/backend_llvm.h
+		source/codegen/llvm/optimizer_llvm.h
 		source/codegen/llvm/llvm_helpers.h
 	SOURCES
 		source/lexer/lexer.c++
@@ -41,6 +43,7 @@ aw_add_library(awscript-lang STATIC
 		source/symtab/symbol_table.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
+		source/codegen/llvm/optimizer_llvm.c++
 		source/driver/main.c++
 	)
 
@@ -53,9 +56,41 @@ set (AWSCRIPT_USE_LLVM ON)
 if (AWSCRIPT_USE_LLVM)
 	find_package(LLVM REQUIRED CONFIG)
 
-	execute_process(COMMAND llvm-config --libs all
-	                OUTPUT_VARIABLE LLVM_LIBRARIES
-	                OUTPUT_STRIP_TRAILING_WHITESPACE)
+	option (AWSCRIPT_DEBUG_LLVM "Use a limited set of LLVM libraries for easier debugging" OFF)
+	if (AWSCRIPT_DEBUG_LLVM)
+		message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+		message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+		separate_arguments(LLVM_DEFINITIONS)
+
+		llvm_map_components_to_libnames(LLVM_LIBRARIES
+			support
+			core
+			target
+			analysis
+			passes
+			x86desc
+			x86asmparser
+			x86codegen)
+
+		message(STATUS "LLVM_LIBRARIES: ${LLVM_LIBRARIES}")
+		message(STATUS "LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
+		message(STATUS "LLVM_TOOLS_BINARY_DIR: ${LLVM_TOOLS_BINARY_DIR}")
+		#message(STATUS "LLVM_AVAILABLE_LIBS: ${LLVM_AVAILABLE_LIBS}")
+		#message(STATUS "LLVM_DEFINITIONS: ${LLVM_DEFINITIONS}")
+
+		target_include_directories(awscript-lang
+			PRIVATE
+				${LLVM_INCLUDE_DIRS})
+
+		target_compile_definitions(awscript-lang
+			PRIVATE
+				-DAWSCRIPT_DEBUG_LLVM=1)
+	else()
+		execute_process(COMMAND llvm-config --libs all
+		                OUTPUT_VARIABLE LLVM_LIBRARIES
+		                OUTPUT_STRIP_TRAILING_WHITESPACE)
+	endif()
 
 	target_link_libraries(awscript-lang
 			PUBLIC
