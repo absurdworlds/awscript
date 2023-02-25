@@ -135,6 +135,11 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::statement& in_stmt)
 	std::visit(stmt_visitor, in_stmt);
 }
 
+void semantic_analyzer::visit_stmt(context& ctx, middle::decl_statement& in_stmt)
+{
+	visit(ctx, *in_stmt.decl);
+}
+
 void semantic_analyzer::visit_stmt(context& ctx, middle::statement_block& in_block)
 {
 	ctx.push_scope();

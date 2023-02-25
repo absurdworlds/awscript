@@ -104,6 +104,11 @@ struct convert_to_middle_visitor {
 		return std::visit(stmt_visitor, in_stmt);
 	}
 
+	auto convert_stmt(const ast::decl_statement& in_stmt) -> middle::decl_statement
+	{
+		return { convert_decl(*in_stmt.decl) };
+	}
+
 	auto convert_stmt(const ast::statement_block& in_block) -> middle::statement_block
 	{
 		middle::statement_block block;
@@ -114,6 +119,7 @@ struct convert_to_middle_visitor {
 		return block;
 
 	}
+
 	auto convert_stmt(const ast::if_else_statement& in_stmt) -> middle::if_else_statement
 	{
 		middle::if_else_statement stmt;

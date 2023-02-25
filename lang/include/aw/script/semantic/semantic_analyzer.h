@@ -27,6 +27,7 @@ private:
 
 	void visit_stmt(context& ctx, middle::statement& in_stmt);
 	void visit_stmt(context& ctx, middle::statement_block& in_stmt);
+	void visit_stmt(context& ctx, middle::decl_statement& in_stmt);
 	void visit_stmt(context& ctx, middle::if_else_statement& in_stmt);
 	void visit_stmt(context& ctx, middle::return_statement& in_stmt);
 	void visit_stmt(context& ctx, middle::empty_statement& in_stmt);
