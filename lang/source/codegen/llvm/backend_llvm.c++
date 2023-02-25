@@ -299,6 +299,11 @@ auto backend_llvm::gen(const middle::statement& stmt) -> llvm::Value*
 	return std::visit([this] (auto&& stmt) { return gen(stmt); }, stmt);
 }
 
+auto backend_llvm::gen(const middle::decl_statement& stmt) -> llvm::Value*
+{
+	return nullptr;
+}
+
 
 auto backend_llvm::gen_if_condition(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
 {

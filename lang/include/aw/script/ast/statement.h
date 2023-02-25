@@ -9,9 +9,9 @@
 #ifndef aw_script_ast_statement_h
 #define aw_script_ast_statement_h
 
-#include <vector>
 #include <memory>
 #include <variant>
+#include <vector>
 
 #include <aw/script/ast/expression.h>
 #include <aw/script/utility/hard_alias.h>
@@ -29,6 +29,22 @@ struct return_statement {
 	std::unique_ptr<expression> value;
 };
 
+class declaration;
+struct decl_statement {
+	decl_statement(declaration&& decl);
+	decl_statement(std::unique_ptr<declaration> decl);
+
+	decl_statement(const decl_statement& other) = delete;
+	decl_statement(decl_statement&& other) noexcept;
+
+	~decl_statement();
+
+	decl_statement& operator=(const decl_statement& other) = delete;
+	decl_statement& operator=(decl_statement&& other) noexcept;
+
+	std::unique_ptr<declaration> decl;
+};
+
 struct if_else_statement {
 	std::unique_ptr<expression> if_expr;
 	std::unique_ptr<statement>  if_body;
@@ -38,11 +54,12 @@ struct if_else_statement {
 using statement_block = hard_alias<statement_list>;
 
 using statement_variant = std::variant<
+	empty_statement,
 	statement_block,
 	if_else_statement,
 	return_statement,
 	expression,
-	empty_statement
+	decl_statement
 >;
 
 struct statement : statement_variant

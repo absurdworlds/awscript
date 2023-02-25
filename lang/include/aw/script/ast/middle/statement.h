@@ -35,14 +35,31 @@ struct if_else_statement {
 	std::unique_ptr<statement>  else_body;
 };
 
+class declaration;
+struct decl_statement {
+	decl_statement(declaration&& decl);
+	decl_statement(std::unique_ptr<declaration> decl);
+
+	decl_statement(const decl_statement& other) = delete;
+	decl_statement(decl_statement&& other) noexcept;
+
+	~decl_statement();
+
+	decl_statement& operator=(const decl_statement& other) = delete;
+	decl_statement& operator=(decl_statement&& other) noexcept;
+
+	std::unique_ptr<declaration> decl;
+};
+
 using statement_block = hard_alias<statement_list>;
 
 using statement_variant = std::variant<
+	empty_statement,
 	statement_block,
 	if_else_statement,
 	return_statement,
 	expression,
-	empty_statement
+	decl_statement
 >;
 
 struct statement : statement_variant

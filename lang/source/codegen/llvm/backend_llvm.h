@@ -12,8 +12,6 @@
 // TODO: put this into a separate static lib
 
 #include <aw/script/ast/middle/declaration.h>
-#include <aw/script/ast/middle/expression.h>
-#include <aw/script/ast/middle/statement.h>
 
 #include <aw/script/diag/diagnostics_engine.h>
 
@@ -60,6 +58,7 @@ public:
 
 	auto gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*;
 	auto gen(const middle::statement& stmt) -> llvm::Value*;
+	auto gen(const middle::decl_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::if_else_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::statement_block& stmt) -> llvm::Value*;
 	auto gen(const middle::return_statement& stmt) -> llvm::Value*;
