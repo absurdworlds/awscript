@@ -32,14 +32,20 @@ parser::parser(dependencies deps)
 	: lex(deps.lexer), symtab(deps.symtab), diag(deps.diag)
 {
 	tok = lex.current();
+	skip_comments();
 }
 
 bool parser::advance()
 {
 	tok = lex.next();
+	skip_comments();
+	return true; // TODO:
+}
+
+void parser::skip_comments()
+{
 	while (in(tok, token_kind::line_comment, token_kind::block_comment))
 		tok = lex.next();
-	return true; // TODO:
 }
 
 bool parser::advance(token_kind expected)
