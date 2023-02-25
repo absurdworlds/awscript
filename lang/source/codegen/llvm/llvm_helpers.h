@@ -23,6 +23,12 @@ inline auto CreateEntryBlockAlloca(
 	return builder.CreateAlloca(type, nullptr, VarName);
 }
 
+bool IsATerminatorInst(llvm::Value* val) {
+	if (auto* inst = dyn_cast<llvm::Instruction>(val))
+		return inst->isTerminator();
+	return false;
 }
+
+} // namespace aw::script
 
 #endif // llvm_helpers_h

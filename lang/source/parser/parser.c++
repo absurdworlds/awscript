@@ -301,8 +301,7 @@ std::unique_ptr<ast::statement> parser::parse_statement()
 
 std::unique_ptr<ast::statement> parser::parse_statement_inner()
 {
-	switch (tok.kind)
-	{
+	switch (tok.kind) {
 	case token_kind::semicolon:
 		return std::make_unique<ast::statement>(ast::empty_statement());
 
@@ -316,6 +315,8 @@ std::unique_ptr<ast::statement> parser::parse_statement_inner()
 			return parse_while_statement();
 		if (tok == "for"sv)
 			return parse_while_statement();
+		if (tok == "return"sv)
+			return parse_return_statement();
 		[[fallthrough]];
 	default:
 		auto expr = parse_expression();
@@ -355,6 +356,21 @@ std::unique_ptr<ast::statement> parser::parse_for_statement()
 std::unique_ptr<ast::statement> parser::parse_while_statement()
 {
 	return nullptr;
+}
+
+std::unique_ptr<ast::statement> parser::parse_return_statement()
+{
+	advance("return");
+
+	ast::return_statement stmt;
+	if (!match(token_kind::semicolon))
+	{
+		stmt.value = parse_expression();
+		if (!stmt.value)
+			return nullptr;
+	}
+
+	return std::make_unique<ast::statement>(std::move(stmt));
 }
 
 /********************** Expressions **********************/

@@ -25,6 +25,10 @@ using statement_block = statement_list;
 struct empty_statement {
 };
 
+struct return_statement {
+	std::unique_ptr<expression> value;
+};
+
 struct if_else_statement {
 	std::unique_ptr<expression> if_expr;
 	std::unique_ptr<statement>  if_body;
@@ -34,6 +38,7 @@ struct if_else_statement {
 using statement_variant = std::variant<
 	statement_block,
 	if_else_statement,
+	return_statement,
 	expression,
 	empty_statement
 >;

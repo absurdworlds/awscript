@@ -60,6 +60,7 @@ public:
 	auto gen(const ast::statement& stmt) -> llvm::Value*;
 	auto gen(const ast::if_else_statement& stmt) -> llvm::Value*;
 	auto gen(const ast::statement_block& stmt) -> llvm::Value*;
+	auto gen(const ast::return_statement& stmt) -> llvm::Value*;
 	auto gen(const ast::empty_statement& stmt) -> llvm::Value*;
 
 	auto gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;

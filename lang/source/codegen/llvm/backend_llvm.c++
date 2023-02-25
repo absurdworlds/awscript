@@ -266,10 +266,12 @@ auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
 	}
 
 	if (Value* res = gen(decl.body)) {
-		if (func->getReturnType()->isVoidTy())
-			builder.CreateRetVoid();
-		else
-			builder.CreateRet(res);
+		if (!llvm::isa<ReturnInst>(res)) {
+			if (func->getReturnType()->isVoidTy())
+				builder.CreateRetVoid();
+			else
+				builder.CreateRet(res);
+		}
 
 		llvm::verifyFunction(*func);
 
@@ -326,7 +328,8 @@ auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
 	auto then_v = gen(stmt.if_body);
 	if (!then_v)
 		return nullptr;
-	builder.CreateBr(merge_bb);
+	if (!IsATerminatorInst(then_v))
+		builder.CreateBr(merge_bb);
 	// Codegen can change the current block, update then_bb for the PHI.
 	then_bb = builder.GetInsertBlock();
 
@@ -336,7 +339,8 @@ auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
 		auto else_v = gen(stmt.else_body);
 		if (!else_v)
 			return nullptr;
-		builder.CreateBr(merge_bb);
+		if (!IsATerminatorInst(then_v))
+			builder.CreateBr(merge_bb);
 		else_bb = builder.GetInsertBlock();
 	}
 
@@ -352,6 +356,13 @@ auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
 	for (const auto& stmt : list)
 		ret = gen(stmt);
 	return ret;
+}
+
+auto backend_llvm::gen(const ast::return_statement& stmt) -> llvm::Value*
+{
+	if (stmt.value)
+		return builder.CreateRet(gen(*stmt.value));
+	return builder.CreateRetVoid();
 }
 
 auto backend_llvm::gen(const ast::empty_statement& stmt) -> llvm::Value*

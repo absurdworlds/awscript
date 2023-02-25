@@ -77,6 +77,7 @@ private:
 	std::unique_ptr<ast::statement> parse_if_statement();
 	std::unique_ptr<ast::statement> parse_for_statement();
 	std::unique_ptr<ast::statement> parse_while_statement();
+	auto parse_return_statement() -> std::unique_ptr<ast::statement>;
 
 	std::unique_ptr<ast::expression> parse_expression();
 	std::unique_ptr<ast::expression> parse_if_expression();

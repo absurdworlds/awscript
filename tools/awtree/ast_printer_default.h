@@ -21,6 +21,7 @@ private:
 
 	void print_type(const ast::type* type);
 
+	void print_stmt(const ast::return_statement& stmt);
 	void print_stmt(const ast::statement_list& list);
 	void print_stmt(const ast::if_else_statement& stmt);
 	void print_stmt(const ast::empty_statement& stmt);

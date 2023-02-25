@@ -118,6 +118,13 @@ void ast_printer_default::print_type(const ast::type* type)
 	print_inline(type ? type->name() : "<unresolved type>");
 }
 
+void ast_printer_default::print_stmt(const ast::return_statement& stmt)
+{
+	start("return", inline_scope);
+	print_expr(stmt.value);
+	end();
+}
+
 void ast_printer_default::print_stmt(const ast::statement_list& list)
 {
 	start("stmt-list");
