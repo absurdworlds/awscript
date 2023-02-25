@@ -20,6 +20,7 @@
 
 #include <aw/script/ast/declaration.h>
 #include <aw/script/ast/expression.h>
+#include <aw/script/ast/decl/module.h>
 #include <aw/script/ast/decl/variable.h>
 #include <aw/script/ast/decl/function.h>
 
@@ -54,14 +55,32 @@ private:
 	bool match(token_kind expected);
 	bool match(string_view identifier);
 
+	enum context {
+		default_context,
+		normal_module,
+		foreign_module,
+		if_condition,
+	};
+	context cur_context() const;
+	void enter(context context);
+	void leave(context context);
+
 	/// Matches an identifier. Expects that the token kind was already checked.
 	bool match_id(string_view identifier);
 
 	std::string_view parse_identifier();
 	std::string_view parse_type();
 
+	enum decl_list_placement {
+		top_level,
+		braced_block,
+	};
+
+	auto parse_declaration_list(decl_list_placement placement) -> ast::declaration_list;
 	std::unique_ptr<ast::declaration> parse_declaration();
 
+	auto parse_module_declaration(ast::module_kind kind) -> std::unique_ptr<ast::declaration>;
+	auto parse_module_body() -> ast::declaration_list;
 	std::unique_ptr<ast::variable> parse_variable_declaration(ast::access access);
 	std::unique_ptr<ast::declaration> parse_function_declaration();
 	std::unique_ptr<ast::declaration> parse_class_declaration();
@@ -96,10 +115,8 @@ private:
 	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
 	auto parse_binary_operator(token tok) -> std::optional<ast::binary_operator>;
 
-private:
-	/*! Current lookahead (peek) token. */
-	token tok;
 
+private:
 	/*! Lexer which provides the stream of tokens */
 	lexer& lex;
 
@@ -108,6 +125,12 @@ private:
 
 	/*! Diagnostics engine for error reporting */
 	diagnostics_engine& diag;
+
+	/*! Current lookahead (peek) token. */
+	token tok;
+
+	/*! Context information */
+	std::vector<context> context_stack;
 };
 
 } // namespace aw::script

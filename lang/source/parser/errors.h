@@ -26,6 +26,12 @@ inline error_t error_expected_expression(diagnostics_engine& diag, token tok)
 {
 	return error(diag, diagnostic_id::expected_expression, tok);
 }
+
+inline error_t error_module_not_allowed_here(diagnostics_engine& diag, token tok)
+{
+	return error(diag, diagnostic_id::module_not_allowed_here, tok.loc);
+}
+
 } // namespace aw::script
 
 #endif//aw_script_parser_errors_h

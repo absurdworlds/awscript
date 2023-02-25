@@ -158,7 +158,56 @@ std::unique_ptr<ast::declaration> parser::parse_declaration()
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
+	if (match_id("module"sv))
+		return parse_module_declaration(ast::module_kind::normal);
+
+	if (match_id("foreign"sv))
+		return parse_module_declaration(ast::module_kind::foreign);
+
 	return error(diag, diagnostic_id::expected_declaration, tok);
+}
+
+auto parser::parse_module_declaration(ast::module_kind kind) -> std::unique_ptr<ast::declaration>
+{
+	if (cur_context() == foreign_module)
+		return error_module_not_allowed_here(diag, tok);
+
+	const auto name = parse_identifier();
+	auto module = std::make_unique<ast::module>(name);
+	if (kind == ast::module_kind::foreign) {
+		if (!match(token_kind::colon))
+			return error_unexpected_token(diag, tok, token_kind::colon);
+		module->language = parse_identifier();
+
+		enter(foreign_module);
+		module->decls = parse_module_body();
+		leave(foreign_module);
+	} else {
+		module->decls = parse_module_body();
+	}
+
+	return module;
+}
+
+auto parser::parse_module_body() -> ast::declaration_list
+{
+	if (match(token_kind::l_brace))
+		return parse_declaration_list(braced_block);
+	return {};
+}
+
+auto parser::parse_declaration_list(decl_list_placement placement) -> ast::declaration_list
+{
+	ast::declaration_list decls;
+
+	while(placement == top_level || !match(token_kind::r_brace)) {
+		auto decl = parse_top_level();
+		if (!decl)
+			break;
+		decls.push_back(std::move(decl));
+	}
+
+	return decls;
 }
 
 std::unique_ptr<ast::variable> parser::parse_variable_declaration(ast::access access)

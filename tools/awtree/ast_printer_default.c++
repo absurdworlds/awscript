@@ -24,6 +24,8 @@ void ast_printer_default::print_declaration(const ast::declaration& decl)
 	case ast::decl_kind::variable:
 		print(decl.as<ast::variable>());
 		break;
+	case ast::decl_kind::module:
+		break;
 	}
 }
 

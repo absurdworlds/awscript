@@ -37,9 +37,8 @@ int run_compiler(const options& options, callbacks* callbacks)
 	diagnostics_engine diag;
 
 	// TODO: merge with the symbol_table
-	using decl_list = std::vector<std::unique_ptr<ast::declaration>>;
 	// TODO: base it on module instead
-	std::map<std::string, decl_list> decl_source_map;
+	std::map<std::string, ast::declaration_list> decl_source_map;
 
 	// TODO: replace with source_manager
 	std::vector<source_buffer> sources;

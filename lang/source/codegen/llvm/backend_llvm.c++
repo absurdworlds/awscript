@@ -160,6 +160,8 @@ auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
 		return gen(decl.as<ast::function>());
 	case ast::decl_kind::variable:
 		break;
+	case ast::decl_kind::module:
+		break;
 	}
 	return nullptr;
 }
@@ -211,17 +213,30 @@ auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
 	return Type::getVoidTy(context);
 }
 
+auto convert_linkage(ast::function::linkage_type type) -> llvm::Function::LinkageTypes
+{
+	switch (type) {
+	case ast::function::internal:
+		return Function::PrivateLinkage;
+	case ast::function::imported:
+		return Function::AvailableExternallyLinkage;
+	case ast::function::exported:
+		return Function::ExternalLinkage;
+	}
+
+	return Function::InternalLinkage;
+}
+
 auto backend_llvm::create_function(const ast::function& decl, const std::vector<arg_info>& args)
-	-> llvm::Function*
+		-> llvm::Function*
 {
 	std::vector<Type*> args_types(args.size());
 	std::transform(args.begin(), args.end(), args_types.begin(),
 	               [] (const arg_info& arg) { return arg.type; });
 
 	Type* return_type = get_llvm_type(context, decl.return_type);
-
 	auto signature = FunctionType::get(return_type, args_types, false);
-	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name(), cur_module.get());
+	auto func = Function::Create(signature, convert_linkage(decl.linkage), decl.name(), cur_module.get());
 	return func;
 }
 
@@ -568,7 +583,7 @@ auto backend_llvm::gen(const ast::string_literal& expr) -> llvm::Value*
 		auto* const_data = ConstantDataArray::getString(context, expr.value, is_zstring);
 		auto* string_global = new GlobalVariable(
 			*cur_module, const_data->getType(), true,
-			GlobalValue::ExternalLinkage, const_data, mangle_string(expr.value));
+			GlobalValue::PrivateLinkage, const_data, mangle_string(expr.value));
 		auto res = strings.emplace(expr.value, string_global);
 		assert(res.second);
 		it = res.first;

@@ -21,6 +21,7 @@ enum class decl_kind {
 	class_type,
 	function,
 	variable,
+	module,
 };
 
 class declaration {

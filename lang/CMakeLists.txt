@@ -10,8 +10,9 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/ast/declaration.h
 		include/aw/script/ast/decl/class.h
 		include/aw/script/ast/decl/function.h
-		include/aw/script/ast/decl/variable.h
+		include/aw/script/ast/decl/module.h
 		include/aw/script/ast/decl/type.h
+		include/aw/script/ast/decl/variable.h
 		include/aw/script/ast/statement.h
 		include/aw/script/ast/expression.h
 		include/aw/script/diag/diagnostic.h

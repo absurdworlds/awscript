@@ -31,6 +31,12 @@ struct function : public declaration {
 
 	std::unique_ptr<ast::scope> scope;
 	std::unique_ptr<statement> body;
+
+	enum linkage_type {
+		internal,
+		imported,
+		exported
+	} linkage = internal;
 };
 
 } // namespace aw::script::ast
