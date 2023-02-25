@@ -448,7 +448,7 @@ auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 	case ast::binary_operator::greater:
 		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
 	case ast::binary_operator::divide:
-		return builder.CreateSDiv(lhs, rhs, "gttmp");
+		return builder.CreateSDiv(lhs, rhs, "divtmp");
 	//case ast::binary_operator::not_equal:
 	//builder.CreateICmpNE(lhs, rhs, "netmp");
 	case ast::binary_operator::assignment:
@@ -495,7 +495,6 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 			return nullptr;
 		argv.push_back(res);
 	}
-
 
 	return callee->getReturnType()->isVoidTy() ?
 		builder.CreateCall(callee, argv):
