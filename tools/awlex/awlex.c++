@@ -142,8 +142,7 @@ int main(int argc, char** args)
 	source_buffer buffer(file);
 	lexer lexer(&buffer);
 
-	switch (options.format)
-	{
+	switch (options.format) {
 	case awlex::output_format::pretty:
 		aw::script::print_tokens(buffer, lexer);
 		break;

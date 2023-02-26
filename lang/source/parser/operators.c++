@@ -7,8 +7,7 @@ namespace aw::script {
 
 auto static token_to_unary_operator(token tok) -> std::optional<ast::unary_operator>
 {
-	switch (tok.kind)
-	{
+	switch (tok.kind) {
 	case token_kind::minus:
 		return ast::unary_operator::minus;
 	case token_kind::plus:
@@ -32,8 +31,7 @@ auto parser::parse_unary_operator(token tok) -> std::optional<ast::unary_operato
 
 auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_operator>
 {
-	switch (tok.kind)
-	{
+	switch (tok.kind) {
 	case token_kind::minus:
 		return ast::binary_operator::minus;
 	case token_kind::plus:

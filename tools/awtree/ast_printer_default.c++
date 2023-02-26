@@ -12,8 +12,7 @@ ast_printer_default::ast_printer_default()
 
 void ast_printer_default::print_declaration(const ast::declaration& decl)
 {
-	switch (decl.kind())
-	{
+	switch (decl.kind()) {
 	case ast::decl_kind::type:
 	case ast::decl_kind::alias_type:
 	case ast::decl_kind::class_type:
@@ -216,8 +215,7 @@ void ast_printer_default::print_expr(const ast::if_expression& expr)
 
 std::string_view spell_operator(ast::unary_operator op)
 {
-	switch(op)
-	{
+	switch(op) {
 	case ast::unary_operator::minus:
 		return "-";
 	case ast::unary_operator::plus:
