@@ -167,17 +167,16 @@ std::unique_ptr<ast::declaration> parser::parse_declaration()
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
+
 std::unique_ptr<ast::variable> parser::parse_variable_declaration(ast::access access)
 {
 	const auto type = parse_type();
 	if (type.empty())
 		return nullptr;
 
-	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_identifier, tok);
-
-	const auto name = tok.data;
-	advance();
+	const auto name = parse_identifier();
+	if (name.empty())
+		return nullptr;
 
 	auto var = std::make_unique<ast::variable>(name, access);
 
