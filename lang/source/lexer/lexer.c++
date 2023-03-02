@@ -42,7 +42,7 @@ location lexer::make_location(const char* pos) const
 	const auto offset = pos - buf->begin();
 
 	// TODO: file_id from source_buffer
-	return location(offset);
+	return location(offset, buf->file_id());
 }
 
 char lexer::prev() const

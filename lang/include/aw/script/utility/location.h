@@ -8,19 +8,22 @@
  */
 #ifndef aw_script_utility_location_h
 #define aw_script_utility_location_h
-#include <cassert>
-#include <string>
 #include <aw/types/types.h>
+
+#include <cassert>
+#include <limits>
+#include <string>
 namespace aw::script {
 struct location {
 	location() = default;
-	explicit location(size_t offset)
-		: pos(offset)
+	explicit location(size_t offset, u32 file_id = 0)
+		: file_id(file_id)
+		, pos(offset)
 	{
-		assert(offset < (1u << 31u));
+		assert(offset < std::numeric_limits<u32>::max());
 	}
-	u32 fileId = 0;
-	u32 pos    = 0;
+	u32 file_id = 0;
+	u32 pos     = 0;
 };
 } // namespace aw::script
 #endif//aw_script_utility_location_h

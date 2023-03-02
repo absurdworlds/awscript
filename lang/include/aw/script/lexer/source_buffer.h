@@ -17,15 +17,16 @@ namespace aw::script {
  */
 class source_buffer {
 public:
-	explicit source_buffer(std::string_view view)
+	explicit source_buffer(std::string_view view, unsigned id = 0)
 		: buffer(view)
+		, id(id)
 	{
 
 	}
 
 	// TODO: Add support for mmap_file
-	explicit source_buffer(aw::io::read_file<aw::io::file>& file)
-		: source_buffer(read_file(file))
+	explicit source_buffer(aw::io::read_file<aw::io::file>& file, unsigned id = 0)
+		: source_buffer(id, read_file(file))
 	{
 	}
 
@@ -33,8 +34,9 @@ public:
 
 	source_buffer& operator=(source_buffer&& other) noexcept = default;
 
-	~source_buffer()
+	unsigned file_id() const
 	{
+		return id;
 	}
 
 	char const* begin()
@@ -59,8 +61,9 @@ private:
 		size_t view_length = size;
 	};
 
-	explicit source_buffer(buffer_data data)
+	explicit source_buffer(unsigned id, buffer_data data)
 		: buffer(data.ptr, data.size, data.view_length)
+		, id(id)
 	{
 	}
 
@@ -89,6 +92,7 @@ private:
 	}
 
 	char_buffer buffer;
+	unsigned id = 0;
 };
 } // namespace aw::script
 #endif//aw_script_source_buffer_h
