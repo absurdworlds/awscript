@@ -8,8 +8,9 @@
  */
 #ifndef aw_script_source_buffer_h
 #define aw_script_source_buffer_h
-#include <aw/io/read_file.h>
 #include <aw/io/file.h>
+#include <aw/io/read_file.h>
+#include <aw/types/char_buffer.h>
 namespace aw::script {
 /*!
  * Wraps access to source files
@@ -17,8 +18,7 @@ namespace aw::script {
 class source_buffer {
 public:
 	explicit source_buffer(std::string_view view)
-		: buffer(view.data())
-		, length(view.size())
+		: buffer(view)
 	{
 
 	}
@@ -29,80 +29,66 @@ public:
 	{
 	}
 
-	source_buffer(source_buffer&& other) noexcept
-		: buffer(other.buffer)
-		, length(other.length)
-		, owns_buffer(other.owns_buffer)
-	{
-		other.owns_buffer = false;
-	}
+	source_buffer(source_buffer&& other) noexcept = default;
 
-	source_buffer& operator=(source_buffer&& other) noexcept
-	{
-		free();
-		buffer = other.buffer;
-		length = other.length;
-		owns_buffer = other.owns_buffer;
-		other.owns_buffer = false;
-		return *this;
-	}
+	source_buffer& operator=(source_buffer&& other) noexcept = default;
 
 	~source_buffer()
 	{
-		free();
 	}
 
 	char const* begin()
 	{
-		return buffer;
+		return buffer.begin();
 	}
 
 	char const* end()
 	{
-		return buffer + length;
+		return buffer.end();
 	}
 
 	size_t size() const
 	{
-		return length;
+		return buffer.view_size();
 	}
 
 private:
-	// TODO: a pair would be more idiomatic but it's private so whatever
-	// and is going to be replaced with source_manager anyway
-	std::string_view read_file(aw::io::read_file<aw::io::file>& file)
+	struct buffer_data {
+		char* ptr = nullptr;
+		size_t size = 0;
+		size_t view_length = size;
+	};
+
+	explicit source_buffer(buffer_data data)
+		: buffer(data.ptr, data.size, data.view_length)
+	{
+	}
+
+	static auto read_file(aw::io::read_file<aw::io::file>& file) -> buffer_data
 	{
 		if (!file.is_open())
 			return {};
 
-		length = file.size();
-		owns_buffer = true;
+		auto length = file.size();
 
-		auto buffer = new char[length + 1];
+		std::unique_ptr<char[]> buffer(new char[length + 1]);
 
-		auto res = file.read(buffer, length);
+		auto res = file.read(buffer.get(), length);
 
 		if (res < 0)
-			free();
+			buffer.reset();
 
 		// Sentinel
 		buffer[length] = 0;
-		return std::string_view(buffer, length);
+
+		return buffer_data{
+			.ptr = buffer.release(),
+			.size = length + 1,
+			.view_length = length,
+		};
 	}
 
-	void free()
-	{
-		if (!owns_buffer)
-			return;
-		delete[] buffer;
-		buffer = nullptr;
-		length = 0;
-	}
-
-private:
-	const char* buffer  = nullptr;
-	size_t length = 0;
-	bool owns_buffer = false;
+	char_buffer buffer;
 };
 } // namespace aw::script
 #endif//aw_script_source_buffer_h
