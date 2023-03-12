@@ -2,6 +2,7 @@
 #include <aw/test/test.h>
 
 #include <aw/script/lexer/lexer.h>
+#include <aw/script/lexer/source_manager.h>
 #include <aw/script/parser/parser.h>
 #include <aw/script/symtab/symbol_table.h>
 #include <aw/script/symtab/scope.h>
@@ -14,7 +15,9 @@ using namespace std::string_view_literals;
 namespace aw::script {
 
 Test(basic_function) {
-	auto source = source_buffer(R"(
+	aw::script::source_manager srcman;
+
+	auto id = srcman.add_buffer(R"(
 	function test_func(var int x) : int;
 
 	function add(var int x, var int y) : int
@@ -24,10 +27,11 @@ Test(basic_function) {
 	}
 )");
 
-	aw::script::lexer lexer(&source);
+	aw::script::diagnostics_engine diag(srcman);
+
+	aw::script::lexer lexer(srcman.get_buffer(id));
 
 	aw::script::symbol_table symtab;
-	aw::script::diagnostics_engine diag(source);
 
 	aw::script::parser parser({
 		.lexer = lexer,

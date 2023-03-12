@@ -1,6 +1,6 @@
 #include <aw/script/diag/diagnostics_engine.h>
 
-#include <aw/script/lexer/source_buffer.h>
+#include <aw/script/lexer/source_manager.h>
 
 #include <iostream> //temporary
 
@@ -34,7 +34,7 @@ source_position count_lines(const char* begin, const char* end, ptrdiff_t offset
 	return {row, column};
 }
 
-source_position count_lines(source_buffer& buffer, ptrdiff_t offset)
+source_position count_lines(const source_buffer& buffer, ptrdiff_t offset)
 {
 	return count_lines(std::begin(buffer), std::end(buffer), offset);
 }
@@ -46,9 +46,9 @@ void diagnostics_engine::report(diagnostic diag)
 
 	auto line   = diag.loc.pos;
 	auto column = 0;
-	if (_buffer)
+	if (auto buffer = srcman->get_buffer(diag.loc.file_id))
 	{
-		auto pos = count_lines(*_buffer, line);
+		auto pos = count_lines(*buffer, line);
 		line = pos.line;
 		column = pos.column;
 	}

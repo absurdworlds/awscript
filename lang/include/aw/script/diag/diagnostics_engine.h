@@ -12,7 +12,7 @@
 
 #include <aw/script/diag/diagnostic.h>
 namespace aw::script {
-class source_buffer;
+class source_manager;
 // TODO:
 // 1. Start building diagnostic
 // 2. Add details
@@ -22,11 +22,10 @@ class source_buffer;
  */
 class diagnostics_engine {
 public:
-	// TODO: add source manager
-	diagnostics_engine() = default;
+	diagnostics_engine() = delete;
 
-	diagnostics_engine(source_buffer& buffer)
-		: _buffer(&buffer)
+	diagnostics_engine(source_manager& srcman)
+		: srcman(&srcman)
 	{
 	}
 
@@ -34,8 +33,7 @@ public:
 	void report(diagnostic diag);
 
 private:
-	// TODO: replace with source_manager
-	source_buffer* _buffer = nullptr;
+	const source_manager* srcman = nullptr;
 };
 } // namespace aw::script
 #endif//aw_script_diagnostic_engine_h

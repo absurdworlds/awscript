@@ -1,6 +1,7 @@
 #include "aw/script/driver/main.h"
 
 #include <aw/script/lexer/lexer.h>
+#include <aw/script/lexer/source_manager.h>
 #include <aw/script/parser/parser.h>
 #include <aw/script/symtab/symbol_table.h>
 #include <aw/script/symtab/scope.h>
@@ -34,25 +35,18 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 	symbol_table symtab;
 
-	diagnostics_engine diag;
+	source_manager srcman;
+
+	diagnostics_engine diag(srcman);
 
 	// TODO: merge with the symbol_table
 	using decl_list = std::vector<std::unique_ptr<ast::declaration>>;
 	// TODO: base it on module instead
 	std::map<std::string, decl_list> decl_source_map;
 
-	// TODO: replace with source_manager
-	std::vector<source_buffer> sources;
-
 	for (const auto& input : options.input_files)
 	{
-		aw::io::read_file<aw::io::file> file(input);
-		sources.emplace_back(file);
-		auto& source = sources.back();
-		// TODO: lift it out
-		diagnostics_engine diag(source);
-
-		lexer lexer(&source);
+		lexer lexer(srcman.get_buffer(srcman.add_file(input)));
 
 		aw::script::parser parser({
 			.lexer = lexer,

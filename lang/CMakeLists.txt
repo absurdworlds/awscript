@@ -4,6 +4,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/utility/location.h
 		include/aw/script/lexer/lexer.h
 		include/aw/script/lexer/source_buffer.h
+		include/aw/script/lexer/source_manager.h
 		include/aw/script/lexer/token.h
 		include/aw/script/lexer/tokens.h
 		include/aw/script/utility/print_token.h
