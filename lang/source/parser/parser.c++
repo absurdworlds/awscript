@@ -189,10 +189,7 @@ std::unique_ptr<ast::declaration> parser::parse_function_declaration()
 {
 	auto func = parse_function_prototype();
 
-	if (tok == token_kind::l_brace) {
-		// TODO: add error code
-		func->body = parse_function_body();
-	}
+	func->body = parse_function_body();
 
 	return func;
 }
@@ -274,7 +271,24 @@ bool parser::parse_function_return_type(ast::function& func)
  */
 auto parser::parse_function_body() -> std::unique_ptr<ast::statement>
 {
-	return parse_statement_block();
+	if (match(token_kind::semicolon))
+		return nullptr;
+	if (tok == token_kind::l_brace)
+		return parse_statement_block();
+	if (tok == "return")
+		return parse_return_statement();
+
+#if AW_SCRIPT_FEATURE_IMPLICIT_RETURN
+	if (is_declaration_start(tok)) // TODO
+		return nullptr;
+
+	ast::return_statement stmt;
+	stmt.value = parse_expression();
+	if (stmt.value)
+		return std::make_unique<ast::statement>(std::move(stmt));
+
+#endif
+	return nullptr;
 }
 
 /********************** Statements **********************/
@@ -545,6 +559,7 @@ char escape_char(char c)
 static std::string parse_string(string_view s)
 {
 	std::string result;
+	result.reserve(s.size());
 
 	const auto str = s.substr(1, s.size() - 2);
 

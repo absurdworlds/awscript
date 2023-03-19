@@ -1,7 +1,7 @@
 
-function putchar(var int ch)
-function puts(var cstring str)
-function printf(var cstring str, var int v)
+function putchar(var int ch);
+function puts(var cstring str);
+function printf(var cstring str, var int v);
 
 
 function add(var int x, var int y) : int
@@ -11,11 +11,9 @@ function add(var int x, var int y) : int
 }
 
 function div(var int x, var int y) : int
-{
-	if (y < 1)
-		return 0;
-	return x/y
-}
+	return if (y < 1)
+		then 0
+		else x/y;
 
 function test_reassign(var int c)
 {
@@ -29,6 +27,7 @@ function test_reassign(var int c)
 function main(var int argc) : int
 {
 	printf("argc = %d\n", argc);
+	printf("div = %d\n", div(1,0));
 
 	add(66, 67);
 
