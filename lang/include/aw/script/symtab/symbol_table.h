@@ -54,8 +54,7 @@ private:
 
 	std::vector<ast::scope*> stack;
 
-	std::vector<std::unique_ptr<ast::type>> types;
-
+	std::vector<std::unique_ptr<ast::declaration>> symbols;
 	std::vector<unresolved_type> unresolved_types;
 };
 } // namespace aw::script

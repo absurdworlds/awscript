@@ -9,57 +9,66 @@
 #ifndef aw_script_ast_decl_h
 #define aw_script_ast_decl_h
 
-#include <cassert>
-
 #include <aw/types/string_view.h>
+
+#include <memory>
+#include <vector>
+#include <variant>
+
+#include <cassert>
 
 namespace aw::script::ast {
 
-enum class decl_kind {
-	type,
-	alias_type,
-	class_type,
-	function,
-	variable,
+class scope;
+
+struct type {
+	std::string name;
 };
 
-class declaration {
-protected:
-	explicit declaration(decl_kind kind, string_view name)
-		: _kind(kind), _name(name)
-	{}
+enum class access {
+	variable, // a.k.a mutable
+	constant
+};
 
-	declaration& operator=(const declaration& other)
-	{
-		assert(_kind == other.kind());
-		_name = other.name();
-		return *this;
-	}
+struct variable {
+	std::string name;
+	std::string type;
+	ast::access access;
+};
 
-	declaration& operator=(declaration&& other) noexcept
-	{
-		assert(_kind == other.kind());
-		_name = other.name();
-		return *this;
-	}
+struct statement;
+
+using argument_list = std::vector<variable>;
+
+struct function {
+	// Ctors are only needed because of incomplete types
+	function(std::string_view name);
+	function(function&&);
+
+	~function();
+
+	function& operator=(function&&);
+
+	std::string name;
+
+	std::string return_type;
+	argument_list args;
+
+	std::unique_ptr<statement> body;
+};
+
+using declaration_variant = std::variant<
+	std::monostate,
+	variable,
+	function,
+	type
+>;
+
+class declaration : public declaration_variant {
 public:
-	declaration(const declaration& other) = delete;
-	declaration(declaration&& other) = delete;
-
-	virtual ~declaration() = default;
-
-	decl_kind   kind() const { return _kind; }
-	string_view name() const { return _name; }
-
-	template<typename T>
-	T& as() { return static_cast<T&>(*this); }
-
-	template<typename T>
-	const T& as() const { return static_cast<const T&>(*this); }
-
-private:
-	decl_kind   _kind;
-	string_view _name;
+	declaration() = default;
+	using declaration_variant::declaration_variant;
+	using declaration_variant::operator=;
 };
 
 } // namespace aw::script::ast

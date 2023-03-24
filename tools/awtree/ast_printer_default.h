@@ -2,7 +2,9 @@
 
 #include "ast_printer.h"
 
-#include <aw/script/ast/decl/function.h>
+#include <aw/script/ast/declaration.h>
+#include <aw/script/ast/statement.h>
+#include <aw/script/ast/expression.h>
 
 #include <vector>
 
@@ -15,12 +17,14 @@ public:
 	void print_declaration(const ast::declaration& decl) override;
 
 private:
-	void print(const ast::function& decl);
-	void print(const ast::variable& var);
-	void print(const ast::statement& stmt);
+	void print_decl(const ast::function& decl);
+	void print_decl(const ast::variable& var);
+	template <typename T>
+	void print_decl(const T&) { /* catch-all */ }
 
 	void print_type(const ast::type* type);
 
+	void print(const ast::statement& stmt);
 	void print_stmt(const ast::return_statement& stmt);
 	void print_stmt(const ast::statement_list& list);
 	void print_stmt(const ast::if_else_statement& stmt);

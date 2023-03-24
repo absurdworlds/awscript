@@ -2,7 +2,7 @@
 
 #include <aw/script/symtab/scope.h>
 
-#include <aw/script/ast/decl/type.h>
+#include <aw/script/ast/declaration.h>
 
 namespace aw::script {
 symbol_table::symbol_table()
@@ -15,29 +15,33 @@ symbol_table::symbol_table()
 void symbol_table::create_builtin_types()
 {
 	// TODO: move this out of here
-	top_scope->add_symbol("void", create_type("void"));
+	create_type("void");
 
 	// TODO: aliases
-	top_scope->add_symbol("int", create_type("int"));
-	top_scope->add_symbol("i32", create_type("i32"));
-	top_scope->add_symbol("i64", create_type("i64"));
+	create_type("int");
+	create_type("i32");
+	create_type("i64");
 
 	//top_scope->add_symbol("uint", create_type("uint"));
 	//top_scope->add_symbol("u32", create_type("u32"));
 	//top_scope->add_symbol("u64", create_type("u64"));
 
-	top_scope->add_symbol("float", create_type("float"));
-	top_scope->add_symbol("f32", create_type("f32"));
-	top_scope->add_symbol("f64", create_type("f64"));
+	create_type("float");
+	create_type("f32");
+	create_type("f64");
 
 	// TODO: remove when FFI modules are implemented
-	top_scope->add_symbol("cstring", create_type("cstring"));
+	create_type("cstring");
 }
 
 ast::type* symbol_table::create_type(std::string_view name)
 {
-	types.push_back(std::make_unique<ast::type>(name));
-	return types.back().get();
+	ast::type type;
+	type.name = std::string(name);
+	symbols.push_back(std::make_unique<ast::declaration>(std::move(type)));
+	auto* ptr = symbols.back().get();
+	top_scope->add_symbol(name, ptr);
+	return std::get_if<ast::type>(ptr);
 }
 
 std::unique_ptr<ast::scope> symbol_table::create_scope()
@@ -64,9 +68,9 @@ ast::declaration* symbol_table::lookup(std::string_view name)
 ast::type* symbol_table::lookup_type(std::string_view name)
 {
 	auto* p = lookup(name);
-	if (!p || p->kind() != ast::decl_kind::type)
+	if (!p)
 		return nullptr;
-	return &p->as<ast::type>();
+	return std::get_if<ast::type>(p);
 }
 
 ast::scope* symbol_table::current_scope()
@@ -87,8 +91,8 @@ void symbol_table::resolve()
 {
 	for (const auto& ref : unresolved_types) {
 		auto decl = ref.scope->find_symbol(ref.name);
-		if (decl && decl->kind() == ast::decl_kind::type)
-			*ref.type = static_cast<ast::type*>(decl);
+		if (auto type = std::get_if<ast::type>(decl))
+			*ref.type = type;
 	}
 }
 

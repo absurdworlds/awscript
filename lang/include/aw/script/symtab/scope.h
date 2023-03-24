@@ -12,8 +12,9 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <aw/script/ast/declaration.h>
+
 namespace aw::script::ast {
-class declaration;
 
 enum scope_search_mode {
 	current_scope,

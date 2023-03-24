@@ -11,8 +11,6 @@
 #include <aw/algorithm/in.h>
 #include <aw/types/support/enum.h>
 
-#include <aw/script/ast/decl/type.h>
-#include <aw/script/ast/expression.h>
 #include <aw/script/symtab/scope.h>
 
 #include "errors.h"
@@ -133,15 +131,15 @@ std::string_view parser::parse_type()
 	return name;
 }
 
-std::unique_ptr<ast::declaration> parser::parse_top_level()
+std::optional<ast::declaration> parser::parse_top_level()
 {
 	if (tok == token_kind::eof)
-		return nullptr;
+		return {};
 
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_declaration, tok);
 
-	std::unique_ptr<ast::declaration> decl = parse_declaration();
+	std::optional<ast::declaration> decl = parse_declaration();
 
 	/* TODO: do not forget about global variables*/
 	while (match(token_kind::semicolon));
@@ -149,7 +147,7 @@ std::unique_ptr<ast::declaration> parser::parse_top_level()
 	return decl;
 }
 
-std::unique_ptr<ast::declaration> parser::parse_declaration()
+std::optional<ast::declaration> parser::parse_declaration()
 {
 	// awscript employs context-sensitive keywords
 	if (match_id("var"sv))
@@ -168,35 +166,36 @@ std::unique_ptr<ast::declaration> parser::parse_declaration()
 }
 
 
-std::unique_ptr<ast::variable> parser::parse_variable_declaration(ast::access access)
+auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast::variable>
 {
 	const auto type = parse_type();
 	if (type.empty())
-		return nullptr;
+		return {};
 
-	const auto name = parse_identifier();
-	if (name.empty())
-		return nullptr;
+	ast::variable var;
+	var.name = parse_identifier();
+	if (var.name.empty())
+		return {};
 
-	auto var = std::make_unique<ast::variable>(name, access);
-
-	symtab.add_unresolved(type, &var->type);
+	var.access = access;
+	var.type = type;
 
 	return var;
 }
 
-std::unique_ptr<ast::declaration> parser::parse_function_declaration()
+auto parser::parse_function_declaration() -> std::optional<ast::function>
 {
 	auto func = parse_function_prototype();
-
-	func->body = parse_function_body();
+	if (func) {
+		func->body = parse_function_body();
+	}
 
 	return func;
 }
 
-std::unique_ptr<ast::declaration> parser::parse_class_declaration()
+auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 {
-	return nullptr;
+	return {};
 }
 
 /*
@@ -204,26 +203,24 @@ std::unique_ptr<ast::declaration> parser::parse_class_declaration()
  *         args ::= arg (',' args)?
  *          arg ::= variableDecl
  */
-std::unique_ptr<ast::function> parser::parse_function_prototype()
+auto parser::parse_function_prototype() -> std::optional<ast::function>
 {
 	const auto name = parse_identifier();
 	if (name.empty())
-		return nullptr;
+		return {};
 
-	auto func = std::make_unique<ast::function>(name);
+	ast::function func(name);
 
 	if (!match(token_kind::l_paren))
 		return error_unexpected_token(diag, tok, token_kind::l_paren);
 
-	func->scope = symtab.create_scope();
-
-	parse_function_arguments(*func);
+	parse_function_arguments(func);
 
 	if (!match(token_kind::r_paren))
 		return error_unexpected_token(diag, tok, token_kind::r_paren);
 
-	if (!parse_function_return_type(*func))
-		return nullptr;
+	if (!parse_function_return_type(func))
+		return {};
 
 	return func;
 }
@@ -237,7 +234,7 @@ bool parser::parse_function_arguments(ast::function& func)
 		if (!arg)
 			return {};
 
-		func.add_arg(std::move(arg));
+		func.args.push_back(std::move(*arg));
 
 		if (tok == token_kind::r_paren)
 			break;
@@ -262,7 +259,7 @@ bool parser::parse_function_return_type(ast::function& func)
 		type_name = "void";
 	}
 
-	symtab.add_unresolved(type_name, &func.return_type);
+	func.return_type = type_name;
 	return true;
 }
 

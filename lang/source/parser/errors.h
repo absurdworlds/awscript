@@ -1,8 +1,6 @@
 #ifndef aw_script_parser_errors_h
 #define aw_script_parser_errors_h
 
-#include <optional>
-
 #include <aw/script/diag/error_t.h>
 
 namespace aw::script {

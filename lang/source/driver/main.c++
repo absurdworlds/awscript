@@ -40,7 +40,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 	diagnostics_engine diag(srcman);
 
 	// TODO: merge with the symbol_table
-	using decl_list = std::vector<std::unique_ptr<ast::declaration>>;
+	using decl_list = std::vector<ast::declaration>;
 	// TODO: base it on module instead
 	std::map<std::string, decl_list> decl_source_map;
 
@@ -61,7 +61,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 			if (!decl)
 				break;
 			callbacks->on_parse_declaration(*decl);
-			decls.push_back(std::move(decl));
+			decls.push_back(std::move(*decl));
 		}
 	}
 
@@ -69,7 +69,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 	for (const auto& [_,decls] : decl_source_map)
 		for (const auto& decl : decls)
-			callbacks->process_declaration(*decl);
+			callbacks->process_declaration(decl);
 
 	if (options.mode == mode::dry_run)
 		return EXIT_SUCCESS;
@@ -90,7 +90,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 		backend->create_module(input_path.stem().generic_string());
 		for (const auto& decl : decls)
 		{
-			backend->handle_declaration(*decl);
+			backend->handle_declaration(decl);
 		}
 		backend->optimize_module();
 		//TODO: write objects to a temporaty directory when mode == mode::link

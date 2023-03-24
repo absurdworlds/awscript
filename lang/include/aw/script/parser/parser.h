@@ -20,16 +20,11 @@
 
 #include <aw/script/ast/declaration.h>
 #include <aw/script/ast/expression.h>
-#include <aw/script/ast/decl/variable.h>
-#include <aw/script/ast/decl/function.h>
+#include <aw/script/ast/statement.h>
 
 #include <aw/script/symtab/symbol_table.h>
 
 namespace aw::script {
-namespace ast {
-class type;
-class expression;
-} // namespace ast
 
 // TODO: split it into declaration_parser, statement_parser and expression_parser
 
@@ -45,7 +40,7 @@ public:
 
 	~parser() = default;
 
-	std::unique_ptr<ast::declaration> parse_top_level();
+	auto parse_top_level() -> std::optional<ast::declaration>;
 
 private:
 	bool advance();
@@ -61,13 +56,14 @@ private:
 	std::string_view parse_identifier();
 	std::string_view parse_type();
 
-	std::unique_ptr<ast::declaration> parse_declaration();
+	auto parse_declaration() -> std::optional<ast::declaration>;
 
-	std::unique_ptr<ast::variable> parse_variable_declaration(ast::access access);
-	std::unique_ptr<ast::declaration> parse_function_declaration();
-	std::unique_ptr<ast::declaration> parse_class_declaration();
+	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
+	auto parse_function_declaration() -> std::optional<ast::function>;
+	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
-	std::unique_ptr<ast::function> parse_function_prototype();
+	auto parse_function_prototype() -> std::optional<ast::function>;
+
 	bool parse_function_arguments(ast::function& func);
 	bool parse_function_return_type(ast::function& func);
 	auto parse_function_body() -> std::unique_ptr<ast::statement>;
