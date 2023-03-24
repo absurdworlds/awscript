@@ -11,11 +11,24 @@
 
 #include <aw/script/diag/diagnostics_engine.h>
 
+#include <memory>
+#include <optional>
+
 namespace aw::script {
 
 struct error_t {
+	constexpr operator bool() const { return false; }
+
+	constexpr operator std::string_view() const { return {}; }
+
 	template <typename T>
-	constexpr operator T() const { return {}; }
+	constexpr operator std::unique_ptr<T>() const { return {}; }
+
+	template <typename T>
+	constexpr operator T*() const { return nullptr; }
+
+	template <typename T>
+	constexpr operator std::optional<T>() const { return std::nullopt; }
 };
 
 template<typename...Args>
