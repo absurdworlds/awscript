@@ -12,18 +12,7 @@ ast_printer_default::ast_printer_default()
 
 void ast_printer_default::print_declaration(const ast::declaration& decl)
 {
-	switch (decl.kind()) {
-	case ast::decl_kind::type:
-	case ast::decl_kind::alias_type:
-	case ast::decl_kind::class_type:
-		break;
-	case ast::decl_kind::function:
-		print(decl.as<ast::function>());
-		break;
-	case ast::decl_kind::variable:
-		print(decl.as<ast::variable>());
-		break;
-	}
+	std::visit([this] (auto&& node) { print_decl(node); }, decl);
 }
 
 void ast_printer_default::start(string_view name, scope_type type)
@@ -74,18 +63,19 @@ void ast_printer_default::print_indent()
 		std::cout << std::string(depth*2, ' ');
 }
 
-void ast_printer_default::print(const ast::function& decl)
+void ast_printer_default::print_decl(const ast::function& decl)
 {
 	start("func", mixed_scope);
 
-	print_type(decl.return_type);
-	print_inline(decl.name());
+	//print_type(decl.return_type);
+	print_inline(decl.return_type);
+	print_inline(decl.name);
 	start_line();
 	{
 		start("fn-args");
 		for (const auto& arg : decl.args)
 		{
-			print(*arg);
+			print_decl(arg);
 			start_line();
 		}
 		end();
@@ -99,11 +89,12 @@ void ast_printer_default::print(const ast::function& decl)
 	end();
 }
 
-void ast_printer_default::print(const ast::variable& var)
+void ast_printer_default::print_decl(const ast::variable& var)
 {
 	start("var", inline_scope);
-	print_type(var.type);
-	print_inline(var.name());
+	//print_type(var.type);
+	print_inline(var.type);
+	print_inline(var.name);
 	end();
 }
 
@@ -114,7 +105,7 @@ void ast_printer_default::print(const ast::statement& stmt)
 
 void ast_printer_default::print_type(const ast::type* type)
 {
-	print_inline(type ? type->name() : "<unresolved type>");
+	print_inline(type ? type->name : "<unresolved type>");
 }
 
 void ast_printer_default::print_stmt(const ast::return_statement& stmt)

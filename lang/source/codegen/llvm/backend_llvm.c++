@@ -151,17 +151,7 @@ void backend_llvm::dump_ir()
 
 auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
 {
-	switch (decl.kind()) {
-	case ast::decl_kind::type:
-	case ast::decl_kind::alias_type:
-	case ast::decl_kind::class_type:
-		break;
-	case ast::decl_kind::function:
-		return gen(decl.as<ast::function>());
-	case ast::decl_kind::variable:
-		break;
-	}
-	return nullptr;
+	return std::visit([this] (auto&& decl) { return gen(decl); }, decl);
 }
 
 struct backend_llvm::arg_info {
@@ -178,33 +168,33 @@ struct backend_llvm::arg_info {
 };
 
 
-auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
+auto get_llvm_type(llvm::LLVMContext& context, std::string_view type) -> llvm::Type*
 {
-	if (!type) {
+	if (type.empty()) {
 		assert(!"Unresolved reference to type");
 		return Type::getVoidTy(context);
 	}
 
 	// TODO: create a map of types
-	if (type->name() == "void")
+	if (type == "void")
 		return Type::getVoidTy(context);
 
-	if (type->name() == "cstring")
+	if (type == "cstring")
 		return PointerType::getInt8PtrTy(context);
 
-	if (type->name() == "bool")
+	if (type == "bool")
 		return Type::getInt1Ty(context);
 
-	if (in(type->name(), "i32", "int32", "int"))
+	if (in(type, "i32", "int32", "int"))
 		return Type::getInt32Ty(context);
 
-	if (in(type->name(), "i64", "int64"))
+	if (in(type, "i64", "int64"))
 		return Type::getInt64Ty(context);
 
-	if (in(type->name(), "f32", "float32", "float"))
+	if (in(type, "f32", "float32", "float"))
 		return Type::getFloatTy(context);
 
-	if (in(type->name(), "f64", "float64", "double"))
+	if (in(type, "f64", "float64", "double"))
 		return Type::getDoubleTy(context);
 
 	assert(!"Unknown type");
@@ -221,7 +211,7 @@ auto backend_llvm::create_function(const ast::function& decl, const std::vector<
 	Type* return_type = get_llvm_type(context, decl.return_type);
 
 	auto signature = FunctionType::get(return_type, args_types, false);
-	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name(), cur_module.get());
+	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name, cur_module.get());
 	return func;
 }
 
@@ -232,9 +222,9 @@ auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
 	for (const auto& arg : decl.args)
 	{
 		arg_info info;
-		info.type = get_llvm_type(context, arg->type);
-		info.name = arg->name();
-		info.is_mutable = arg->access == ast::access::variable;
+		info.type = get_llvm_type(context, arg.type);
+		info.name = arg.name;
+		info.is_mutable = arg.access == ast::access::variable;
 		args.push_back(info);
 	}
 
@@ -372,7 +362,7 @@ auto backend_llvm::gen(const ast::empty_statement& stmt) -> llvm::Value*
 
 auto backend_llvm::gen(const ast::numeric_literal& expr) -> llvm::Value*
 {
-	auto type = get_llvm_type(context, expr.type);
+	auto type = get_llvm_type(context, expr.type->name);
 	if (auto integer = dyn_cast<IntegerType>(type))
 		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, expr.base));
 	return nullptr;

@@ -11,7 +11,9 @@
 
 // TODO: put this into a separate static lib
 
-#include <aw/script/ast/decl/function.h>
+#include <aw/script/ast/declaration.h>
+#include <aw/script/ast/expression.h>
+#include <aw/script/ast/statement.h>
 
 #include <aw/script/diag/diagnostics_engine.h>
 
@@ -74,6 +76,14 @@ public:
 	auto gen(const ast::unary_expression& expr) -> llvm::Value*;
 	auto gen(const ast::call_expression& expr) -> llvm::Value*;
 	auto gen(const ast::if_expression& expr) -> llvm::Value*;
+
+	template<typename T>
+	auto gen(const T&) -> llvm::Value*
+	{
+		assert(false);
+		return nullptr;
+	}
+
 
 	auto gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
 

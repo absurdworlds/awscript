@@ -39,10 +39,15 @@ Test(basic_function) {
 		.diag = diag
 	});
 
-	std::unique_ptr<ast::declaration> decl;
+	std::optional<ast::declaration> decl;
+
+	ast::declaration d1;
+	ast::declaration d2;
+
+	d1 = std::move(d2);
 
 	do {
-		decl = parser.parse_top_level();
+		decl = std::move(parser.parse_top_level());
 	} while(decl);
 }
 
