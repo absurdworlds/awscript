@@ -595,14 +595,32 @@ std::unique_ptr<ast::expression> parser::parse_string_literal_expression()
 	return std::make_unique<ast::expression>(str);
 }
 
+auto decode_base(std::string_view num) -> ast::number_base
+{
+	using enum ast::number_base;
+	if (num.starts_with('0')) {
+		if (num.starts_with("0x"))
+			return hexadecimal;
+		else if (num.starts_with("0b"))
+			return binary;
+		else if (num.starts_with("0o"))
+			return octal;
+	}
+	return decimal;
+}
+
 std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 {
 	assert(tok == token_kind::numeric_constant &&
 	       "parse_numeric_literal_expression called when there's no number!");
 
-	ast::numeric_literal num{
+	ast::numeric_literal num {
 		.value = tok.data,
+		.base = decode_base(tok.data)
 	};
+
+	if (num.base != ast::number_base::decimal)
+		num.value.remove_prefix(2);
 
 	// consume number
 	advance();
