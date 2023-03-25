@@ -8,6 +8,8 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/lexer/token.h
 		include/aw/script/lexer/tokens.h
 		include/aw/script/utility/print_token.h
+		include/aw/script/ast/type.h
+		include/aw/script/ast/mutability.h
 		include/aw/script/ast/declaration.h
 		include/aw/script/ast/statement.h
 		include/aw/script/ast/expression.h
@@ -30,7 +32,6 @@ aw_add_library(awscript-lang STATIC
 		source/codegen/llvm/llvm_helpers.h
 	SOURCES
 		source/lexer/lexer.c++
-		source/ast/function.c++
 		source/diag/messages.c++
 		source/diag/diagnostics_engine.c++
 		source/parser/parser.c++

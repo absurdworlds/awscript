@@ -120,13 +120,7 @@ void ast_printer_default::print_stmt(const ast::statement_list& list)
 	start("stmt-list");
 	for (const auto& stmt : list)
 	{
-		if (stmt)
-			print(*stmt);
-		else
-		{
-			print_inline("<invalid>");
-			start_line();
-		}
+		print(stmt);
 	}
 	end();
 }
