@@ -363,9 +363,9 @@ auto backend_llvm::gen(const ast::empty_statement& stmt) -> llvm::Value*
 auto backend_llvm::gen(const ast::numeric_literal& expr) -> llvm::Value*
 {
 	auto type = get_llvm_type(context, "int"); // TODO:
-	auto type = get_llvm_type(context, expr.type->name);
+	auto radix = unsigned(expr.base); // TODO: to_underlying
 	if (auto integer = dyn_cast<IntegerType>(type))
-		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, expr.base));
+		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, radix));
 	return nullptr;
 }
 

@@ -67,9 +67,16 @@ struct call_expression {
 	argument_list args;
 };
 
+enum class number_base {
+	binary = 2,
+	octal = 8,
+	decimal = 10,
+	hexadecimal = 16,
+};
+
 struct numeric_literal {
 	std::string_view value;
-	int base = 10;
+	number_base base = number_base::decimal;
 };
 
 struct string_literal {
