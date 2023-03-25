@@ -209,7 +209,8 @@ auto parser::parse_function_prototype() -> std::optional<ast::function>
 	if (name.empty())
 		return {};
 
-	ast::function func(name);
+	ast::function func;
+	func.name = name;
 
 	if (!match(token_kind::l_paren))
 		return error_unexpected_token(diag, tok, token_kind::l_paren);
@@ -294,13 +295,13 @@ auto parser::parse_statement_block() -> std::unique_ptr<ast::statement>
 	if (!match(token_kind::l_brace))
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
 
-	ast::statement_list statements;
+	ast::statement_block statements;
 	while (!match(token_kind::r_brace)) {
 		auto statement = parse_statement();
 		if (!statement)
 			return {};
 
-		statements.push_back(std::move(statement));
+		statements.push_back(std::move(*statement));
 	}
 
 	return std::make_unique<ast::statement>(std::move(statements));
@@ -601,8 +602,6 @@ std::unique_ptr<ast::expression> parser::parse_numeric_literal_expression()
 
 	ast::numeric_literal num{
 		.value = tok.data,
-		// TODO: infer from the context
-		.type = symtab.lookup_type("int")
 	};
 
 	// consume number

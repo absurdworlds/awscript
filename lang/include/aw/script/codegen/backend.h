@@ -11,9 +11,9 @@
 
 #include <aw/script/codegen/optimization_level.h>
 
-#include <aw/utility/factory_registry.h>
-
 #include <aw/types/string_view.h>
+
+#include <memory>
 
 namespace aw::script {
 

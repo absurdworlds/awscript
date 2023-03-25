@@ -9,26 +9,19 @@
 #ifndef aw_script_ast_decl_h
 #define aw_script_ast_decl_h
 
+#include <aw/script/ast/mutability.h>
+#include <aw/script/ast/statement.h>
+#include <aw/script/ast/type.h>
+
 #include <aw/types/string_view.h>
 
 #include <memory>
-#include <vector>
 #include <variant>
+#include <vector>
 
 #include <cassert>
 
 namespace aw::script::ast {
-
-class scope;
-
-struct type {
-	std::string name;
-};
-
-enum class access {
-	variable, // a.k.a mutable
-	constant
-};
 
 struct variable {
 	std::string name;
@@ -36,29 +29,18 @@ struct variable {
 	ast::access access;
 };
 
-struct statement;
-
-using argument_list = std::vector<variable>;
+using parameter_list = std::vector<variable>;
 
 struct function {
-	// Ctors are only needed because of incomplete types
-	function(std::string_view name);
-	function(function&&);
-
-	~function();
-
-	function& operator=(function&&);
-
 	std::string name;
 
 	std::string return_type;
-	argument_list args;
+	parameter_list args;
 
 	std::unique_ptr<statement> body;
 };
 
 using declaration_variant = std::variant<
-	std::monostate,
 	variable,
 	function,
 	type
@@ -66,7 +48,6 @@ using declaration_variant = std::variant<
 
 class declaration : public declaration_variant {
 public:
-	declaration() = default;
 	using declaration_variant::declaration_variant;
 	using declaration_variant::operator=;
 };

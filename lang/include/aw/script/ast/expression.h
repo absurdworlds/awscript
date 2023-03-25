@@ -51,14 +51,24 @@ struct value_expression {
 	std::string_view name;
 };
 
+// struct is needed due to clang's shenanigans
+struct argument_list : std::vector<expression> {
+	argument_list() = default;
+
+	argument_list(const argument_list&) = delete;
+	argument_list(argument_list&&) = default;
+
+	argument_list& operator=(const argument_list&) = default;
+	argument_list& operator=(argument_list&&) = default;
+};
+
 struct call_expression {
 	std::string_view func;
-	std::vector<expression> args;
+	argument_list args;
 };
 
 struct numeric_literal {
 	std::string_view value;
-	ast::type* type = nullptr;
 	int base = 10;
 };
 
@@ -84,8 +94,8 @@ using expression_variant = std::variant<
 
 struct expression : expression_variant
 {
-	template<typename T>
-	explicit expression(T&& data) : expression_variant(std::forward<T>(data)) {}
+	using expression_variant::expression_variant;
+	using expression_variant::operator=;
 };
 
 } // namespace aw::script::ast

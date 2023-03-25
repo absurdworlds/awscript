@@ -19,8 +19,7 @@ namespace aw::script::ast {
 
 struct statement;
 
-using statement_list = std::vector<std::unique_ptr<statement>>;
-using statement_block = statement_list;
+using statement_list = std::vector<statement>;
 
 struct empty_statement {
 };
@@ -35,6 +34,17 @@ struct if_else_statement {
 	std::unique_ptr<statement>  else_body;
 };
 
+// struct is needed due to clang's shenanigans
+struct statement_block : statement_list{
+	statement_block() = default;
+
+	statement_block(const statement_block&) = delete;
+	statement_block(statement_block&&) = default;
+
+	statement_block& operator=(const statement_block&) = default;
+	statement_block& operator=(statement_block&&) = default;
+};
+
 using statement_variant = std::variant<
 	statement_block,
 	if_else_statement,
@@ -45,8 +55,8 @@ using statement_variant = std::variant<
 
 struct statement : statement_variant
 {
-	template<typename T>
-	statement(T&& data) : statement_variant(std::forward<T>(data)) {}
+	using statement_variant::statement_variant;
+	using statement_variant::operator=;
 };
 
 } // namespace aw::script::ast
