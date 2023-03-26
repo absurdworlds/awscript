@@ -11,7 +11,6 @@
 #include <aw/algorithm/in.h>
 #include <aw/types/support/enum.h>
 
-#include <aw/script/symtab/scope.h>
 
 #include "errors.h"
 

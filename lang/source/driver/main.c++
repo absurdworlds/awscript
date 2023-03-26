@@ -11,8 +11,9 @@
 #include <aw/utility/string/join.h>
 #include <aw/io/file.h>
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
+#include <map>
 #include <cstdlib>
 
 namespace aw::script::driver {
