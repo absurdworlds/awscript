@@ -8,6 +8,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/lexer/token.h
 		include/aw/script/lexer/tokens.h
 		include/aw/script/utility/print_token.h
+		include/aw/script/utility/wrap.h
 		include/aw/script/ast/type.h
 		include/aw/script/ast/mutability.h
 		include/aw/script/ast/declaration.h
