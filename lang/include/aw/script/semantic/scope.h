@@ -24,7 +24,11 @@ enum scope_search_mode {
 
 class scope {
 public:
-	using declaration = middle::declaration*;
+	using declaration = std::variant<
+		middle::variable*,
+		middle::function*,
+		ast::type*
+	>;
 
 	explicit scope(scope* parent = nullptr)
 		: parent_scope(parent)
@@ -32,9 +36,40 @@ public:
 
 	}
 
+#if 0
+	scope(const scope& other, scope* parent = nullptr)
+		: parent_scope(parent)
+		, symbols(other.symbols)
+	{
+
+	}
+#endif
+
 	scope* parent() const { return parent_scope; }
 
-	declaration* find_symbol(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
+	template<typename T>
+	T* find(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
+	{
+		auto sym = find_symbol(name, mode);
+		if (auto ptr = get_if<T*>(sym))
+			return *ptr;
+		return nullptr;
+	}
+
+	ast::type* find_type(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
+	{
+		return find<ast::type>(name, mode);
+	}
+
+	middle::variable* find_var(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
+	{
+		return find<middle::variable>(name, mode);
+	}
+
+	middle::function* find_func(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
+	{
+		return find<middle::function>(name, mode);
+	}
 
 	void add_symbol(std::string_view name, declaration decl)
 	{
@@ -42,7 +77,11 @@ public:
 		symbols[name] = decl;
 	}
 
+protected:
+	declaration* find_symbol(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
+
 private:
+
 	scope* parent_scope = nullptr;
 
 	std::unordered_map<std::string_view, declaration> symbols;
