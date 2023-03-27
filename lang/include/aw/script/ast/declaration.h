@@ -27,6 +27,7 @@ struct variable {
 	std::string name;
 	std::string type;
 	ast::access access;
+	std::unique_ptr<expression> value;
 };
 
 using parameter_list = std::vector<variable>;
