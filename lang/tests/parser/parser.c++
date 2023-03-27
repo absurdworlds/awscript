@@ -4,8 +4,6 @@
 #include <aw/script/lexer/lexer.h>
 #include <aw/script/lexer/source_manager.h>
 #include <aw/script/parser/parser.h>
-#include <aw/script/symtab/symbol_table.h>
-#include <aw/script/symtab/scope.h>
 #include <aw/script/diag/diagnostics_engine.h>
 
 TestFile("parser-test")
@@ -31,11 +29,8 @@ Test(basic_function) {
 
 	aw::script::lexer lexer(srcman.get_buffer(id));
 
-	aw::script::symbol_table symtab;
-
 	aw::script::parser parser({
 		.lexer = lexer,
-		.symtab = symtab,
 		.diag = diag
 	});
 

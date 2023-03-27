@@ -26,7 +26,7 @@ namespace aw::script {
 // would discard `garbage_hsfjkflnkjashnlfkjl` and try to parse everything else
 
 parser::parser(dependencies deps)
-	: lex(deps.lexer), symtab(deps.symtab), diag(deps.diag)
+	: lex(deps.lexer), diag(deps.diag)
 {
 	tok = lex.current();
 	skip_comments();
