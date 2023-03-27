@@ -15,6 +15,11 @@ function div(var int x, var int y) : int
 		then 0
 		else x/y;
 
+function divd(var f64 x, var f64 y) : f64
+	return if (y < 1)
+		then 0
+		else x/y;
+
 function test_reassign(var int c)
 {
 	c=32

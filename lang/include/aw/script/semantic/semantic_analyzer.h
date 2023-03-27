@@ -40,6 +40,30 @@ private:
 	auto visit_expr(context& ctx, const ast::value_expression& in_expr) -> middle::value_expression;
 	auto visit_expr(context& ctx, const ast::numeric_literal& in_expr) -> middle::numeric_literal;
 	auto visit_expr(context& ctx, const ast::string_literal& in_expr) -> middle::string_literal;
+
+
+	auto common_type(ast::type* a, ast::type* b) -> ast::type*;
+
+	auto common_type(context& ctx, middle::expression& lhs, middle::expression& rhs) -> ast::type*;
+	auto common_type(context& ctx, ast::type* type, middle::expression& lhs, middle::expression& rhs) -> ast::type*;
+
+	auto infer_type(context& ctx, middle::expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::unary_expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::binary_expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::call_expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::if_expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::value_expression& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::numeric_literal& in_expr) -> ast::type*;
+	auto infer_type(context& ctx, middle::string_literal& in_expr) -> ast::type*;
+
+	auto propagate_type(context& ctx, ast::type* type, middle::expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::unary_expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::binary_expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::call_expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::if_expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::value_expression& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::numeric_literal& in_expr) -> ast::type*;
+	auto propagate_type(context& ctx, ast::type* type, middle::string_literal& in_expr) -> ast::type*;
 };
 
 
