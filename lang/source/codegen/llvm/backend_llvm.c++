@@ -4,7 +4,6 @@
 #include "optimizer_llvm.h"
 
 #include <aw/script/diag/error_t.h>
-#include <aw/script/symtab/scope.h>
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Verifier.h>

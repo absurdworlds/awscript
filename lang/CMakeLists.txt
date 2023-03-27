@@ -24,14 +24,16 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/diag/messages.h
 		include/aw/script/parser/parser.h
 		include/aw/script/parser/operators.h
-		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/semantic/scope.h
+		include/aw/script/semantic/semantic_analyzer.h
 		include/aw/script/codegen/backend.h
 		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h
 		include/aw/script/driver/options.h
 		include/aw/script/driver/callbacks.h
+		source/parser/errors.h
+		source/semantic/context.h
 		source/codegen/llvm/backend_llvm.h
 		source/codegen/llvm/optimizer_llvm.h
 		source/codegen/llvm/llvm_helpers.h
@@ -41,9 +43,9 @@ aw_add_library(awscript-lang STATIC
 		source/diag/diagnostics_engine.c++
 		source/parser/parser.c++
 		source/parser/operators.c++
-		source/parser/errors.h
-		source/symtab/symbol_table.c++
+		source/semantic/context.c++
 		source/semantic/scope.c++
+		source/semantic/semantic_analyzer.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
 		source/codegen/llvm/optimizer_llvm.c++
