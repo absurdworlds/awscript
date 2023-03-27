@@ -22,8 +22,6 @@
 #include <aw/script/ast/expression.h>
 #include <aw/script/ast/statement.h>
 
-#include <aw/script/symtab/symbol_table.h>
-
 namespace aw::script {
 
 // TODO: split it into declaration_parser, statement_parser and expression_parser
@@ -32,7 +30,6 @@ class parser {
 public:
 	struct dependencies {
 		script::lexer& lexer;
-		symbol_table& symtab;
 		diagnostics_engine& diag;
 	};
 
@@ -99,9 +96,6 @@ private:
 
 	/*! Lexer which provides the stream of tokens */
 	lexer& lex;
-
-	/*! Symbol table (for symbol lookups) */
-	symbol_table& symtab;
 
 	/*! Diagnostics engine for error reporting */
 	diagnostics_engine& diag;

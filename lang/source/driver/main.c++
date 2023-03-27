@@ -34,16 +34,11 @@ int run_compiler(const options& options, callbacks* callbacks)
 		return EXIT_FAILURE;
 	}
 
-	symbol_table symtab;
-
 	source_manager srcman;
 
 	diagnostics_engine diag(srcman);
 
-	// TODO: merge with the symbol_table
-	using decl_list = std::vector<ast::declaration>;
-	// TODO: base it on module instead
-	std::map<std::string, decl_list> decl_source_map;
+	std::map<std::string, ast::module> decl_source_map;
 
 	for (const auto& input : options.input_files)
 	{
@@ -51,7 +46,6 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 		aw::script::parser parser({
 			.lexer = lexer,
-			.symtab = symtab,
 			.diag = diag
 		});
 
@@ -66,7 +60,6 @@ int run_compiler(const options& options, callbacks* callbacks)
 		}
 	}
 
-	symtab.resolve();
 
 	for (const auto& [_,decls] : decl_source_map)
 		for (const auto& decl : decls)

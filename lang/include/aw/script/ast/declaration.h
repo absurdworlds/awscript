@@ -41,14 +41,15 @@ struct function {
 	std::unique_ptr<statement> body;
 };
 
+using module = std::vector<struct declaration>;
+
 using declaration_variant = std::variant<
 	variable,
 	function,
 	type
 >;
 
-class declaration : public declaration_variant {
-public:
+struct declaration : public declaration_variant {
 	using declaration_variant::declaration_variant;
 	using declaration_variant::operator=;
 };
