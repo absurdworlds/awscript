@@ -10,6 +10,7 @@
 #define aw_script_ast_expression_h
 
 #include <aw/script/ast/number_base.h>
+#include <aw/script/utility/hard_alias.h>
 
 #include <memory>
 #include <variant>
@@ -56,15 +57,7 @@ struct value_expression {
 };
 
 // struct is needed due to clang's shenanigans
-struct argument_list : std::vector<expression> {
-	argument_list() = default;
-
-	argument_list(const argument_list&) = delete;
-	argument_list(argument_list&&) = default;
-
-	argument_list& operator=(const argument_list&) = default;
-	argument_list& operator=(argument_list&&) = default;
-};
+using argument_list = hard_alias<std::vector<expression>>;
 
 struct call_expression {
 	std::string_view func;
