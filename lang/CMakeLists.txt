@@ -11,9 +11,13 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/utility/wrap.h
 		include/aw/script/ast/type.h
 		include/aw/script/ast/mutability.h
+		include/aw/script/ast/number_base.h
 		include/aw/script/ast/declaration.h
 		include/aw/script/ast/statement.h
 		include/aw/script/ast/expression.h
+		include/aw/script/ast/middle/declaration.h
+		include/aw/script/ast/middle/statement.h
+		include/aw/script/ast/middle/expression.h
 		include/aw/script/diag/diagnostic.h
 		include/aw/script/diag/diagnostics_engine.h
 		include/aw/script/diag/error_t.h

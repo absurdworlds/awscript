@@ -1,30 +1,29 @@
 /*
- * Copyright (C) 2015-2023 Hudd <haddayn@gmail.com>
+ * Copyright (C) 2023 Hudd <haddayn@gmail.com>
  *
  * License LGPLv3 or later:
  * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
  * This is free software: you are free to change and redistribute it.
  * There is NO WARRANTY, to the extent permitted by law.
  */
-#ifndef aw_script_ast_expression_h
-#define aw_script_ast_expression_h
+#ifndef aw_script_ast_middle_expression_h
+#define aw_script_ast_middle_expression_h
 
+#include <aw/script/ast/type.h>
 #include <aw/script/ast/number_base.h>
 
 #include <memory>
 #include <variant>
 #include <vector>
 
-namespace aw::script::ast {
+namespace aw::script::middle {
 
-class type;
 class expression;
 
 enum class unary_operator {
 	minus,
 	plus,
-	logical_negation,
-	binary_negation,
+	negation,
 };
 
 struct unary_expression {
@@ -37,10 +36,12 @@ enum class binary_operator {
 	plus,
 	multiply,
 	divide,
+	less,
+	less_unsigned,
+	greater,
+	greater_unsigned,
 	equal,
 	not_equal,
-	less,
-	greater,
 	assignment,
 };
 
@@ -51,29 +52,24 @@ struct binary_expression {
 };
 
 // TODO: tell apart lvalue and rvalue
+class declaration;
+class variable;
 struct value_expression {
 	std::string_view name;
+	variable* ref;
 };
 
-// struct is needed due to clang's shenanigans
-struct argument_list : std::vector<expression> {
-	argument_list() = default;
-
-	argument_list(const argument_list&) = delete;
-	argument_list(argument_list&&) = default;
-
-	argument_list& operator=(const argument_list&) = default;
-	argument_list& operator=(argument_list&&) = default;
-};
-
+class function;
 struct call_expression {
-	std::string_view func;
-	argument_list args;
+	function* func = nullptr;
+	std::string_view func_name;
+	std::vector<expression> args;
 };
 
 struct numeric_literal {
 	std::string_view value;
-	number_base base = number_base::decimal;
+	ast::type* type = nullptr;
+	ast::number_base base = ast::number_base::decimal;
 };
 
 struct string_literal {
@@ -102,6 +98,6 @@ struct expression : expression_variant
 	using expression_variant::operator=;
 };
 
-} // namespace aw::script::ast
+} // namespace aw::script::middle
 
-#endif//aw_script_ast_expression_h
+#endif//aw_script_ast_middle_expression_h
