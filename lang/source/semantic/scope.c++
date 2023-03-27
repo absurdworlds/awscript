@@ -1,8 +1,8 @@
-#include <aw/script/symtab/scope.h>
+#include <aw/script/semantic/scope.h>
 
-namespace aw::script::ast {
+namespace aw::script {
 
-declaration* scope::find_symbol(std::string_view name, scope_search_mode mode)
+auto scope::find_symbol(std::string_view name, scope_search_mode mode) -> declaration*
 {
 	auto* scope = this;
 
@@ -16,7 +16,7 @@ declaration* scope::find_symbol(std::string_view name, scope_search_mode mode)
 		}
 	}
 
-	return it == scope->symbols.end() ? nullptr : it->second;
+	return it == scope->symbols.end() ? nullptr : &it->second;
 }
 
-} // namespace aw::script::ast
+} // namespace aw::script

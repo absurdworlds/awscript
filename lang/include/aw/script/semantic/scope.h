@@ -12,9 +12,10 @@
 #include <string_view>
 #include <unordered_map>
 
-#include <aw/script/ast/declaration.h>
+#include <aw/script/ast/type.h>
+#include <aw/script/ast/middle/declaration.h>
 
-namespace aw::script::ast {
+namespace aw::script {
 
 enum scope_search_mode {
 	current_scope,
@@ -23,6 +24,8 @@ enum scope_search_mode {
 
 class scope {
 public:
+	using declaration = middle::declaration*;
+
 	explicit scope(scope* parent = nullptr)
 		: parent_scope(parent)
 	{
@@ -33,7 +36,7 @@ public:
 
 	declaration* find_symbol(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
 
-	void add_symbol(std::string_view name, declaration* decl)
+	void add_symbol(std::string_view name, declaration decl)
 	{
 		// TODO: handle conflicts
 		symbols[name] = decl;
@@ -42,9 +45,9 @@ public:
 private:
 	scope* parent_scope = nullptr;
 
-	std::unordered_map<std::string_view, declaration*> symbols;
+	std::unordered_map<std::string_view, declaration> symbols;
 };
 
-} // namespace aw::script::ast
+} // namespace aw::script
 
 #endif // aw_script_scope_h
