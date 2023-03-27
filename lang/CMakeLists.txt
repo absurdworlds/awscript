@@ -24,9 +24,9 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/diag/messages.h
 		include/aw/script/parser/parser.h
 		include/aw/script/parser/operators.h
-		include/aw/script/symtab/scope.h
 		include/aw/script/symtab/symbol_table.h
 		include/aw/script/symtab/symbol_name.h
+		include/aw/script/semantic/scope.h
 		include/aw/script/codegen/backend.h
 		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h
@@ -42,8 +42,8 @@ aw_add_library(awscript-lang STATIC
 		source/parser/parser.c++
 		source/parser/operators.c++
 		source/parser/errors.h
-		source/symtab/scope.c++
 		source/symtab/symbol_table.c++
+		source/semantic/scope.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
 		source/codegen/llvm/optimizer_llvm.c++
