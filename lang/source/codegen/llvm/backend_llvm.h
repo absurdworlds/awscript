@@ -11,9 +11,9 @@
 
 // TODO: put this into a separate static lib
 
-#include <aw/script/ast/declaration.h>
-#include <aw/script/ast/expression.h>
-#include <aw/script/ast/statement.h>
+#include <aw/script/ast/middle/declaration.h>
+#include <aw/script/ast/middle/expression.h>
+#include <aw/script/ast/middle/statement.h>
 
 #include <aw/script/diag/diagnostics_engine.h>
 
@@ -42,7 +42,7 @@ public:
 
 	bool create_module(string_view name) override;
 
-	bool handle_declaration(const ast::declaration& decl) override
+	bool handle_declaration(const middle::declaration& decl) override
 	{
 		return gen(decl) != nullptr;
 	}
@@ -54,28 +54,28 @@ public:
 	bool optimize_module() override;
 	bool optimize_lto() override;
 
-	auto gen(const ast::declaration& decl) -> llvm::Value*;
-	auto gen(const ast::function& decl) -> llvm::Value*;
-	auto gen(const ast::variable& var) -> llvm::Value*;
+	auto gen(const middle::declaration& decl) -> llvm::Value*;
+	auto gen(const middle::function& decl) -> llvm::Value*;
+	auto gen(const middle::variable& var) -> llvm::Value*;
 
-	auto gen(const std::unique_ptr<ast::statement>& stmt) -> llvm::Value*;
-	auto gen(const ast::statement& stmt) -> llvm::Value*;
-	auto gen(const ast::if_else_statement& stmt) -> llvm::Value*;
-	auto gen(const ast::statement_block& stmt) -> llvm::Value*;
-	auto gen(const ast::return_statement& stmt) -> llvm::Value*;
-	auto gen(const ast::empty_statement& stmt) -> llvm::Value*;
+	auto gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*;
+	auto gen(const middle::statement& stmt) -> llvm::Value*;
+	auto gen(const middle::if_else_statement& stmt) -> llvm::Value*;
+	auto gen(const middle::statement_block& stmt) -> llvm::Value*;
+	auto gen(const middle::return_statement& stmt) -> llvm::Value*;
+	auto gen(const middle::empty_statement& stmt) -> llvm::Value*;
 
-	auto gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
-	auto gen(const ast::expression& expr) -> llvm::Value*;
-	auto gen_lvalue(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
-	auto gen_lvalue(const ast::expression& expr) -> llvm::Value*;
-	auto gen(const ast::numeric_literal& expr) -> llvm::Value*;
-	auto gen(const ast::string_literal& expr) -> llvm::Value*;
-	auto gen(const ast::value_expression& expr) -> llvm::Value*;
-	auto gen(const ast::binary_expression& expr) -> llvm::Value*;
-	auto gen(const ast::unary_expression& expr) -> llvm::Value*;
-	auto gen(const ast::call_expression& expr) -> llvm::Value*;
-	auto gen(const ast::if_expression& expr) -> llvm::Value*;
+	auto gen(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
+	auto gen(const middle::expression& expr) -> llvm::Value*;
+	auto gen_lvalue(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
+	auto gen_lvalue(const middle::expression& expr) -> llvm::Value*;
+	auto gen(const middle::numeric_literal& expr) -> llvm::Value*;
+	auto gen(const middle::string_literal& expr) -> llvm::Value*;
+	auto gen(const middle::value_expression& expr) -> llvm::Value*;
+	auto gen(const middle::binary_expression& expr) -> llvm::Value*;
+	auto gen(const middle::unary_expression& expr) -> llvm::Value*;
+	auto gen(const middle::call_expression& expr) -> llvm::Value*;
+	auto gen(const middle::if_expression& expr) -> llvm::Value*;
 
 	template<typename T>
 	auto gen(const T&) -> llvm::Value*
@@ -85,11 +85,11 @@ public:
 	}
 
 
-	auto gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*;
+	auto gen_if_condition(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
 
 	struct arg_info;
 
-	auto create_function(const ast::function& decl, const std::vector<arg_info>& args) -> llvm::Function*;
+	auto create_function(const middle::function& decl, const std::vector<arg_info>& args) -> llvm::Function*;
 
 private:
 	diagnostics_engine& diag;

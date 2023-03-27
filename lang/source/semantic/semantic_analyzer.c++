@@ -108,7 +108,7 @@ auto semantic_analyzer::visit(context& ctx, const ast::function& in_func) -> mid
 		ctx.push_scope();
 		ctx.current_scope()->add_symbol("$func", &func); // hack!
 		ctx.current_scope()->add_symbol(func.name, &func);
-		func.body = visit_stmt(ctx, *in_func.body);
+		func.body = wrap(visit_stmt(ctx, *in_func.body));
 		ctx.pop_scope();
 	}
 	return func;
@@ -399,7 +399,13 @@ auto semantic_analyzer::infer_type(context& ctx, middle::binary_expression& expr
 auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) -> ast::type*
 {
 	if (expr.func)
+	{
+		auto& params = expr.func->args;
+
+		for (const auto& [expr, param] : aw::paired(expr.args, params))
+			propagate_type(ctx, param->type, expr);
 		return expr.func->return_type;
+	}
 	return nullptr;
 }
 
@@ -452,15 +458,7 @@ auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::bi
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::call_expression& expr) -> ast::type*
 {
-	if (expr.func)
-	{
-		auto& params = expr.func->args;
-
-		for (const auto& [expr, param] : aw::paired(expr.args, params))
-			propagate_type(ctx, param->type, expr);
-		return expr.func->return_type;
-	}
-	return nullptr;
+	return infer_type(ctx, expr);
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::if_expression& expr) -> ast::type*

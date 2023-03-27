@@ -28,7 +28,7 @@ struct function {
 
 	parameter_list args;
 
-	statement body;
+	std::unique_ptr<statement> body;
 };
 
 // TODO: proper modules

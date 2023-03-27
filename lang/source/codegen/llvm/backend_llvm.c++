@@ -148,7 +148,7 @@ void backend_llvm::dump_ir()
 	cur_module->print(errs(), nullptr);
 }
 
-auto backend_llvm::gen(const ast::declaration& decl) -> llvm::Value*
+auto backend_llvm::gen(const middle::declaration& decl) -> llvm::Value*
 {
 	return std::visit([this] (auto&& decl) { return gen(decl); }, decl);
 }
@@ -167,40 +167,42 @@ struct backend_llvm::arg_info {
 };
 
 
-auto get_llvm_type(llvm::LLVMContext& context, std::string_view type) -> llvm::Type*
+auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
 {
-	if (type.empty()) {
+	if (!type) {
 		assert(!"Unresolved reference to type");
 		return Type::getVoidTy(context);
 	}
 
+	auto name = type->name;
+
 	// TODO: create a map of types
-	if (type == "void")
+	if (name == "void")
 		return Type::getVoidTy(context);
 
-	if (type == "cstring")
+	if (name == "cstring")
 		return PointerType::getInt8PtrTy(context);
 
-	if (type == "bool")
+	if (name == "bool")
 		return Type::getInt1Ty(context);
 
-	if (in(type, "i32", "int32", "int"))
+	if (in(name, "i32", "int32", "int"))
 		return Type::getInt32Ty(context);
 
-	if (in(type, "i64", "int64"))
+	if (in(name, "i64", "int64"))
 		return Type::getInt64Ty(context);
 
-	if (in(type, "f32", "float32", "float"))
+	if (in(name, "f32", "float32", "float"))
 		return Type::getFloatTy(context);
 
-	if (in(type, "f64", "float64", "double"))
+	if (in(name, "f64", "float64", "double"))
 		return Type::getDoubleTy(context);
 
 	assert(!"Unknown type");
 	return Type::getVoidTy(context);
 }
 
-auto backend_llvm::create_function(const ast::function& decl, const std::vector<arg_info>& args)
+auto backend_llvm::create_function(const middle::function& decl, const std::vector<arg_info>& args)
 	-> llvm::Function*
 {
 	std::vector<Type*> args_types(args.size());
@@ -214,16 +216,16 @@ auto backend_llvm::create_function(const ast::function& decl, const std::vector<
 	return func;
 }
 
-auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
+auto backend_llvm::gen(const middle::function& decl) -> llvm::Value*
 {
 	std::vector<arg_info> args;
 
 	for (const auto& arg : decl.args)
 	{
 		arg_info info;
-		info.type = get_llvm_type(context, arg.type);
-		info.name = arg.name;
-		info.is_mutable = arg.access == ast::access::variable;
+		info.type = get_llvm_type(context, arg->type);
+		info.name = arg->name;
+		info.is_mutable = arg->access == ast::access::variable;
 		args.push_back(info);
 	}
 
@@ -272,24 +274,24 @@ auto backend_llvm::gen(const ast::function& decl) -> llvm::Value*
 	return nullptr;
 }
 
-auto backend_llvm::gen(const ast::variable& decl) -> llvm::Value*
+auto backend_llvm::gen(const middle::variable& decl) -> llvm::Value*
 {
 	return nullptr;
 }
 
-auto backend_llvm::gen(const std::unique_ptr<ast::statement>& stmt) -> llvm::Value*
+auto backend_llvm::gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*
 {
 	return stmt ? gen(*stmt) : nullptr;
 }
 
 
-auto backend_llvm::gen(const ast::statement& stmt) -> llvm::Value*
+auto backend_llvm::gen(const middle::statement& stmt) -> llvm::Value*
 {
 	return std::visit([this] (auto&& stmt) { return gen(stmt); }, stmt);
 }
 
 
-auto backend_llvm::gen_if_condition(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
+auto backend_llvm::gen_if_condition(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
 {
 	auto* cond_v = gen(expr);
 	if (!cond_v)
@@ -298,7 +300,7 @@ auto backend_llvm::gen_if_condition(const std::unique_ptr<ast::expression>& expr
 	return cond_v;
 }
 
-auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
+auto backend_llvm::gen(const middle::if_else_statement& stmt) -> llvm::Value*
 {
 	auto* cond_v = gen_if_condition(stmt.if_expr);
 	if (!cond_v)
@@ -339,7 +341,7 @@ auto backend_llvm::gen(const ast::if_else_statement& stmt) -> llvm::Value*
 	return UndefValue::get(Type::getVoidTy(context));
 }
 
-auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
+auto backend_llvm::gen(const middle::statement_block& list) -> llvm::Value*
 {
 	Value* ret = UndefValue::get(Type::getVoidTy(context));
 	for (const auto& stmt : list)
@@ -347,28 +349,28 @@ auto backend_llvm::gen(const ast::statement_block& list) -> llvm::Value*
 	return ret;
 }
 
-auto backend_llvm::gen(const ast::return_statement& stmt) -> llvm::Value*
+auto backend_llvm::gen(const middle::return_statement& stmt) -> llvm::Value*
 {
 	if (stmt.value)
 		return builder.CreateRet(gen(*stmt.value));
 	return builder.CreateRetVoid();
 }
 
-auto backend_llvm::gen(const ast::empty_statement& stmt) -> llvm::Value*
+auto backend_llvm::gen(const middle::empty_statement& stmt) -> llvm::Value*
 {
 	return UndefValue::get(Type::getVoidTy(context));
 }
 
-auto backend_llvm::gen(const ast::numeric_literal& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Value*
 {
-	auto type = get_llvm_type(context, "int"); // TODO:
+	auto type = get_llvm_type(context, expr.type);
 	auto radix = unsigned(expr.base); // TODO: to_underlying
 	if (auto integer = dyn_cast<IntegerType>(type))
 		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, radix));
 	return nullptr;
 }
 
-auto backend_llvm::gen(const ast::value_expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::value_expression& expr) -> llvm::Value*
 {
 	auto it = symtab.find(expr.name);
 	if (it == symtab.end())
@@ -376,13 +378,13 @@ auto backend_llvm::gen(const ast::value_expression& expr) -> llvm::Value*
 	return it->second;
 }
 
-auto backend_llvm::gen(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
+auto backend_llvm::gen(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
 {
 	return expr ? gen(*expr) : nullptr;
 }
 
 
-auto backend_llvm::gen(const ast::expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 {
 	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
 	if (!value)
@@ -396,13 +398,13 @@ auto backend_llvm::gen(const ast::expression& expr) -> llvm::Value*
 	return value;
 }
 
-auto backend_llvm::gen_lvalue(const std::unique_ptr<ast::expression>& expr) -> llvm::Value*
+auto backend_llvm::gen_lvalue(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
 {
 	return expr ? gen_lvalue(*expr) : nullptr;
 }
 
 
-auto backend_llvm::gen_lvalue(const ast::expression& expr) -> llvm::Value*
+auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 {
 	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
 	if (!value)
@@ -414,12 +416,12 @@ auto backend_llvm::gen_lvalue(const ast::expression& expr) -> llvm::Value*
 
 
 
-bool requires_lvalue(const ast::binary_operator op)
+bool requires_lvalue(const middle::binary_operator op)
 {
-	return op == ast::binary_operator::assignment;
+	return op == middle::binary_operator::assignment;
 }
 
-auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 {
 	auto* lhs = requires_lvalue(expr.op) ? gen_lvalue(expr.lhs) : gen(expr.lhs);
 	auto* rhs = gen(expr.rhs);
@@ -427,40 +429,41 @@ auto backend_llvm::gen(const ast::binary_expression& expr) -> llvm::Value*
 		return nullptr;
 
 	switch (expr.op) {
-	case ast::binary_operator::minus:
+	case middle::binary_operator::minus:
 		return builder.CreateSub(lhs, rhs, "subtmp");
-	case ast::binary_operator::plus:
+	case middle::binary_operator::plus:
 		return builder.CreateAdd(lhs, rhs, "addtmp");
-	case ast::binary_operator::multiply:
+	case middle::binary_operator::multiply:
 		return builder.CreateMul(lhs, rhs, "multmp");
-	case ast::binary_operator::less:
+	case middle::binary_operator::less:
 		return builder.CreateICmpSLT(lhs, rhs, "lttmp");
-	case ast::binary_operator::greater:
+	case middle::binary_operator::less_unsigned:
+		return builder.CreateICmpULT(lhs, rhs, "lttmp");
+	case middle::binary_operator::greater:
 		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
-	case ast::binary_operator::divide:
+	case middle::binary_operator::greater_unsigned:
+		return builder.CreateICmpUGT(lhs, rhs, "gttmp");
+	case middle::binary_operator::divide:
 		return builder.CreateSDiv(lhs, rhs, "divtmp");
-	//case ast::binary_operator::not_equal:
+	//case middle::binary_operator::not_equal:
 	//builder.CreateICmpNE(lhs, rhs, "netmp");
-	case ast::binary_operator::assignment:
+	case middle::binary_operator::assignment:
 		return builder.CreateStore(rhs, lhs);
 	}
 	return nullptr;
 }
 
-auto backend_llvm::gen(const ast::unary_expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 {
 	auto* val = gen(expr.lhs);
 	if (!val)
 		return nullptr;
 	switch (expr.op) {
-	case ast::unary_operator::minus:
+	case middle::unary_operator::minus:
 		return builder.CreateNeg(val, "neg");
-	case ast::unary_operator::plus:
+	case middle::unary_operator::plus:
 		return val;
-	case ast::unary_operator::logical_negation:
-		// should work only on bools
-		[[fallthrough]];
-	case ast::unary_operator::binary_negation:
+	case middle::unary_operator::negation:
 		return builder.CreateNot(val, "not");
 	};
 
@@ -468,11 +471,11 @@ auto backend_llvm::gen(const ast::unary_expression& expr) -> llvm::Value*
 }
 
 
-auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 {
-	Function* callee = cur_module->getFunction(expr.func);
+	Function* callee = cur_module->getFunction(expr.func_name);
 	if (!callee)
-		return error_is_not_declared(diag, expr.func);
+		return error_is_not_declared(diag, expr.func_name);
 
 	if (callee->arg_size() != expr.args.size())
 		return error_not_implemented_yet(diag); // argument mismatch
@@ -491,7 +494,7 @@ auto backend_llvm::gen(const ast::call_expression& expr) -> llvm::Value*
 		builder.CreateCall(callee, argv, "calltmp");
 }
 
-auto backend_llvm::gen(const ast::if_expression& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
 {
 	auto* cond_v = gen_if_condition(expr.if_expr);
 	if (!cond_v)
@@ -545,7 +548,7 @@ auto mangle_string(std::string_view str) -> std::string
 	return "_str_" + mstr;
 }
 
-auto backend_llvm::gen(const ast::string_literal& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::string_literal& expr) -> llvm::Value*
 {
 	using namespace std::string_literals;
 	auto it = strings.find(expr.value);

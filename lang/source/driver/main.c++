@@ -85,13 +85,13 @@ int run_compiler(const options& options, callbacks* callbacks)
 	std::vector<std::string> objects;
 
 
-	for (const auto& [input,decls] : decl_source_map)
+	for (const auto& [input,decls] : mid_source_map)
 	{
 		auto input_path = std::filesystem::path(input);
 		backend->create_module(input_path.stem().generic_string());
 		for (const auto& decl : decls)
 		{
-			backend->handle_declaration(decl);
+			backend->handle_declaration(*decl);
 		}
 		backend->optimize_module();
 		//TODO: write objects to a temporaty directory when mode == mode::link

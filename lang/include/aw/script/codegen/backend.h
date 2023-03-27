@@ -19,7 +19,7 @@ namespace aw::script {
 
 class diagnostics_engine;
 
-namespace ast {
+namespace middle {
 class declaration;
 }
 
@@ -36,7 +36,7 @@ public:
 
 	virtual bool create_module(string_view name) = 0;
 
-	virtual bool handle_declaration(const ast::declaration& decl) = 0;
+	virtual bool handle_declaration(const middle::declaration& decl) = 0;
 
 	virtual bool optimize_module() = 0;
 	virtual bool optimize_lto() = 0;
