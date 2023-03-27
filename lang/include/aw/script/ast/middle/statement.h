@@ -14,13 +14,13 @@
 #include <vector>
 
 #include <aw/script/ast/middle/expression.h>
+#include <aw/script/utility/hard_alias.h>
 
 namespace aw::script::middle {
 
 struct statement;
 
 using statement_list = std::vector<statement>;
-using statement_block = statement_list;
 
 struct empty_statement {
 };
@@ -34,6 +34,8 @@ struct if_else_statement {
 	std::unique_ptr<statement>  if_body;
 	std::unique_ptr<statement>  else_body;
 };
+
+using statement_block = hard_alias<statement_list>;
 
 using statement_variant = std::variant<
 	statement_block,
