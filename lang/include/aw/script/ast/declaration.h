@@ -45,8 +45,7 @@ using module = std::vector<struct declaration>;
 
 using declaration_variant = std::variant<
 	variable,
-	function,
-	type
+	function
 >;
 
 struct declaration : public declaration_variant {

@@ -3,9 +3,8 @@
 #include <aw/script/lexer/lexer.h>
 #include <aw/script/lexer/source_manager.h>
 #include <aw/script/parser/parser.h>
-#include <aw/script/symtab/symbol_table.h>
-#include <aw/script/symtab/scope.h>
 #include <aw/script/diag/diagnostics_engine.h>
+#include <aw/script/semantic/semantic_analyzer.h>
 #include <aw/script/codegen/backend.h>
 
 #include <aw/utility/string/join.h>
@@ -60,6 +59,14 @@ int run_compiler(const options& options, callbacks* callbacks)
 		}
 	}
 
+	// Temporary
+	semantic_analyzer analyzer;
+
+	std::map<std::string, middle::module> mid_source_map;
+	for (auto& [file,mod] : decl_source_map)
+	{
+		mid_source_map[file] = analyzer.lower(mod);
+	}
 
 	for (const auto& [_,decls] : decl_source_map)
 		for (const auto& decl : decls)
