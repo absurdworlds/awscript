@@ -416,9 +416,9 @@ auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 
 
 
-bool requires_lvalue(const middle::binary_operator op)
+bool requires_lvalue(const ir::binary_operator op)
 {
-	return op == middle::binary_operator::assignment;
+	return op == ir::binary_operator::assignment;
 }
 
 auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
@@ -429,25 +429,31 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 		return nullptr;
 
 	switch (expr.op) {
-	case middle::binary_operator::minus:
+	case ir::binary_operator::minus:
 		return builder.CreateSub(lhs, rhs, "subtmp");
-	case middle::binary_operator::plus:
+	case ir::binary_operator::plus:
 		return builder.CreateAdd(lhs, rhs, "addtmp");
-	case middle::binary_operator::multiply:
+	case ir::binary_operator::multiply:
 		return builder.CreateMul(lhs, rhs, "multmp");
-	case middle::binary_operator::less:
+	case ir::binary_operator::less:
 		return builder.CreateICmpSLT(lhs, rhs, "lttmp");
-	case middle::binary_operator::less_unsigned:
+	case ir::binary_operator::less_unsigned:
 		return builder.CreateICmpULT(lhs, rhs, "lttmp");
-	case middle::binary_operator::greater:
+	case ir::binary_operator::less_fp:
+		return builder.CreateFCmpOLT(lhs, rhs, "lttmp");
+	case ir::binary_operator::greater:
 		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
-	case middle::binary_operator::greater_unsigned:
+	case ir::binary_operator::greater_unsigned:
 		return builder.CreateICmpUGT(lhs, rhs, "gttmp");
-	case middle::binary_operator::divide:
+	case ir::binary_operator::greater_fp:
+		return builder.CreateFCmpOGT(lhs, rhs, "lttmp");
+	case ir::binary_operator::divide:
 		return builder.CreateSDiv(lhs, rhs, "divtmp");
-	//case middle::binary_operator::not_equal:
-	//builder.CreateICmpNE(lhs, rhs, "netmp");
-	case middle::binary_operator::assignment:
+	case ir::binary_operator::not_equal:
+		return builder.CreateICmpNE(lhs, rhs, "netmp");
+	case ir::binary_operator::equal:
+		return builder.CreateICmpEQ(lhs, rhs, "netmp");
+	case ir::binary_operator::assignment:
 		return builder.CreateStore(rhs, lhs);
 	}
 	return nullptr;
@@ -459,11 +465,11 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 	if (!val)
 		return nullptr;
 	switch (expr.op) {
-	case middle::unary_operator::minus:
+	case ir::unary_operator::minus:
 		return builder.CreateNeg(val, "neg");
-	case middle::unary_operator::plus:
+	case ir::unary_operator::plus:
 		return val;
-	case middle::unary_operator::negation:
+	case ir::unary_operator::negation:
 		return builder.CreateNot(val, "not");
 	};
 

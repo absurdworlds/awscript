@@ -9,8 +9,11 @@
 #ifndef aw_script_ast_middle_expression_h
 #define aw_script_ast_middle_expression_h
 
-#include <aw/script/ast/type.h>
 #include <aw/script/ast/number_base.h>
+#include <aw/script/ast/type.h>
+
+#include <aw/script/ir/operators.h>
+#include <aw/script/utility/hard_alias.h>
 
 #include <memory>
 #include <variant>
@@ -20,33 +23,13 @@ namespace aw::script::middle {
 
 class expression;
 
-enum class unary_operator {
-	minus,
-	plus,
-	negation,
-};
-
 struct unary_expression {
-	unary_operator op;
+	ir::unary_operator op;
 	std::unique_ptr<expression> lhs;
 };
 
-enum class binary_operator {
-	minus,
-	plus,
-	multiply,
-	divide,
-	less,
-	less_unsigned,
-	greater,
-	greater_unsigned,
-	equal,
-	not_equal,
-	assignment,
-};
-
 struct binary_expression {
-	binary_operator op;
+	ir::binary_operator op;
 	std::unique_ptr<expression> lhs;
 	std::unique_ptr<expression> rhs;
 };
@@ -60,10 +43,11 @@ struct value_expression {
 };
 
 class function;
+using argument_list = hard_alias<std::vector<expression>>;
 struct call_expression {
 	function* func = nullptr;
 	std::string_view func_name;
-	std::vector<expression> args;
+	argument_list args;
 };
 
 struct numeric_literal {

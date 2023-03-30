@@ -10,6 +10,7 @@
 #define aw_script_ast_expression_h
 
 #include <aw/script/ast/number_base.h>
+#include <aw/script/ast/operators.h>
 #include <aw/script/utility/hard_alias.h>
 
 #include <memory>
@@ -21,28 +22,9 @@ namespace aw::script::ast {
 class type;
 class expression;
 
-enum class unary_operator {
-	minus,
-	plus,
-	logical_negation,
-	binary_negation,
-};
-
 struct unary_expression {
 	unary_operator op;
 	std::unique_ptr<expression> lhs;
-};
-
-enum class binary_operator {
-	minus,
-	plus,
-	multiply,
-	divide,
-	equal,
-	not_equal,
-	less,
-	greater,
-	assignment,
 };
 
 struct binary_expression {

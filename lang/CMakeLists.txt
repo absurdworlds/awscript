@@ -10,12 +10,13 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/utility/print_token.h
 		include/aw/script/utility/wrap.h
 		include/aw/script/utility/hard_alias.h
-		include/aw/script/ast/type.h
 		include/aw/script/ast/mutability.h
 		include/aw/script/ast/number_base.h
 		include/aw/script/ast/declaration.h
-		include/aw/script/ast/statement.h
 		include/aw/script/ast/expression.h
+		include/aw/script/ast/operators.h
+		include/aw/script/ast/statement.h
+		include/aw/script/ast/type.h
 		include/aw/script/ast/middle/declaration.h
 		include/aw/script/ast/middle/statement.h
 		include/aw/script/ast/middle/expression.h
@@ -28,6 +29,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/semantic/scope.h
 		include/aw/script/semantic/semantic_analyzer.h
+		include/aw/script/ir/operators.h
 		include/aw/script/codegen/backend.h
 		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h

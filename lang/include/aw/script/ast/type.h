@@ -2,6 +2,7 @@
 #define aw_script_ast_type_h
 
 #include <string>
+#include <variant>
 
 namespace aw::script::ast {
 
