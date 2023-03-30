@@ -27,6 +27,12 @@ struct context {
 	{
 		return current_scope()->find_type(name);
 	}
+
+	ast::type* create_type(std::string_view name)
+	{
+		// TODO
+		return find_type(name);
+	}
 };
 } // namespace aw::script
 

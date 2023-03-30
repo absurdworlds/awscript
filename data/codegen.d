@@ -31,6 +31,7 @@ function test_reassign(var int c)
 
 function main(var int argc) : int
 {
+	hello();
 	printf("argc = %d\n", argc);
 	printf("div = %d\n", div(1,0));
 
@@ -39,4 +40,9 @@ function main(var int argc) : int
 	test_reassign(argc);
 
 	return 0;
+}
+
+function hello()
+{
+	puts("Hello, world!");
 }

@@ -78,6 +78,8 @@ using expression_variant = std::variant<
 
 struct expression : expression_variant
 {
+	ast::type* type = nullptr;
+
 	using expression_variant::expression_variant;
 	using expression_variant::operator=;
 };

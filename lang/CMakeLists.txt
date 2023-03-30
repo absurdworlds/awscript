@@ -37,6 +37,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/driver/callbacks.h
 		source/parser/errors.h
 		source/semantic/context.h
+		source/semantic/convert_to_middle.h
 		source/codegen/llvm/backend_llvm.h
 		source/codegen/llvm/optimizer_llvm.h
 		source/codegen/llvm/llvm_helpers.h
@@ -49,6 +50,7 @@ aw_add_library(awscript-lang STATIC
 		source/semantic/context.c++
 		source/semantic/scope.c++
 		source/semantic/semantic_analyzer.c++
+		source/semantic/convert_to_middle.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
 		source/codegen/llvm/optimizer_llvm.c++

@@ -5,6 +5,8 @@
 
 #include <aw/script/diag/error_t.h>
 
+#include <aw/utility/ranges/paired.h>
+
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -153,19 +155,6 @@ auto backend_llvm::gen(const middle::declaration& decl) -> llvm::Value*
 	return std::visit([this] (auto&& decl) { return gen(decl); }, decl);
 }
 
-struct backend_llvm::arg_info {
-	std::string_view name;
-	llvm::Type* type = nullptr;
-	llvm::Argument* value = nullptr;
-	bool is_mutable = false;
-
-	void set_value(llvm::Argument& arg)
-	{
-		value = &arg;
-		arg.setName(name);
-	}
-};
-
 
 auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
 {
@@ -202,38 +191,60 @@ auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
 	return Type::getVoidTy(context);
 }
 
-auto backend_llvm::create_function(const middle::function& decl, const std::vector<arg_info>& args)
-	-> llvm::Function*
+struct arg_info {
+	std::string_view name;
+	llvm::Type* type = nullptr;
+	llvm::Argument* value = nullptr;
+	bool is_mutable = false;
+
+	void set_value(llvm::Argument& arg)
+	{
+		value = &arg;
+		arg.setName(name);
+	}
+};
+
+auto create_function(
+	llvm::LLVMContext& context,
+	llvm::Module* module,
+	const middle::function& decl) -> llvm::Function*
 {
-	std::vector<Type*> args_types(args.size());
-	std::transform(args.begin(), args.end(), args_types.begin(),
-	               [] (const arg_info& arg) { return arg.type; });
+	if (auto func = module->getFunction(decl.name))
+		return func;
+
+	std::vector<Type*> args_types(decl.args.size());
+	for (auto&& [type, in_arg] : paired(args_types, decl.args))
+	{
+		type = get_llvm_type(context, in_arg->type);
+	}
 
 	Type* return_type = get_llvm_type(context, decl.return_type);
 
 	auto signature = FunctionType::get(return_type, args_types, false);
-	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name, cur_module.get());
+	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name, module);
+
+	for (auto&& [llvm_arg, in_arg] : paired(func->args(), decl.args))
+	{
+		llvm_arg.setName(in_arg->name);
+	}
+
 	return func;
 }
 
 auto backend_llvm::gen(const middle::function& decl) -> llvm::Value*
 {
-	std::vector<arg_info> args;
+	auto* func = create_function(context, cur_module.get(), decl);
 
-	for (const auto& arg : decl.args)
+	std::vector<arg_info> args;
+	for (auto&& [arg, value] : paired(decl.args, func->args()))
 	{
 		arg_info info;
-		info.type = get_llvm_type(context, arg->type);
-		info.name = arg->name;
+		info.value = &value;
+		info.type = value.getType();
+		info.name = value.getName();
 		info.is_mutable = arg->access == ast::access::variable;
 		args.push_back(info);
 	}
-
-	auto* func = create_function(decl, args);
-
-	unsigned i = 0;
-	for (auto& arg : func->args())
-		args[i++].set_value(arg);
 
 	// TODO: this is temporary, until we have FFI modules
 	if (!decl.body)
@@ -480,8 +491,12 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 {
 	Function* callee = cur_module->getFunction(expr.func_name);
-	if (!callee)
-		return error_is_not_declared(diag, expr.func_name);
+	if (!callee) {
+		if (!expr.func)
+			return error_is_not_declared(diag, expr.func_name);
+
+		callee = create_function(context, cur_module.get(), *expr.func);
+	}
 
 	if (callee->arg_size() != expr.args.size())
 		return error_not_implemented_yet(diag); // argument mismatch

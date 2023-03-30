@@ -87,10 +87,6 @@ public:
 
 	auto gen_if_condition(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
 
-	struct arg_info;
-
-	auto create_function(const middle::function& decl, const std::vector<arg_info>& args) -> llvm::Function*;
-
 private:
 	diagnostics_engine& diag;
 	llvm::LLVMContext context;

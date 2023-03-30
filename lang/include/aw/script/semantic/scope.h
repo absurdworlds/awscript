@@ -50,7 +50,7 @@ public:
 	template<typename T>
 	T* find(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
 	{
-		auto sym = find_symbol(name, mode);
+		auto* sym = find_symbol(name, mode);
 		if (auto ptr = get_if<T*>(sym))
 			return *ptr;
 		return nullptr;
