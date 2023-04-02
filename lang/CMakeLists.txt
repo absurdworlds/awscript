@@ -66,8 +66,12 @@ set (AWSCRIPT_USE_LLVM ON)
 if (AWSCRIPT_USE_LLVM)
 	find_package(LLVM REQUIRED CONFIG)
 
-	option (AWSCRIPT_DEBUG_LLVM "Use a limited set of LLVM libraries for easier debugging" OFF)
-	if (AWSCRIPT_DEBUG_LLVM)
+	option (AWSCRIPT_USE_SYSTEM_LLVM "Use LLVM installed in the system" OFF)
+	if (AWSCRIPT_USE_SYSTEM_LLVM)
+		execute_process(COMMAND llvm-config --libs all
+			        OUTPUT_VARIABLE LLVM_LIBRARIES
+				OUTPUT_STRIP_TRAILING_WHITESPACE)
+	else()
 		message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 		message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -95,11 +99,7 @@ if (AWSCRIPT_USE_LLVM)
 
 		target_compile_definitions(awscript-lang
 			PRIVATE
-				-DAWSCRIPT_DEBUG_LLVM=1)
-	else()
-		execute_process(COMMAND llvm-config --libs all
-		                OUTPUT_VARIABLE LLVM_LIBRARIES
-		                OUTPUT_STRIP_TRAILING_WHITESPACE)
+			        -DAWSCRIPT_DEBUG_LLVM=1)
 	endif()
 
 	target_link_libraries(awscript-lang
