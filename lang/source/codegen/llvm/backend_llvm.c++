@@ -84,7 +84,7 @@ bool backend_llvm::set_target(string_view request_triple)
 
 	TargetOptions opt;
 
-	auto reloc_model = Optional<Reloc::Model>();
+	auto reloc_model = std::optional<Reloc::Model>();
 
 	target_machine = target->createTargetMachine(target_triple, cpu, features, opt, reloc_model);
 	return true;
@@ -336,7 +336,7 @@ auto backend_llvm::gen(const middle::if_else_statement& stmt) -> llvm::Value*
 	then_bb = builder.GetInsertBlock();
 
 	if (stmt.else_body) {
-		function->getBasicBlockList().push_back(else_bb);
+		function->insert(function->end(), else_bb);
 		builder.SetInsertPoint(else_bb);
 		auto else_v = gen(stmt.else_body);
 		if (!else_v)
@@ -346,7 +346,7 @@ auto backend_llvm::gen(const middle::if_else_statement& stmt) -> llvm::Value*
 		else_bb = builder.GetInsertBlock();
 	}
 
-	function->getBasicBlockList().push_back(merge_bb);
+	function->insert(function->end(), merge_bb);
 	builder.SetInsertPoint(merge_bb);
 
 	return UndefValue::get(Type::getVoidTy(context));
@@ -536,7 +536,7 @@ auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
 	builder.CreateBr(merge_bb);
 	then_bb = builder.GetInsertBlock();
 
-	function->getBasicBlockList().push_back(else_bb);
+	function->insert(function->end(), else_bb);
 	builder.SetInsertPoint(else_bb);
 	auto* else_v = gen(expr.else_body);
 	if (!else_v)
@@ -544,7 +544,7 @@ auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
 	builder.CreateBr(merge_bb);
 	else_bb = builder.GetInsertBlock();
 
-	function->getBasicBlockList().push_back(merge_bb);
+	function->insert(function->end(), merge_bb);
 	builder.SetInsertPoint(merge_bb);
 
 	auto* phi = builder.CreatePHI(then_v->getType(), 2, "ifetmp");
