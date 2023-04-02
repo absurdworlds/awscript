@@ -59,7 +59,7 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 
 	for (const auto& type : builtin_types)
 	{
-		ctx.default_scope.add_symbol(type->name, type.get());
+		ctx.default_scope.add_type(type->name, type.get());
 	}
 
 

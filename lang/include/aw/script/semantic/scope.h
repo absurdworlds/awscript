@@ -26,8 +26,7 @@ class scope {
 public:
 	using declaration = std::variant<
 		middle::variable*,
-		middle::function*,
-		ast::type*
+		middle::function*
 	>;
 
 	explicit scope(scope* parent = nullptr)
@@ -56,10 +55,7 @@ public:
 		return nullptr;
 	}
 
-	ast::type* find_type(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
-	{
-		return find<ast::type>(name, mode);
-	}
+	ast::type* find_type(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
 
 	middle::variable* find_var(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents)
 	{
@@ -77,6 +73,11 @@ public:
 		symbols[name] = decl;
 	}
 
+	void add_type(std::string_view name, ast::type* type)
+	{
+		types[name] = type;
+	}
+
 protected:
 	declaration* find_symbol(std::string_view name, scope_search_mode mode = scope_search_mode::including_parents);
 
@@ -85,6 +86,7 @@ private:
 	scope* parent_scope = nullptr;
 
 	std::unordered_map<std::string_view, declaration> symbols;
+	std::unordered_map<std::string_view, ast::type*> types;
 };
 
 } // namespace aw::script
