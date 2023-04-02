@@ -6,7 +6,7 @@ function printf(var cstring str, var int v);
 
 function add(var int x, var int y) : int
 {
-	printf("x + y = %d", x+y)
+	printf("x + y = %d\n", x+y)
 	return x+y
 }
 
@@ -22,6 +22,9 @@ function divd(var f64 x, var f64 y) : f64
 
 function test_reassign(var int c)
 {
+	c=66
+	putchar(c)
+
 	c=32
 	putchar(c)
 

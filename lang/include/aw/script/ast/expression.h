@@ -13,6 +13,8 @@
 #include <aw/script/ast/operators.h>
 #include <aw/script/utility/hard_alias.h>
 
+#include <aw/types/string_view.h>
+
 #include <memory>
 #include <variant>
 #include <vector>

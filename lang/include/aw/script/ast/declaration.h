@@ -41,7 +41,11 @@ struct function {
 	std::unique_ptr<statement> body;
 };
 
-using module = std::vector<struct declaration>;
+struct declaration;
+
+struct module {
+    std::vector<declaration> decls;
+};
 
 using declaration_variant = std::variant<
 	variable,
