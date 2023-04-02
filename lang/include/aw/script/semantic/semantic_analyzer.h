@@ -14,7 +14,8 @@ class semantic_analyzer {
 public:
 	semantic_analyzer();
 
-	auto lower(const ast::module& decl) -> middle::module;
+	auto lower(const ast::module& in_mod) -> middle::module;
+
 
 private:
 	// TODO: should be stored in the builtin_module, not here
