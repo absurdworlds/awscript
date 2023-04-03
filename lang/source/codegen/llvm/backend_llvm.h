@@ -69,7 +69,7 @@ public:
 	auto gen(const middle::expression& expr) -> llvm::Value*;
 	auto gen_lvalue(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
 	auto gen_lvalue(const middle::expression& expr) -> llvm::Value*;
-	auto gen(const middle::numeric_literal& expr) -> llvm::Value*;
+	auto gen(const middle::numeric_literal& expr) -> llvm::Constant*;
 	auto gen(const middle::string_literal& expr) -> llvm::Value*;
 	auto gen(const middle::value_expression& expr) -> llvm::Value*;
 	auto gen(const middle::binary_expression& expr) -> llvm::Value*;
@@ -84,8 +84,12 @@ public:
 		return nullptr;
 	}
 
-
 	auto gen_if_condition(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
+
+	void gen_global_ctors();
+
+	void create_global_ctor_body(llvm::Function* func, llvm::GlobalVariable* var, const middle::expression& expr);
+	auto create_global_ctor(llvm::GlobalVariable* var, const middle::variable& decl) -> llvm::Function*;
 
 private:
 	diagnostics_engine& diag;
@@ -96,8 +100,16 @@ private:
 	std::unique_ptr<optimizer_llvm> optimizer;
 	std::unique_ptr<llvm::Module> cur_module;
 
+	std::map<std::string, llvm::Value*, std::less<>> globals;
 	std::map<std::string, llvm::Value*, std::less<>> symtab;
 	std::map<std::string_view, llvm::Value*, std::less<>> strings;
+
+	struct global_ctor_entry {
+		int proprity = 0;
+		llvm::Function* ctor = nullptr;
+	};
+
+	std::vector<global_ctor_entry> global_ctors;
 };
 
 } // namespace aw::script

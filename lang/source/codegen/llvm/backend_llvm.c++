@@ -123,6 +123,8 @@ bool backend_llvm::optimize_lto()
 
 bool backend_llvm::write_object_file(string_view out_path)
 {
+	gen_global_ctors(); // TODO: not here
+
 	std::error_code EC;
 	raw_fd_ostream dest(out_path, EC, sys::fs::OF_None);
 
@@ -286,11 +288,6 @@ auto backend_llvm::gen(const middle::function& decl) -> llvm::Value*
 	return nullptr;
 }
 
-auto backend_llvm::gen(const middle::variable& decl) -> llvm::Value*
-{
-	return nullptr;
-}
-
 auto backend_llvm::gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*
 {
 	return stmt ? gen(*stmt) : nullptr;
@@ -373,21 +370,30 @@ auto backend_llvm::gen(const middle::empty_statement& stmt) -> llvm::Value*
 	return UndefValue::get(Type::getVoidTy(context));
 }
 
-auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Value*
+auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Constant*
 {
 	auto type = get_llvm_type(context, expr.type);
 	auto radix = unsigned(expr.base); // TODO: to_underlying
 	if (auto integer = dyn_cast<IntegerType>(type))
 		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, radix));
+	if (type->isFloatTy())
+		return ConstantFP::get(context, APFloat(APFloat::IEEEsingle(), expr.value));
+	if (type->isDoubleTy())
+		return ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), expr.value));
 	return nullptr;
 }
 
 auto backend_llvm::gen(const middle::value_expression& expr) -> llvm::Value*
 {
 	auto it = symtab.find(expr.name);
-	if (it == symtab.end())
-		return error_undefined_variable(diag, expr.name);
-	return it->second;
+	if (it != symtab.end())
+		return it->second;
+
+	it = globals.find(expr.name);
+	if (it != globals.end())
+		return it->second;
+
+	return error_undefined_variable(diag, expr.name);
 }
 
 auto backend_llvm::gen(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
@@ -398,12 +404,15 @@ auto backend_llvm::gen(const std::unique_ptr<middle::expression>& expr) -> llvm:
 
 auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 {
-	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
+	auto value = std::visit([this] (auto&& expr) -> llvm::Value* { return gen(expr); }, expr);
 	if (!value)
 		return value;
 
 	auto* type = value->getType();
 	if (type->isPointerTy()) {
+		if (auto global = dyn_cast<GlobalValue>(value))
+			if (!global->getValueType()->isArrayTy()) // TODO: not like this
+				value = builder.CreateLoad(global->getValueType(), global, global->getName());
 		if (auto alloca = dyn_cast<AllocaInst>(value))
 			value = builder.CreateLoad(alloca->getAllocatedType(), alloca, value->getName());
 	}
@@ -418,7 +427,7 @@ auto backend_llvm::gen_lvalue(const std::unique_ptr<middle::expression>& expr) -
 
 auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 {
-	auto value = std::visit([this] (auto&& expr) { return gen(expr); }, expr);
+	auto value = std::visit([this] (auto&& expr) -> llvm::Value* { return gen(expr); }, expr);
 	if (!value)
 		return value;
 
