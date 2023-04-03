@@ -178,6 +178,12 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 			return {};
 	}
 
+	if (match(token_kind::equal)) {
+		var.value = parse_expression();
+		if (!var.value)
+			return {};
+	}
+
 	return var;
 }
 

@@ -115,6 +115,7 @@ void semantic_analyzer::visit(context& ctx, middle::variable& var)
 {
 	ctx.current_scope()->add_symbol(var.name, &var);
 	if (var.value) {
+		visit_expr(ctx, *var.value);
 		if (!var.type)
 			var.type = infer_type(ctx, *var.value);
 		else
