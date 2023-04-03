@@ -85,7 +85,7 @@ bool backend_llvm::set_target(string_view request_triple)
 
 	TargetOptions opt;
 
-	auto reloc_model = std::optional<Reloc::Model>();
+	auto reloc_model = Reloc::Model::PIC_;
 
 	target_machine = target->createTargetMachine(target_triple, cpu, features, opt, reloc_model);
 	return true;
@@ -582,7 +582,8 @@ auto backend_llvm::gen(const middle::string_literal& expr) -> llvm::Value*
 		auto* const_data = ConstantDataArray::getString(context, expr.value, is_zstring);
 		auto* string_global = new GlobalVariable(
 			*cur_module, const_data->getType(), true,
-			GlobalValue::ExternalLinkage, const_data, mangle_string(expr.value));
+			GlobalValue::PrivateLinkage, const_data, mangle_string(expr.value));
+		string_global->setUnnamedAddr(GlobalValue::UnnamedAddr::Global);
 		auto res = strings.emplace(expr.value, string_global);
 		assert(res.second);
 		it = res.first;
