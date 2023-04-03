@@ -461,6 +461,10 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 		return builder.CreateFCmpOGT(lhs, rhs, "lttmp");
 	case ir::binary_operator::divide:
 		return builder.CreateSDiv(lhs, rhs, "divtmp");
+	case ir::binary_operator::divide_unsigned:
+		return builder.CreateUDiv(lhs, rhs, "divtmp");
+	case ir::binary_operator::divide_fp:
+		return builder.CreateFDiv(lhs, rhs, "divtmp");
 	case ir::binary_operator::not_equal:
 		return builder.CreateICmpNE(lhs, rhs, "netmp");
 	case ir::binary_operator::equal:

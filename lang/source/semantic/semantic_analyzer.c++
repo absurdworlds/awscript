@@ -234,6 +234,27 @@ void semantic_analyzer::visit_expr(context& ctx, middle::string_literal& in_expr
 {
 }
 
+void semantic_analyzer::visit_op(context& ctx, ast::type* ty, middle::binary_expression& expr)
+{
+	if (auto* fp = std::get_if<ast::fp_type>(&ty->kind))
+	{
+		using enum ir::binary_operator;
+		switch(expr.op) {
+		case less:
+			expr.op = less_fp;
+			break;
+		case greater:
+			expr.op = greater_fp;
+			break;
+		case divide:
+			expr.op = divide_fp;
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 /*
  * Type inference
  */
@@ -297,7 +318,12 @@ auto semantic_analyzer::infer_type(context& ctx, middle::unary_expression& expr)
 
 auto semantic_analyzer::infer_type(context& ctx, middle::binary_expression& expr) -> ast::type*
 {
-	return common_type(ctx, *expr.lhs, *expr.rhs);
+	auto ty = common_type(ctx, *expr.lhs, *expr.rhs);
+
+	// TODO: move out of here
+	visit_op(ctx, ty, expr);
+
+	return ty;
 }
 
 auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) -> ast::type*
@@ -357,7 +383,12 @@ auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::un
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::binary_expression& expr) -> ast::type*
 {
-	return common_type(ctx, type, *expr.lhs, *expr.rhs);
+	auto ty = common_type(ctx, type, *expr.lhs, *expr.rhs);
+
+	// TODO: move out of here
+	visit_op(ctx, ty, expr);
+
+	return ty;
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::call_expression& expr) -> ast::type*

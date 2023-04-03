@@ -14,6 +14,8 @@ enum class binary_operator {
 	plus,
 	multiply,
 	divide,
+	divide_unsigned,
+	divide_fp,
 	less,
 	less_unsigned,
 	less_fp,

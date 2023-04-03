@@ -41,6 +41,8 @@ private:
 	void visit_expr(context& ctx, middle::numeric_literal& in_expr);
 	void visit_expr(context& ctx, middle::string_literal& in_expr);
 
+	void visit_op(context& ctx, ast::type* ty, middle::binary_expression& expr);
+
 
 	auto common_type(ast::type* a, ast::type* b) -> ast::type*;
 
