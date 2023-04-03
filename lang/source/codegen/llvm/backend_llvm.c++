@@ -6,6 +6,7 @@
 #include <aw/script/diag/error_t.h>
 
 #include <aw/utility/ranges/paired.h>
+#include <aw/utility/ranges/ipairs.h>
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Verifier.h>
@@ -557,16 +558,16 @@ auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
 
 auto mangle_string(std::string_view str) -> std::string
 {
-	// Just for fun. In the future I'll replace it
-	// TODO: replace with a proper mangling scheme
-	auto mstr = std::string(str.substr(0, 8));
-	int i = 0;
-	for (auto& c : mstr)
+	constexpr auto max_str_len = 8;
+	std::string mstr;
+	for (auto [i, c] : ipairs(str))
 	{
-		if (!isAlnum(c))
-			c = '0' + char(i++ % 10);
+		if (i > max_str_len)
+			break;
+		if (isAlnum(c))
+			mstr += c;
 	}
-	return "_str_" + mstr;
+	return ".str_" + mstr;
 }
 
 auto backend_llvm::gen(const middle::string_literal& expr) -> llvm::Value*
