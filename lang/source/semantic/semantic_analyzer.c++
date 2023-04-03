@@ -34,10 +34,10 @@ static auto create_builtin_types()
 	//top_scope->add_symbol("u32", create_type("u32"));
 	//top_scope->add_symbol("u64", create_type("u64"));
 
-	types.push_back(create_type("float"));
-	types.push_back(create_type("double"));
-	types.push_back(create_type("f32"));
-	types.push_back(create_type("f64"));
+	types.push_back(wrap(ast::type{"float", ast::fp_type{ 32 }}));
+	types.push_back(wrap(ast::type{"double", ast::fp_type{ 64 }}));
+	types.push_back(wrap(ast::type{"f32", ast::fp_type{ 32 }}));
+	types.push_back(wrap(ast::type{"f64", ast::fp_type{ 64 }}));
 
 	types.push_back(create_type("string_literal"));
 
