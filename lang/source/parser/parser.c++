@@ -167,17 +167,16 @@ std::optional<ast::declaration> parser::parse_declaration()
 
 auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast::variable>
 {
-	const auto type = parse_type();
-	if (type.empty())
-		return {};
-
-	ast::variable var;
+	ast::variable var{ .access = access };
 	var.name = parse_identifier();
 	if (var.name.empty())
 		return {};
 
-	var.access = access;
-	var.type = type;
+	if (match(token_kind::colon)) {
+		var.type = parse_type();
+		if (var.type.empty())
+			return {};
+	}
 
 	return var;
 }

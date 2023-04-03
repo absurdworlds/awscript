@@ -1,26 +1,24 @@
+function putchar(var ch: int);
+function puts(var str: cstring);
+function printf(var str: cstring, var v: int);
 
-function putchar(var int ch);
-function puts(var cstring str);
-function printf(var cstring str, var int v);
-
-
-function add(var int x, var int y) : int
+function add(var x: int, var y: int) : int
 {
 	printf("x + y = %d\n", x+y)
 	return x+y
 }
 
-function div(var int x, var int y) : int
+function div(var x: int, var y: int) : int
 	return if (y < 1)
 		then 0
 		else x/y;
 
-function divd(var f64 x, var f64 y) : f64
+function divd(var x: f64, var y: f64) : f64
 	return if (y < 1)
 		then 0
 		else x/y;
 
-function test_reassign(var int c)
+function test_reassign(var c: int)
 {
 	c=66
 	putchar(c)
@@ -32,7 +30,7 @@ function test_reassign(var int c)
 	putchar(c)
 }
 
-function main(var int argc) : int
+function main(var argc: int) : int
 {
 	hello();
 	printf("argc = %d\n", argc);
