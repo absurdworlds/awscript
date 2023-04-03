@@ -408,17 +408,18 @@ auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 	if (!value)
 		return value;
 
-	auto* type = value->getType();
-	if (type->isPointerTy()) {
+	auto* value_type = value->getType();
+	auto* expr_type = get_llvm_type(context, expr.type);
+	if (value_type->isPointerTy() && !expr_type->isPointerTy()) {
 		if (auto global = dyn_cast<GlobalValue>(value))
-			if (!global->getValueType()->isArrayTy()) // TODO: not like this
-				value = builder.CreateLoad(global->getValueType(), global, global->getName());
+			value = builder.CreateLoad(global->getValueType(), global, global->getName());
 		if (auto alloca = dyn_cast<AllocaInst>(value))
 			value = builder.CreateLoad(alloca->getAllocatedType(), alloca, value->getName());
 	}
 	return value;
 }
 
+// TODO: remove gen_lvalue and instead use the reference type
 auto backend_llvm::gen_lvalue(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*
 {
 	return expr ? gen_lvalue(*expr) : nullptr;

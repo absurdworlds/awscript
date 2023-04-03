@@ -308,7 +308,10 @@ auto semantic_analyzer::infer_type(context& ctx, middle::expression& expr) -> as
 	{
 		return infer_type(ctx, expr);
 	};
-	return std::visit(expr_visitor, expr);
+
+	expr.type = std::visit(expr_visitor, expr);
+
+	return expr.type;
 }
 
 auto semantic_analyzer::infer_type(context& ctx, middle::unary_expression& expr) -> ast::type*
@@ -373,7 +376,10 @@ auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::ex
 	{
 		return propagate_type(ctx, type, expr);
 	};
-	return std::visit(expr_visitor, expr);
+
+	expr.type = std::visit(expr_visitor, expr);
+
+	return expr.type;
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::unary_expression& expr) -> ast::type*
@@ -424,7 +430,7 @@ auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::nu
 
 auto semantic_analyzer::propagate_type(context& ctx, ast::type* type, middle::string_literal& expr) -> ast::type*
 {
-	return common_type(type, ctx.find_type("string_literal"));
+	return common_type(type, ctx.find_type("cstring")); // TODO: should be string_literal
 }
 
 } // namespace aw::script
