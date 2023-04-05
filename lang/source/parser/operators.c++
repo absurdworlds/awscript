@@ -44,6 +44,8 @@ auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_ope
 		return ast::binary_operator::less;
 	case token_kind::greater:
 		return ast::binary_operator::greater;
+	case token_kind::equal_equal:
+		return ast::binary_operator::equal;
 	case token_kind::equal:
 		return ast::binary_operator::assignment;
 	default:
