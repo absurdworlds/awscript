@@ -147,8 +147,10 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::statement_block& in_blo
 
 void semantic_analyzer::visit_stmt(context& ctx, middle::if_else_statement& stmt)
 {
-	if (stmt.if_expr)
+	if (stmt.if_expr) {
 		visit_expr(ctx, *stmt.if_expr);
+		propagate_type(ctx, ctx.find_type("bool"), *stmt.if_expr);
+	}
 	if (stmt.if_body)
 		visit_stmt(ctx, *stmt.if_body);
 	if (stmt.else_body)
