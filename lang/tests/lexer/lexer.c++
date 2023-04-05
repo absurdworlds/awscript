@@ -13,7 +13,7 @@ namespace aw::script {
 auto lex_single_token(string_view string)
 {
 	source_buffer buf(string);
-	return lexer(&buf).current();
+	return lexer(&buf).next();
 }
 
 Test(string_token_must_include_quotes) {
@@ -30,7 +30,7 @@ Test(adjacent_string_tokens_must_be_separate) {
 		lexer lex(&buf);
 
 		std::vector<string_view> tokens;
-		for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
+		for (auto tok = lex.next(); tok != token_kind::eof; tok = lex.next())
 		{
 			TestAssert(!tok.incomplete);
 			TestAssert(tok.kind == token_kind::string_literal);
@@ -45,7 +45,7 @@ Test(adjacent_string_tokens_must_be_separate) {
 		lexer lex(&buf);
 
 		std::vector<string_view> tokens;
-		for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
+		for (auto tok = lex.next(); tok != token_kind::eof; tok = lex.next())
 		{
 			TestAssert(!tok.incomplete);
 			TestAssert(tok.kind == token_kind::string_literal);
@@ -62,7 +62,7 @@ Test(incomplete_string_should_be_marked_as_such) {
 	source_buffer buf(string);
 	lexer lex(&buf);
 
-	const auto tok = lex.current();
+	const auto tok = lex.next();
 	TestAssert(tok.incomplete);
 	TestAssert(tok.kind == token_kind::string_literal);
 	TestEqual(tok.data, string);
@@ -95,7 +95,7 @@ Test(each_comment_is_one_token) {
 	lexer lex(&buf);
 
 	{
-		const auto tok = lex.current();
+		const auto tok = lex.next();
 		TestAssert(!tok.incomplete);
 		TestAssert(tok.kind == token_kind::line_comment);
 		TestEqual(tok.data, "// a comment..."sv);
@@ -167,7 +167,7 @@ Test(all_defined_operators_should_be_lexed) {
 	source_buffer buf(string);
 	lexer lex(&buf);
 	std::vector<string_view> tokens;
-	for (auto tok = lex.current(); tok != token_kind::eof; tok = lex.next())
+	for (auto tok = lex.next(); tok != token_kind::eof; tok = lex.next())
 	{
 		TestAssert(!tok.incomplete);
 		TestEqual(tok.data, punct_spellings[index]);

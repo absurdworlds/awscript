@@ -18,7 +18,6 @@ lexer::lexer(source_buffer* buffer)
 	, cur(buf->begin())
 	, end(buf->end())
 {
-	lex(cur_token);
 }
 
 lexer::~lexer()
@@ -26,16 +25,13 @@ lexer::~lexer()
 	// for export
 }
 
-token lexer::current() const
-{
-	return cur_token;
-}
-
 token lexer::next()
 {
-	lex(cur_token);
-	return cur_token;
+	token tok;
+	lex(tok);
+	return tok;
 }
+
 
 location lexer::make_location(const char* pos) const
 {

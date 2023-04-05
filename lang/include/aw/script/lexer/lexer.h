@@ -17,10 +17,10 @@ namespace aw::script {
 class lexer {
 public:
 	// TODO: not_null
-	lexer(source_buffer* buffer);
+	explicit lexer(source_buffer* buffer);
+
 	~lexer();
 
-	token current() const;
 	token next();
 
 private:
@@ -41,9 +41,7 @@ private:
 	char prev() const;
 	char peek() const;
 
-
 private:
-	token cur_token;
 	source_buffer* buf;
 
 	char const* cur = nullptr;

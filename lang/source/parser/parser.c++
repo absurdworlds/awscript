@@ -28,8 +28,7 @@ namespace aw::script {
 parser::parser(dependencies deps)
 	: lex(deps.lexer), diag(deps.diag)
 {
-	tok = lex.current();
-	skip_comments();
+	advance();
 }
 
 bool parser::advance()
@@ -95,7 +94,6 @@ bool parser::match_id(string_view identifier)
 
 std::string_view parser::parse_identifier()
 {
-	// TODO: get rid of , ""
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_type_name, tok);
 

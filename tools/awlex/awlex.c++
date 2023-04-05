@@ -34,7 +34,7 @@ void print_token_info(token& token)
 void print_tokens(source_buffer& buffer, lexer& lexer)
 {
 	token prev;
-	auto token = lexer.current();
+	auto token = lexer.next();
 	do
 	{
 		if (prev.kind != token_kind::none)

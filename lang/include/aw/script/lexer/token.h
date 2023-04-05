@@ -16,9 +16,6 @@ enum class token_kind {
 #define PUNCT(x, y) TOKEN(x)
 #define KEYWORD(x) kw_ ## x,
 #include <aw/script/lexer/tokens.h>
-#undef TOKEN
-#undef PUNCT
-#undef KEYWORD
 };
 
 struct token {

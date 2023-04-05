@@ -4,6 +4,18 @@
  * and other things.
  */
 
+#ifndef TOKEN
+#define TOKEN(x)
+#endif
+
+#ifndef PUNCT
+#define PUNCT(x, y)
+#endif
+
+#ifndef KEYWORD
+#define KEYWORD(x)
+#endif
+
 TOKEN(none)
 TOKEN(illegal)
 TOKEN(eof)
@@ -72,3 +84,7 @@ KEYWORD(void)
 KEYWORD(float)
 KEYWORD(int)
 KEYWORD(string)
+
+#undef TOKEN
+#undef PUNCT
+#undef KEYWORD
