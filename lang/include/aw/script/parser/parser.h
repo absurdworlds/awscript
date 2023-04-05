@@ -43,6 +43,13 @@ private:
 	bool advance();
 	bool advance(token_kind expected);
 	bool advance(string_view identifier);
+
+	struct save_point;
+
+	auto save_state() -> save_point;
+
+	void restore_state(save_point sp);
+
 	void skip_comments();
 	bool match(token_kind expected);
 	bool match(string_view identifier);

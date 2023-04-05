@@ -32,6 +32,20 @@ token lexer::next()
 	return tok;
 }
 
+auto lexer::save_state() -> save_point
+{
+	return { buf, cur };
+}
+
+void lexer::restore_state(save_point sp)
+{
+	if (sp.buf != buf) {
+		assert(!"Lexer save point is too old");
+		return;
+	}
+
+	cur = sp.pos;
+}
 
 location lexer::make_location(const char* pos) const
 {

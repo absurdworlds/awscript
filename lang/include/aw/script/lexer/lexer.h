@@ -23,6 +23,20 @@ public:
 
 	token next();
 
+	class save_point {
+		friend lexer;
+
+		save_point(source_buffer* buf, const char* pos)
+			: buf(buf), pos(pos)
+		{}
+
+		source_buffer* buf = nullptr;
+		const char*    pos = nullptr;
+	};
+
+	auto save_state() -> save_point;
+	void restore_state(save_point sp);
+
 private:
 	location make_location(const char* pos) const;
 

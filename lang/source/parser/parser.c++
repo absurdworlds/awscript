@@ -57,6 +57,22 @@ bool parser::advance(string_view identifier)
 	return advance();
 }
 
+struct parser::save_point {
+	lexer::save_point lex_state;
+	token tok;
+};
+
+auto parser::save_state() -> save_point
+{
+	return { lex.save_state(), tok };
+}
+
+void parser::restore_state(save_point sp)
+{
+	lex.restore_state(sp.lex_state);
+	tok = sp.tok;
+}
+
 bool parser::match(token_kind expected)
 {
 	if (tok.kind != expected)
@@ -499,6 +515,8 @@ std::unique_ptr<ast::expression> parser::parse_paren_expression()
 
 std::unique_ptr<ast::expression> parser::parse_if_expression()
 {
+	advance("if");
+
 	ast::if_expression expr;
 
 	expr.if_expr = parse_expression();
@@ -519,13 +537,20 @@ std::unique_ptr<ast::expression> parser::parse_if_expression()
 
 std::unique_ptr<ast::expression> parser::parse_identifier_expression()
 {
+	const auto sp = save_state();
+
 	std::string_view name = parse_identifier();
 	if (name.empty())
 		return nullptr;
 
 	if (name == "if"sv) {
 		if (tok != token_kind::r_paren)
+		{
+			// Restoring state isn't necessary (and even slightly detrimental
+			// for performance), but I think it's more elegant
+			restore_state(sp);
 			return parse_if_expression();
+		}
 	}
 
 	if (match(token_kind::l_paren))
