@@ -301,6 +301,17 @@ auto backend_llvm::gen(const middle::statement& stmt) -> llvm::Value*
 
 auto backend_llvm::gen(const middle::decl_statement& stmt) -> llvm::Value*
 {
+	if (auto var = get_if<middle::variable>(stmt.decl.get()))
+	{
+		auto* alloca = builder.CreateAlloca(
+			get_llvm_type(context, var->type), nullptr, var->name);
+
+		if (var->value)
+			builder.CreateStore(gen(var->value), alloca);
+
+		symtab[var->name] = alloca;
+	}
+
 	return nullptr;
 }
 
