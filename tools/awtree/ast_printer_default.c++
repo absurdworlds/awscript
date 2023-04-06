@@ -180,6 +180,15 @@ void ast_printer_default::print_expr(const ast::expression& expr)
 	std::visit([this] (auto&& node) { print_expr(node); }, expr);
 }
 
+void ast_printer_default::print_expr(const ast::paren_expression& expr)
+{
+	start("group", inline_scope);
+
+	print_expr(expr.inner);
+
+	end();
+}
+
 void ast_printer_default::print_expr(const ast::if_expression& expr)
 {
 	start("if", inline_scope);

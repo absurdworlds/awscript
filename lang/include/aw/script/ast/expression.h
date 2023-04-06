@@ -24,6 +24,10 @@ namespace aw::script::ast {
 class type;
 class expression;
 
+struct paren_expression {
+	std::unique_ptr<expression> inner;
+};
+
 struct unary_expression {
 	unary_operator op;
 	std::unique_ptr<expression> lhs;
@@ -64,6 +68,7 @@ struct if_expression {
 };
 
 using expression_variant = std::variant<
+	paren_expression,
 	unary_expression,
 	binary_expression,
 	call_expression,

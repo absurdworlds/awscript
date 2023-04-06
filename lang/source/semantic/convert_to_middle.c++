@@ -165,6 +165,11 @@ struct convert_to_middle_visitor {
 		return std::visit(expr_visitor, in_expr);
 	}
 
+	auto convert_expr(const ast::paren_expression& in_expr) -> middle::expression
+	{
+		return convert_expr(*in_expr.inner);
+	}
+
 	auto convert_expr(const ast::unary_expression& in_expr) -> middle::expression
 	{
 		auto expr = middle::expression(middle::unary_expression {
