@@ -79,6 +79,7 @@ private:
 	auto parse_for_statement() -> std::optional<ast::statement>;
 	auto parse_while_statement() -> std::optional<ast::statement>;
 	auto parse_return_statement() -> std::optional<ast::statement>;
+	auto parse_local_variable(ast::access access) -> std::optional<ast::decl_statement>;
 
 	auto parse_expression() -> std::optional<ast::expression>;
 	auto parse_if_expression() -> std::optional<ast::expression>;
