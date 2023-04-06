@@ -101,10 +101,18 @@ void backend_llvm::set_optimization_level(optimization_level level)
 	}
 }
 
-bool backend_llvm::create_module(string_view name)
+bool backend_llvm::create_module(const middle::module& mod)
 {
-	cur_module = std::make_unique<Module>(name, context);
+	cur_module = std::make_unique<Module>(mod.name, context);
 	cur_module->setDataLayout(target_machine->createDataLayout());
+
+	for (const auto& decl : mod.decls)
+	{
+		handle_declaration(*decl);
+	}
+
+	gen_global_ctors();
+
 	return true;
 }
 
@@ -123,8 +131,6 @@ bool backend_llvm::optimize_lto()
 
 bool backend_llvm::write_object_file(string_view out_path)
 {
-	gen_global_ctors(); // TODO: not here
-
 	std::error_code EC;
 	raw_fd_ostream dest(out_path, EC, sys::fs::OF_None);
 

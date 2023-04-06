@@ -20,6 +20,7 @@ namespace aw::script {
 class diagnostics_engine;
 
 namespace middle {
+class module;
 class declaration;
 }
 
@@ -34,7 +35,7 @@ public:
 	virtual bool set_target(string_view target_triple = {}) = 0;
 	virtual void set_optimization_level(optimization_level level) = 0;
 
-	virtual bool create_module(string_view name) = 0;
+	virtual bool create_module(const middle::module& mod) = 0;
 
 	virtual bool handle_declaration(const middle::declaration& decl) = 0;
 

@@ -38,7 +38,7 @@ public:
 	bool set_target(string_view target_triple) override;
 	void set_optimization_level(optimization_level level) override;
 
-	bool create_module(string_view name) override;
+	bool create_module(const middle::module& mod) override;
 
 	bool handle_declaration(const middle::declaration& decl) override
 	{
