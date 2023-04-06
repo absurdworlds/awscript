@@ -206,7 +206,7 @@ auto parser::parse_function_declaration() -> std::optional<ast::function>
 {
 	auto func = parse_function_prototype();
 	if (func) {
-		func->body = parse_function_body();
+		func->body = wrap(parse_function_body());
 	}
 
 	return func;
@@ -278,10 +278,10 @@ bool parser::parse_function_return_type(ast::function& func)
 	return true;
 }
 
-auto parser::parse_function_body() -> std::unique_ptr<ast::statement>
+auto parser::parse_function_body() -> std::optional<ast::statement>
 {
 	if (match(token_kind::semicolon))
-		return nullptr;
+		return {};
 	if (tok == token_kind::l_brace)
 		return parse_statement_block();
 	if (tok == "return")
@@ -294,14 +294,14 @@ auto parser::parse_function_body() -> std::unique_ptr<ast::statement>
 	ast::return_statement stmt;
 	stmt.value = parse_expression();
 	if (stmt.value)
-		return std::make_unique<ast::statement>(std::move(stmt));
+		return stmt;
 
 #endif
-	return nullptr;
+	return {};
 }
 
 /********************** Statements **********************/
-auto parser::parse_statement_block() -> std::unique_ptr<ast::statement>
+auto parser::parse_statement_block() -> std::optional<ast::statement>
 {
 	if (!match(token_kind::l_brace))
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
@@ -315,10 +315,10 @@ auto parser::parse_statement_block() -> std::unique_ptr<ast::statement>
 		statements.push_back(std::move(*statement));
 	}
 
-	return std::make_unique<ast::statement>(std::move(statements));
+	return std::move(statements);
 }
 
-std::unique_ptr<ast::statement> parser::parse_statement()
+auto parser::parse_statement() -> std::optional<ast::statement>
 {
 	auto stmt = parse_statement_inner();
 
@@ -327,11 +327,11 @@ std::unique_ptr<ast::statement> parser::parse_statement()
 	return stmt;
 }
 
-std::unique_ptr<ast::statement> parser::parse_statement_inner()
+auto parser::parse_statement_inner() -> std::optional<ast::statement>
 {
 	switch (tok.kind) {
 	case token_kind::semicolon:
-		return std::make_unique<ast::statement>(ast::empty_statement());
+		return ast::empty_statement();
 
 	case token_kind::l_brace:
 		return parse_statement_block();
@@ -347,14 +347,11 @@ std::unique_ptr<ast::statement> parser::parse_statement_inner()
 			return parse_return_statement();
 		[[fallthrough]];
 	default:
-		auto expr = parse_expression();
-		if (expr)
-			return std::make_unique<ast::statement>(std::move(*expr));
-		return nullptr;
+		return parse_expression();
 	}
 }
 
-std::unique_ptr<ast::statement> parser::parse_if_statement()
+auto parser::parse_if_statement() -> std::optional<ast::statement>
 {
 	advance("if");
 
@@ -366,27 +363,27 @@ std::unique_ptr<ast::statement> parser::parse_if_statement()
 
 	match("then");
 
-	stmt.if_body = parse_statement();
+	stmt.if_body = wrap(parse_statement());
 
 	if (match("else"))
 	{
-		stmt.else_body = parse_statement();
+		stmt.else_body = wrap(parse_statement());
 	}
 
-	return std::make_unique<ast::statement>(std::move(stmt));
+	return stmt;
 }
 
-std::unique_ptr<ast::statement> parser::parse_for_statement()
+auto parser::parse_for_statement() -> std::optional<ast::statement>
 {
-	return nullptr;
+	return {};
 }
 
-std::unique_ptr<ast::statement> parser::parse_while_statement()
+auto parser::parse_while_statement() -> std::optional<ast::statement>
 {
-	return nullptr;
+	return {};
 }
 
-std::unique_ptr<ast::statement> parser::parse_return_statement()
+auto parser::parse_return_statement() -> std::optional<ast::statement>
 {
 	advance("return");
 
@@ -395,10 +392,10 @@ std::unique_ptr<ast::statement> parser::parse_return_statement()
 	{
 		stmt.value = wrap(parse_expression());
 		if (!stmt.value)
-			return nullptr;
+			return {};
 	}
 
-	return std::make_unique<ast::statement>(std::move(stmt));
+	return stmt;
 }
 
 /********************** Expressions **********************/

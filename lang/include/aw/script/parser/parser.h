@@ -70,15 +70,15 @@ private:
 
 	bool parse_function_arguments(ast::function& func);
 	bool parse_function_return_type(ast::function& func);
-	auto parse_function_body() -> std::unique_ptr<ast::statement>;
+	auto parse_function_body() -> std::optional<ast::statement>;
 
-	auto parse_statement_block() -> std::unique_ptr<ast::statement>;
-	std::unique_ptr<ast::statement> parse_statement();
-	std::unique_ptr<ast::statement> parse_statement_inner();
-	std::unique_ptr<ast::statement> parse_if_statement();
-	std::unique_ptr<ast::statement> parse_for_statement();
-	std::unique_ptr<ast::statement> parse_while_statement();
-	auto parse_return_statement() -> std::unique_ptr<ast::statement>;
+	auto parse_statement() -> std::optional<ast::statement>;
+	auto parse_statement_inner() -> std::optional<ast::statement>;
+	auto parse_statement_block() -> std::optional<ast::statement>;
+	auto parse_if_statement() -> std::optional<ast::statement>;
+	auto parse_for_statement() -> std::optional<ast::statement>;
+	auto parse_while_statement() -> std::optional<ast::statement>;
+	auto parse_return_statement() -> std::optional<ast::statement>;
 
 	auto parse_expression() -> std::optional<ast::expression>;
 	auto parse_if_expression() -> std::optional<ast::expression>;
