@@ -339,6 +339,10 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 	case token_kind::identifier:
 		if (tok == "if"sv)
 			return parse_if_statement();
+		if (tok == "const"sv)
+			return parse_local_variable(ast::access::constant);
+		if (tok == "var"sv)
+			return parse_local_variable(ast::access::variable);
 		if (tok == "while"sv)
 			return parse_while_statement();
 		if (tok == "for"sv)
@@ -396,6 +400,16 @@ auto parser::parse_return_statement() -> std::optional<ast::statement>
 	}
 
 	return stmt;
+}
+
+auto parser::parse_local_variable(ast::access access) -> std::optional<ast::decl_statement>
+{
+	advance(access == ast::access::variable ? "var" : "const");
+
+	auto var = parse_variable_declaration(access);
+	if (var)
+		return ast::decl_statement(std::move(*var));
+	return {};
 }
 
 /********************** Expressions **********************/
