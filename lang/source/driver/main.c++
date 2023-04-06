@@ -63,10 +63,15 @@ int run_compiler(const options& options, callbacks* callbacks)
 	// Temporary
 	semantic_analyzer analyzer;
 
-	std::map<std::string, middle::module> mid_source_map;
-	for (auto& [file,mod] : decl_source_map)
+	std::vector<middle::module> modules;
+	for (auto& [file,in_mod] : decl_source_map)
 	{
-		mid_source_map[file] = analyzer.lower(mod);
+		auto input_path = std::filesystem::path(file);
+
+		auto mod = analyzer.lower(in_mod);
+		mod.name = input_path.stem();
+		mod.dir_path = input_path.parent_path();
+		modules.push_back(std::move(mod));
 	}
 
 	for (const auto& [_,mod] : decl_source_map)
@@ -84,21 +89,15 @@ int run_compiler(const options& options, callbacks* callbacks)
 	backend->set_optimization_level(options.opt_level);
 
 	std::vector<std::string> objects;
-
-
-	for (const auto& [input,decls] : mid_source_map)
+	for (const auto& mod : modules)
 	{
-		auto input_path = std::filesystem::path(input);
-		backend->create_module(input_path.stem().generic_string());
-		for (const auto& decl : decls)
-		{
-			backend->handle_declaration(*decl);
-		}
+		auto dir_path = std::filesystem::path(mod.dir_path);
+		backend->create_module(mod);
 		backend->optimize_module();
 		//TODO: write objects to a temporaty directory when mode == mode::link
 		//if (options.mode == mode::make_obj)
 		{
-			auto output = input_path.replace_extension("o").generic_string();
+			auto output = (dir_path/mod.name).replace_extension(".o").generic_string();
 			backend->write_object_file(output);
 			objects.push_back(output);
 			if (options.dump_ir)

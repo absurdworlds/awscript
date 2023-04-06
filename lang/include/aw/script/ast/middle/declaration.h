@@ -34,7 +34,11 @@ struct function {
 struct declaration;
 
 // TODO: proper modules
-using module = std::vector<std::unique_ptr<declaration>>;
+struct module {
+	std::string name;
+	std::string dir_path;
+	std::vector<std::unique_ptr<declaration>> decls;
+};
 
 using declaration_variant = std::variant<
 	variable,

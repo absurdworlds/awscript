@@ -238,7 +238,7 @@ auto convert_to_middle(context& ctx, const ast::module& in_mod) -> middle::modul
 	convert_to_middle_visitor visitor{ .ctx = ctx };
 	for (const auto& in_decl : in_mod.decls)
 	{
-		mod.push_back(wrap(visitor.convert_decl(in_decl)));
+		mod.decls.push_back(wrap(visitor.convert_decl(in_decl)));
 	}
 
 	return mod;

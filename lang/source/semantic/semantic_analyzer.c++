@@ -66,7 +66,7 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 	middle::module mod = convert_to_middle(ctx, in_mod);
 
 	ctx.push_scope();
-	for (const auto& decl_ptr : mod)
+	for (const auto& decl_ptr : mod.decls)
 	{
 		if (auto decl = std::get_if<middle::variable>(decl_ptr.get()))
 			ctx.current_scope()->add_symbol(decl->name, decl);
@@ -74,7 +74,7 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 			ctx.current_scope()->add_symbol(decl->name, decl);
 	}
 
-	for (const auto& decl_ptr : mod)
+	for (const auto& decl_ptr : mod.decls)
 	{
 		visit(ctx, *decl_ptr);
 	}
