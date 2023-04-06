@@ -80,19 +80,19 @@ private:
 	std::unique_ptr<ast::statement> parse_while_statement();
 	auto parse_return_statement() -> std::unique_ptr<ast::statement>;
 
-	std::unique_ptr<ast::expression> parse_expression();
-	std::unique_ptr<ast::expression> parse_if_expression();
-	std::unique_ptr<ast::expression> parse_unary_expression();
-	std::unique_ptr<ast::expression> parse_binary_expression(
-		std::unique_ptr<ast::expression> lhs, precedence min_prec);
+	auto parse_expression() -> std::optional<ast::expression>;
+	auto parse_if_expression() -> std::optional<ast::expression>;
+	auto parse_unary_expression() -> std::optional<ast::expression>;
+	auto parse_binary_expression(ast::expression lhs, precedence min_prec)
+		-> std::optional<ast::expression>;
 
-	std::unique_ptr<ast::expression> parse_primary_expression();
+	auto parse_primary_expression() -> std::optional<ast::expression>;
 
-	std::unique_ptr<ast::expression> parse_paren_expression();
-	std::unique_ptr<ast::expression> parse_identifier_expression();
-	std::unique_ptr<ast::expression> parse_string_literal_expression();
-	std::unique_ptr<ast::expression> parse_numeric_literal_expression();
-	auto parse_call_expression(std::string_view name) -> std::unique_ptr<ast::expression>;
+	auto parse_paren_expression() -> std::optional<ast::expression>;
+	auto parse_identifier_expression() -> std::optional<ast::expression>;
+	auto parse_string_literal_expression() -> std::optional<ast::expression>;
+	auto parse_numeric_literal_expression() -> std::optional<ast::expression>;
+	auto parse_call_expression(std::string_view name) -> std::optional<ast::expression>;
 
 	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
 	auto parse_binary_operator(token tok) -> std::optional<ast::binary_operator>;
