@@ -4,7 +4,7 @@
 
 namespace aw::script {
 
-auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*;
+auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*;
 
 auto create_global_ctor_sig(llvm::LLVMContext& context) -> llvm::FunctionType*
 {

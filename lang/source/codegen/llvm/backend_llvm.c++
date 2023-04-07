@@ -165,7 +165,7 @@ auto backend_llvm::gen(const middle::declaration& decl) -> llvm::Value*
 }
 
 
-auto get_llvm_type(llvm::LLVMContext& context, ast::type* type) -> llvm::Type*
+auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 {
 	if (!type) {
 		assert(!"Unresolved reference to type");

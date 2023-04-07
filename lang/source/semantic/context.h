@@ -23,12 +23,12 @@ struct context {
 		return stack.empty() ? &default_scope : stack.back().get();
 	}
 
-	ast::type* find_type(std::string_view name)
+	ir::type* find_type(std::string_view name)
 	{
 		return current_scope()->find_type(name);
 	}
 
-	ast::type* create_type(std::string_view name)
+	ir::type* create_type(std::string_view name)
 	{
 		// TODO
 		return find_type(name);

@@ -19,7 +19,7 @@ auto scope::find_symbol(std::string_view name, scope_search_mode mode) -> declar
 	return it == scope->symbols.end() ? nullptr : &it->second;
 }
 
-auto scope::find_type(std::string_view name, scope_search_mode mode) -> ast::type*
+auto scope::find_type(std::string_view name, scope_search_mode mode) -> ir::type*
 {
 	auto* scope = this;
 

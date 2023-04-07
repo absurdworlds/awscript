@@ -1,11 +1,11 @@
-#ifndef aw_script_ast_type_h
-#define aw_script_ast_type_h
+#ifndef aw_script_ir_type_h
+#define aw_script_ir_type_h
 
 #include <string>
 #include <variant>
 #include <vector>
 
-namespace aw::script::ast {
+namespace aw::script::ir {
 
 struct type;
 
@@ -68,6 +68,6 @@ struct type {
 	type_kind kind;
 };
 
-} // namespace aw::script::ast
+} // namespace aw::script::ir
 
-#endif // aw_script_ast_type_h
+#endif // aw_script_ir_type_h

@@ -52,7 +52,7 @@ struct call_expression {
 
 struct numeric_literal {
 	std::string_view value;
-	ast::type* type = nullptr;
+	ir::type* type = nullptr;
 	ast::number_base base = ast::number_base::decimal;
 };
 
@@ -78,7 +78,7 @@ using expression_variant = std::variant<
 
 struct expression : expression_variant
 {
-	ast::type* type = nullptr;
+	ir::type* type = nullptr;
 
 	using expression_variant::expression_variant;
 	using expression_variant::operator=;

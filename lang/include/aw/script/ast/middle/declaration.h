@@ -14,7 +14,7 @@
 namespace aw::script::middle {
 struct variable {
 	std::string name;
-	ast::type* type = nullptr;
+	ir::type* type = nullptr;
 	ast::access access;
 	std::unique_ptr<expression> value;
 };
@@ -24,7 +24,7 @@ using parameter_list = std::vector<std::unique_ptr<variable>>;
 struct function {
 	std::string name;
 
-	ast::type* return_type = nullptr;
+	ir::type* return_type = nullptr;
 
 	parameter_list args;
 

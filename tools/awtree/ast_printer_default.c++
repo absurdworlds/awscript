@@ -105,7 +105,7 @@ void ast_printer_default::print(const ast::statement& stmt)
 
 void ast_printer_default::print_type(const ast::type* type)
 {
-	print_inline(type ? type->name : "<unresolved type>");
+	//print_inline(type ? type->name : "<unresolved type>");
 }
 
 void ast_printer_default::print_stmt(const ast::decl_statement& stmt)

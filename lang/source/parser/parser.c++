@@ -125,19 +125,6 @@ std::string_view parser::parse_type()
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_type_name, tok);
 
-#if 0 // we have to do this in 2 passes
-	std::string_view parse_identifier();
-	std::string_view parse_type(); anyway, so no point in making in more complicated
-	auto symbol = symtab.lookup(tok.data);
-	if (symbol)
-	{
-		if (!in(symbol->kind(), ast::decl_kind::type, ast::decl_kind::class_type))
-		{
-			return error(diag, diagnostic_id::expected_a_type, tok);
-		}
-		return static_cast<ast::type*>(symbol);
-	}
-#endif
 	// TODO
 	auto name = tok.data;
 	advance();
