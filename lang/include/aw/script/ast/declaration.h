@@ -18,6 +18,7 @@
 #include <memory>
 #include <variant>
 #include <vector>
+#include <optional>
 
 #include <cassert>
 
@@ -30,15 +31,24 @@ struct variable {
 	std::unique_ptr<expression> value;
 };
 
-using parameter_list = std::vector<variable>;
+struct variadic_parameter {
+	std::string_view name;
+};
+
+struct parameter_list : std::vector<variable>
+{
+	std::optional<variadic_parameter> variadic;
+};
 
 struct function {
 	std::string name;
 
 	ast::type return_type;
-	parameter_list args;
+	parameter_list params;
 
 	std::unique_ptr<statement> body;
+
+	bool is_variadic() const { return params.variadic.has_value(); }
 };
 
 struct declaration;
