@@ -4,7 +4,7 @@
 #include <aw/script/ast/middle/statement.h>
 
 #include <aw/script/ast/mutability.h>
-#include <aw/script/ast/type.h>
+#include <aw/script/ir/type.h>
 
 #include <memory>
 #include <string>

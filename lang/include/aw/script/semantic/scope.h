@@ -12,7 +12,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include <aw/script/ast/type.h>
+#include <aw/script/ir/type.h>
 #include <aw/script/ast/middle/declaration.h>
 
 namespace aw::script {

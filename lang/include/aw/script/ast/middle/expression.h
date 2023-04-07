@@ -10,7 +10,7 @@
 #define aw_script_ast_middle_expression_h
 
 #include <aw/script/ast/number_base.h>
-#include <aw/script/ast/type.h>
+#include <aw/script/ir/type.h>
 
 #include <aw/script/ir/operators.h>
 #include <aw/script/utility/hard_alias.h>
