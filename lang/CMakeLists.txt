@@ -16,7 +16,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/ast/expression.h
 		include/aw/script/ast/operators.h
 		include/aw/script/ast/statement.h
-		#include/aw/script/ast/type.h
+		include/aw/script/ast/type.h
 		include/aw/script/ast/middle/declaration.h
 		include/aw/script/ast/middle/statement.h
 		include/aw/script/ast/middle/expression.h
