@@ -173,6 +173,11 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 	}
 
 	auto name = type->name;
+	if (auto ptr = get_if<ir::pointer_type>(&type->kind))
+	{
+		auto base_type = get_llvm_type(context, ptr->base_type);
+		return PointerType::get(base_type, 0);
+	}
 
 	// TODO: create a map of types
 	if (name == "void")

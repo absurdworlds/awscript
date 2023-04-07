@@ -140,6 +140,13 @@ auto parser::parse_type() -> std::optional<ast::type>
 	if (name.empty())
 		return {};
 
+	if (match(token_kind::ast)) {
+		return ast::pointer_type{
+			.pointee = std::string(name)
+		};
+
+	}
+
 	return ast::regular_type{
 		.name = std::string(name)
 	};
