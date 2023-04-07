@@ -3,6 +3,7 @@
 
 #include <aw/script/ast/declaration.h>
 #include <aw/script/ast/middle/declaration.h>
+#include <aw/script/diag/diagnostics_engine.h>
 
 namespace aw::script {
 
@@ -12,7 +13,7 @@ class context;
 // TODO: split into "ast_lowering" and "type_check"
 class semantic_analyzer {
 public:
-	semantic_analyzer();
+	semantic_analyzer(diagnostics_engine& diag);
 
 	auto lower(const ast::module& in_mod) -> middle::module;
 
@@ -20,6 +21,8 @@ public:
 private:
 	// TODO: should be stored in the builtin_module, not here
 	std::vector<std::unique_ptr<ir::type>> builtin_types;
+
+	diagnostics_engine& diag;
 
 	void visit(context& ctx, middle::declaration& decl);
 	void visit(context& ctx, middle::function& decl);

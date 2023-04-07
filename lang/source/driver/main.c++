@@ -61,7 +61,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 	}
 
 	// Temporary
-	semantic_analyzer analyzer;
+	semantic_analyzer analyzer(diag);
 
 	std::vector<middle::module> modules;
 	for (auto& [file,in_mod] : decl_source_map)
