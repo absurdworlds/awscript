@@ -66,10 +66,22 @@ char lexer::peek() const
 	return (cur < end) ? *(cur + 1) : '\0';
 }
 
+bool lexer::match(const char c)
+{
+	if (cur == end)
+		return false;
+	auto next = (cur + 1);
+	if (c == *next) {
+		cur = next;
+		return true;
+	}
+	return false;
+}
+
 bool lexer::lex_eof(token& token) const
 {
 	token = {
-		 .kind = token_kind::eof,
+		.kind = token_kind::eof,
 		.loc = make_location(cur)
 	};
 	return true;
@@ -173,7 +185,13 @@ bool lexer::lex_operator(token& token)
 		token.kind = token_kind::comma;
 		break;
 	case '.':
-		token.kind = token_kind::dot;
+		if (match('.')) {
+			token.kind = (match('.')) ?
+				token_kind::ellipsis :
+				token_kind::dot_dot;
+		} else {
+			token.kind = token_kind::dot;
+		}
 		break;
 	case ';':
 		token.kind = token_kind::semicolon;

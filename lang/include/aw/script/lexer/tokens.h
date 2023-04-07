@@ -27,6 +27,8 @@ TOKEN(block_comment)
 
 PUNCT(comma,            ",")
 PUNCT(dot,              ".")
+PUNCT(dot_dot,          "..")
+PUNCT(ellipsis,         "...")
 PUNCT(semicolon,        ";")
 PUNCT(colon,            ":")
 PUNCT(l_brace,          "{")

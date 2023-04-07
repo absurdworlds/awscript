@@ -146,9 +146,6 @@ Test(all_defined_operators_should_be_lexed) {
 #define PUNCT(x, y) token_kind::x,
 #define KEYWORD(...)
 #include <aw/script/lexer/tokens.h>
-#undef TOKEN
-#undef PUNCT
-#undef KEYWORD
 	};
 
 	const std::vector punct_spellings = {
@@ -156,9 +153,6 @@ Test(all_defined_operators_should_be_lexed) {
 #define PUNCT(x, y) y##sv,
 #define KEYWORD(...)
 #include <aw/script/lexer/tokens.h>
-#undef TOKEN
-#undef PUNCT
-#undef KEYWORD
 	};
 
 	auto string = aw::join(begin(punct_spellings), end(punct_spellings), " "s);

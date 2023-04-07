@@ -54,6 +54,7 @@ private:
 
 	char prev() const;
 	char peek() const;
+	bool match(char c);
 
 private:
 	source_buffer* buf;
