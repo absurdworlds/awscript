@@ -26,23 +26,28 @@ static auto create_builtin_types()
 	types.push_back(create_type("bool"));
 
 	// TODO: aliases
+	auto u8 = create_type("u8");
+	auto u8p = u8.get();
 	types.push_back(create_type("int"));
+	types.push_back(create_type("i8"));
+	types.push_back(std::move(u8));
+	types.push_back(create_type("i16"));
 	types.push_back(create_type("i32"));
 	types.push_back(create_type("i64"));
 
-	//top_scope->add_symbol("uint", create_type("uint"));
-	//top_scope->add_symbol("u32", create_type("u32"));
-	//top_scope->add_symbol("u64", create_type("u64"));
 
 	types.push_back(wrap(ir::type{"float",  ir::fp_type{ 32 }}));
 	types.push_back(wrap(ir::type{"double", ir::fp_type{ 64 }}));
 	types.push_back(wrap(ir::type{"f32",    ir::fp_type{ 32 }}));
 	types.push_back(wrap(ir::type{"f64",    ir::fp_type{ 64 }}));
 
+	types.push_back(wrap(ir::type{"u8*",  ir::pointer_type{
+		.base_type = u8p,
+		.is_mutable = false,
+	}}));
+
 	types.push_back(create_type("string_literal"));
 
-	// TODO: remove when FFI modules are implemented
-	types.push_back(create_type("cstring"));
 
 	return types;
 }
@@ -441,7 +446,7 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::num
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::string_literal& expr) -> ir::type*
 {
-	return common_type(type, ctx.find_type("cstring")); // TODO: should be string_literal
+	return common_type(type, ctx.find_type("u8*")); // TODO: should be string_literal
 }
 
 } // namespace aw::script

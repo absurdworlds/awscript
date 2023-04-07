@@ -183,11 +183,11 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 	if (name == "void")
 		return Type::getVoidTy(context);
 
-	if (name == "cstring")
-		return PointerType::getInt8PtrTy(context);
-
 	if (name == "bool")
 		return Type::getInt1Ty(context);
+
+	if (in(name, "u8"))
+		return Type::getInt8Ty(context);
 
 	if (in(name, "i32", "int32", "int"))
 		return Type::getInt32Ty(context);

@@ -1,6 +1,6 @@
 function putchar(var ch: int);
-function puts(var str: cstring);
-function printf(var str: cstring, var v: int);
+function puts(var str: u8*);
+function printf(var str: u8*, var v: int);
 
 var double: double = 4.0;
 var global: int = add(5,2);
