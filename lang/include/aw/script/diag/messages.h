@@ -1,3 +1,7 @@
+#ifndef DIAG
+#define DIAG(type, id, msg)
+#endif
+
 DIAG(error, generic_error, "%0")
 DIAG(error, unexpected_token, "Unexpected token: expected ‘%1’, got ‘%0’.")
 DIAG(error, expected_variable_decl, "Unexpected token ‘%0’: Expected variable declaration.")
@@ -16,4 +20,7 @@ DIAG(error, is_not_declared, "‘%0’ is not declared in this scope.")
 DIAG(error, undefined_variable, "Undefined variable: ‘%0’.")
 DIAG(error, redefined_variable, "Redefined variable: ‘%0’.")
 DIAG(error, symbol_already_defined, "Symbol already defined: ‘%0’.")
+DIAG(error, variadic_parameter, "Variadic parameter must be at the end of the parameter list.")
 DIAG(error, unknown_type, "Unknown type: ‘%0’.")
+
+#undef DIAG

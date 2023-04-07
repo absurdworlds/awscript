@@ -18,7 +18,6 @@ class diagnostics_engine;
 enum class diagnostic_id {
 #define DIAG(type, id, msg) id,
 #include <aw/script/diag/messages.h>
-#undef DIAG
 };
 
 /*!

@@ -69,6 +69,7 @@ private:
 
 	auto parse_function_prototype() -> std::optional<ast::function>;
 
+	bool parse_variadic_parameter(ast::function& func);
 	bool parse_function_arguments(ast::function& func);
 	bool parse_function_return_type(ast::function& func);
 	auto parse_function_body() -> std::optional<ast::statement>;

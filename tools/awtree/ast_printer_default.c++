@@ -72,9 +72,9 @@ void ast_printer_default::print_decl(const ast::function& decl)
 	start_line();
 	{
 		start("fn-args");
-		for (const auto& arg : decl.args)
+		for (const auto& param : decl.params)
 		{
-			print_decl(arg);
+			print_decl(param);
 			start_line();
 		}
 		end();

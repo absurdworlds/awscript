@@ -244,16 +244,37 @@ auto parser::parse_function_prototype() -> std::optional<ast::function>
 	return func;
 }
 
+bool parser::parse_variadic_parameter(ast::function& func)
+{
+	if (match(token_kind::ellipsis)) {
+		ast::variadic_parameter vparam;
+		if (tok == token_kind::identifier) {
+			vparam.name = tok.data;
+			advance();
+		}
+		func.params.variadic = vparam;
+		return true;
+	}
+
+	return false;
+}
+
 bool parser::parse_function_arguments(ast::function& func)
 {
 	// TODO: support both 'var int a' and 'int a'
 	// TODO: support const
 	while (match("var"sv)) {
+		if (parse_variadic_parameter(func)) {
+			if (tok != token_kind::r_paren)
+				return error(diag, diagnostic_id::variadic_parameter, tok.loc);
+			break;
+		}
+
 		auto arg = parse_variable_declaration(ast::access::variable);
 		if (!arg)
 			return {};
 
-		func.args.push_back(std::move(*arg));
+		func.params.push_back(std::move(*arg));
 
 		if (tok == token_kind::r_paren)
 			break;

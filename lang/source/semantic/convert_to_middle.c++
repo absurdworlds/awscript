@@ -84,8 +84,8 @@ struct convert_to_middle_visitor {
 		if (in_func.body)
 			func.body = wrap(convert_stmt(*in_func.body));
 
-		func.args.resize(in_func.args.size());
-		for (auto&& [arg, in_arg] : paired(func.args, in_func.args))
+		func.args.resize(in_func.params.size());
+		for (auto&& [arg, in_arg] : paired(func.args, in_func.params))
 		{
 			arg = wrap(convert_decl(in_arg));
 		}
