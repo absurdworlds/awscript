@@ -179,6 +179,12 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 		return PointerType::get(base_type, 0);
 	}
 
+
+	if (auto integer = get_if<ir::integer_type>(&type->kind))
+	{
+		return IntegerType::get(context, integer->size);
+	}
+
 	// TODO: create a map of types
 	if (name == "void")
 		return Type::getVoidTy(context);
@@ -186,19 +192,10 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 	if (name == "bool")
 		return Type::getInt1Ty(context);
 
-	if (in(name, "u8"))
-		return Type::getInt8Ty(context);
-
-	if (in(name, "i32", "int32", "int"))
-		return Type::getInt32Ty(context);
-
-	if (in(name, "i64", "int64"))
-		return Type::getInt64Ty(context);
-
-	if (in(name, "f32", "float32", "float"))
+	if (in(name, "f32", "float"))
 		return Type::getFloatTy(context);
 
-	if (in(name, "f64", "float64", "double"))
+	if (in(name, "f64", "double"))
 		return Type::getDoubleTy(context);
 
 	assert(!"Unknown type");

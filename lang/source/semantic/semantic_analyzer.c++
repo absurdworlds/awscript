@@ -25,24 +25,48 @@ static auto create_builtin_types()
 	types.push_back(create_type("void"));
 	types.push_back(create_type("bool"));
 
-	// TODO: aliases
-	auto u8 = create_type("u8");
-	auto u8p = u8.get();
-	types.push_back(create_type("int"));
-	types.push_back(create_type("i8"));
-	types.push_back(std::move(u8));
-	types.push_back(create_type("i16"));
-	types.push_back(create_type("i32"));
-	types.push_back(create_type("i64"));
+	auto create_int = [&types] (char kind, int size, std::string_view name = {}) {
+		std::string type_name;
+		if (name.empty()) {
+			type_name += kind;
+			type_name += std::to_string(size);
+		} else {
+			type_name = name;
+		}
 
+		types.push_back(wrap(ir::type{
+			type_name,
+			ir::integer_type{
+				.size = size,
+				.is_signed = (kind != 'u')
+			}
+		}));
 
-	types.push_back(wrap(ir::type{"float",  ir::fp_type{ 32 }}));
-	types.push_back(wrap(ir::type{"double", ir::fp_type{ 64 }}));
+		return types.back().get();
+	};
+
+	auto u8 = create_int('u', 8);
+	create_int('u', 16);
+	create_int('u', 32);
+	create_int('u', 64);
+	create_int('u', 64, "usize");
+	create_int('u', 128);
+
+	create_int('i', 8);
+	create_int('i', 16);
+	create_int('i', 32);
+	create_int('i', 32, "int"); // TODO: alias for 32
+	create_int('i', 64);
+	create_int('i', 64, "isize");
+	create_int('i', 128);
+
+	types.push_back(wrap(ir::type{"float",  ir::fp_type{ 32 }})); // TODO: aliases
+	types.push_back(wrap(ir::type{"double", ir::fp_type{ 64 }})); // TODO: aliases
 	types.push_back(wrap(ir::type{"f32",    ir::fp_type{ 32 }}));
 	types.push_back(wrap(ir::type{"f64",    ir::fp_type{ 64 }}));
 
 	types.push_back(wrap(ir::type{"u8*",  ir::pointer_type{
-		.base_type = u8p,
+		.base_type = u8,
 		.is_mutable = false,
 	}}));
 
@@ -250,11 +274,11 @@ void semantic_analyzer::visit_expr(context& ctx, middle::string_literal& in_expr
 {
 }
 
-void semantic_analyzer::visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
+void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 {
-	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind))
-	{
-		using enum ir::binary_operator;
+	using enum ir::binary_operator;
+
+	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
 		switch(expr.op) {
 		case less:
 			expr.op = less_fp;
@@ -264,6 +288,24 @@ void semantic_analyzer::visit_op(context& ctx, ir::type* ty, middle::binary_expr
 			break;
 		case divide:
 			expr.op = divide_fp;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (auto* integer = std::get_if<ir::integer_type>(&ty->kind)) {
+		const bool is_signed = integer->is_signed;
+
+		switch(expr.op) {
+		case less:
+			expr.op = is_signed ? less : less_unsigned;
+			break;
+		case greater:
+			expr.op = is_signed ? greater : greater_unsigned;
+			break;
+		case divide:
+			expr.op = is_signed ? divide : divide_unsigned;
 			break;
 		default:
 			break;

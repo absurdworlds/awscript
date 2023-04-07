@@ -44,7 +44,7 @@ auto context::create_type(const ast::type &type) -> ir::type*
 	}
 
 	// TODO
-       assert(!"Not implemented")
+	assert(!"Not implemented");
 	return nullptr;
 }
 

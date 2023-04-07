@@ -42,9 +42,6 @@ private:
 	void visit_expr(context& ctx, middle::numeric_literal& in_expr);
 	void visit_expr(context& ctx, middle::string_literal& in_expr);
 
-	void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr);
-
-
 	auto common_type(ir::type* a, ir::type* b) -> ir::type*;
 
 	auto common_type(context& ctx, middle::expression& lhs, middle::expression& rhs) -> ir::type*;

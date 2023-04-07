@@ -20,7 +20,6 @@ enum class simple_type {
 };
 
 struct integer_type {
-	type* base_type = nullptr;
 	int size = 0;
 	bool is_signed = false;
 };

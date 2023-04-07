@@ -5,6 +5,7 @@ function printf(var str: u8*, var v: int);
 var double: double = 4.0;
 var global: int = add(5,2);
 
+var big: i128 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 function main(var argc: int) : int
 {
@@ -20,6 +21,8 @@ function main(var argc: int) : int
 	printf("x = %d\n", x);
 
 	test_reassign(argc);
+
+	var f: i128 = big;
 
 	return 0;
 }
