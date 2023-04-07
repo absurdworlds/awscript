@@ -44,7 +44,7 @@ struct function {
 struct declaration;
 
 struct module {
-    std::vector<declaration> decls;
+	std::vector<declaration> decls;
 };
 
 using declaration_variant = std::variant<

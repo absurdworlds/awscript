@@ -79,6 +79,10 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 		visit(ctx, *decl_ptr);
 	}
 
+	// TODO: store them directly in the module instead of moving after the fact
+	for (auto& ty : ctx.types)
+		mod.types.push_back(std::move(ty));
+
 	return mod;
 }
 
