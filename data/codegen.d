@@ -1,11 +1,11 @@
 function putchar(var ch: int);
 function puts(var str: u8*);
-function printf(var str: u8*, var v: int);
+function printf(var str: u8*, var...args);
 
 var double: double = 4.0;
 var global: int = add(5,2);
 
-var big: i128 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+var big: i128 = 0x1EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 function main(var argc: int) : int
 {
@@ -22,7 +22,9 @@ function main(var argc: int) : int
 
 	test_reassign(argc);
 
-	var f: i128 = big;
+	const test: i128 = big*2 + big / 3;
+
+	printf("\nbig: %2$llx%1$llx", test);
 
 	return 0;
 }

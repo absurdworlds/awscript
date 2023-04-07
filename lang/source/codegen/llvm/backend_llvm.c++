@@ -231,7 +231,7 @@ auto create_function(
 
 	Type* return_type = get_llvm_type(context, decl.return_type);
 
-	auto signature = FunctionType::get(return_type, args_types, false);
+	auto signature = FunctionType::get(return_type, args_types, decl.is_variadic);
 	auto func = Function::Create(signature, Function::ExternalLinkage, decl.name, module);
 
 	for (auto&& [llvm_arg, in_arg] : paired(func->args(), decl.args))
@@ -537,8 +537,7 @@ auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 		callee = create_function(context, cur_module.get(), *expr.func);
 	}
 
-	if (callee->arg_size() != expr.args.size())
-		return error_not_implemented_yet(diag); // argument mismatch
+	assert(callee->isVarArg() || callee->arg_size() == expr.args.size());
 
 	std::vector<Value *> argv;
 	for (const auto& arg : expr.args)

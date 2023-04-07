@@ -76,8 +76,9 @@ static auto create_builtin_types()
 	return types;
 }
 
-semantic_analyzer::semantic_analyzer()
+semantic_analyzer::semantic_analyzer(diagnostics_engine& diag)
 	: builtin_types(create_builtin_types())
+	, diag(diag)
 {
 }
 
@@ -249,6 +250,16 @@ void semantic_analyzer::visit_expr(context& ctx, middle::call_expression& call)
 		visit_expr(ctx, arg);
 	}
 	call.func = ctx.current_scope()->find_func(call.func_name);
+
+	if (call.func && !call.func->is_variadic) {
+		const auto n_params = call.func->args.size();
+		const auto n_args = call.args.size();
+		if (n_params != n_args) {
+			// TODO: distinguish "not enough" and "too many"
+			error(diag, diagnostic_id::not_enough_arguments, location(),
+				call.func_name, std::to_string(n_params), std::to_string(n_args));
+		}
+	}
 }
 
 void semantic_analyzer::visit_expr(context& ctx, middle::if_expression& in_expr)
@@ -395,6 +406,11 @@ auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) 
 
 		for (const auto& [expr, param] : aw::paired(expr.args, params))
 			propagate_type(ctx, param->type, expr);
+
+		for (size_t i = params.size(), e = expr.args.size(); i<e; ++i) {
+			infer_type(ctx, expr.args[i]);
+		}
+
 		return expr.func->return_type;
 	}
 	return nullptr;

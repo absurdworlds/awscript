@@ -21,6 +21,7 @@ DIAG(error, undefined_variable, "Undefined variable: ‘%0’.")
 DIAG(error, redefined_variable, "Redefined variable: ‘%0’.")
 DIAG(error, symbol_already_defined, "Symbol already defined: ‘%0’.")
 DIAG(error, variadic_parameter, "Variadic parameter must be at the end of the parameter list.")
+DIAG(error, not_enough_arguments, "Function parameter mismatch: ‘%0’. Expects: %1, Actual: %2")
 DIAG(error, unknown_type, "Unknown type: ‘%0’.")
 
 #undef DIAG

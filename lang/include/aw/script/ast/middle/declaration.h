@@ -27,6 +27,7 @@ struct function {
 	ir::type* return_type = nullptr;
 
 	parameter_list args;
+	bool is_variadic = false;
 
 	std::unique_ptr<statement> body;
 };

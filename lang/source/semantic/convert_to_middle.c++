@@ -89,6 +89,7 @@ struct convert_to_middle_visitor {
 		{
 			arg = wrap(convert_decl(in_arg));
 		}
+		func.is_variadic = in_func.is_variadic();
 		return func;
 	}
 
