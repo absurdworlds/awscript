@@ -78,6 +78,9 @@ int run_compiler(const options& options, callbacks* callbacks)
 		for (const auto& decl : mod.decls)
 			callbacks->process_declaration(decl);
 
+	if (diag.has_error())
+		return EXIT_FAILURE;
+
 	if (options.mode == mode::dry_run)
 		return EXIT_SUCCESS;
 

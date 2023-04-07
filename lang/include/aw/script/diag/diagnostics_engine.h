@@ -32,8 +32,12 @@ public:
 	// TODO: customizable output
 	void report(diagnostic diag);
 
+	bool has_error() const { return n_errors > 0; }
+
 private:
 	const source_manager* srcman = nullptr;
+
+	int n_errors = 0;
 };
 } // namespace aw::script
 #endif//aw_script_diagnostic_engine_h
