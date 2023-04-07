@@ -1,13 +1,20 @@
 #ifndef aw_script_context_h
 #define aw_script_context_h
 
+#include <aw/script/ast/type.h>
 #include <aw/script/semantic/scope.h>
+
+#include <cassert>
 
 namespace aw::script {
 struct context {
 	scope default_scope;
 
 	std::vector<std::unique_ptr<scope>> stack;
+
+	// TODO: solve this mess
+	std::vector<std::unique_ptr<ir::type>> types;
+
 
 	void push_scope()
 	{
@@ -28,11 +35,7 @@ struct context {
 		return current_scope()->find_type(name);
 	}
 
-	ir::type* create_type(std::string_view name)
-	{
-		// TODO
-		return find_type(name);
-	}
+	ir::type* create_type(const ast::type& type);
 };
 } // namespace aw::script
 

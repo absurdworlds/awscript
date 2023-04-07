@@ -21,7 +21,6 @@
 
 namespace aw::script::ast {
 
-class type;
 class expression;
 
 struct paren_expression {

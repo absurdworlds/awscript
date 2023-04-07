@@ -58,7 +58,8 @@ private:
 	bool match_id(string_view identifier);
 
 	std::string_view parse_identifier();
-	std::string_view parse_type();
+	bool parse_type_specifier(ast::type& type, ast::type default_type);
+	auto parse_type() -> std::optional<ast::type>;
 
 	auto parse_declaration() -> std::optional<ast::declaration>;
 

@@ -68,7 +68,7 @@ struct convert_to_middle_visitor {
 		middle::variable var;
 		var.name = in_var.name;
 		var.access = in_var.access;
-		if (!in_var.type.empty())
+		if (!get_if<ast::unknown_type>(&in_var.type))
 			var.type = ctx.create_type(in_var.type);
 		if (in_var.value)
 			var.value = wrap(convert_expr(*in_var.value));

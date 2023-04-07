@@ -11,7 +11,7 @@
 
 #include <aw/script/ast/mutability.h>
 #include <aw/script/ast/statement.h>
-//#include <aw/script/ast/type.h>
+#include <aw/script/ast/type.h>
 
 #include <aw/types/string_view.h>
 
@@ -25,7 +25,7 @@ namespace aw::script::ast {
 
 struct variable {
 	std::string name;
-	std::string type;
+	ast::type type;
 	ast::access access;
 	std::unique_ptr<expression> value;
 };
@@ -35,7 +35,7 @@ using parameter_list = std::vector<variable>;
 struct function {
 	std::string name;
 
-	std::string return_type;
+	ast::type return_type;
 	parameter_list args;
 
 	std::unique_ptr<statement> body;

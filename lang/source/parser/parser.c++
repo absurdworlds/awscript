@@ -120,16 +120,29 @@ std::string_view parser::parse_identifier()
 	return name;
 }
 
-std::string_view parser::parse_type()
+bool parser::parse_type_specifier(ast::type& type, ast::type default_type)
 {
-	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok);
+	if (!match(token_kind::colon)) {
+		type = std::move(default_type);
+		return true;
+	}
 
-	// TODO
-	auto name = tok.data;
-	advance();
+	auto opt_type = parse_type();
+	if (!opt_type)
+		return false;
+	type = std::move(*opt_type);
+	return true;
+}
 
-	return name;
+auto parser::parse_type() -> std::optional<ast::type>
+{
+	auto name = parse_identifier();
+	if (name.empty())
+		return {};
+
+	return ast::regular_type{
+		.name = std::string(name)
+	};
 }
 
 std::optional<ast::declaration> parser::parse_top_level()
@@ -174,11 +187,8 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 	if (var.name.empty())
 		return {};
 
-	if (match(token_kind::colon)) {
-		var.type = parse_type();
-		if (var.type.empty())
-			return {};
-	}
+	if (!parse_type_specifier(var.type, ast::unknown_type{}))
+		return {};
 
 	if (match(token_kind::equal)) {
 		var.value = wrap(parse_expression());
@@ -251,18 +261,7 @@ bool parser::parse_function_arguments(ast::function& func)
 
 bool parser::parse_function_return_type(ast::function& func)
 {
-	std::string_view type_name;
-
-	if (match(token_kind::colon)) {
-		type_name = parse_type();
-		if (type_name.empty())
-			return false;
-	} else {
-		type_name = "void";
-	}
-
-	func.return_type = type_name;
-	return true;
+	return parse_type_specifier(func.return_type, ast::regular_type{ .name = "void" });
 }
 
 auto parser::parse_function_body() -> std::optional<ast::statement>

@@ -67,8 +67,7 @@ void ast_printer_default::print_decl(const ast::function& decl)
 {
 	start("func", mixed_scope);
 
-	//print_type(decl.return_type);
-	print_inline(decl.return_type);
+	print_type(decl.return_type);
 	print_inline(decl.name);
 	start_line();
 	{
@@ -92,8 +91,7 @@ void ast_printer_default::print_decl(const ast::function& decl)
 void ast_printer_default::print_decl(const ast::variable& var)
 {
 	start("var", inline_scope);
-	//print_type(var.type);
-	print_inline(var.type);
+	print_type(var.type);
 	print_inline(var.name);
 	end();
 }
@@ -103,9 +101,18 @@ void ast_printer_default::print(const ast::statement& stmt)
 	std::visit([this] (auto&& node) { print_stmt(node); }, stmt);
 }
 
-void ast_printer_default::print_type(const ast::type* type)
+void ast_printer_default::print_type(const ast::type& type)
 {
-	//print_inline(type ? type->name : "<unresolved type>");
+	if (auto _ = get_if<ast::unknown_type>(&type)) {
+		print_inline("<inferred type>");
+	} else if (auto ty = get_if<ast::pointer_type>(&type)) {
+		print_inline(ty->pointee + "*");
+	} else if (auto ty = get_if<ast::reference_type>(&type)) {
+		print_inline(ty->pointee + "&");
+	} else {
+		assert(!"Forgot to update the ast printer?");
+		print_inline("<unresolved type>");
+	}
 }
 
 void ast_printer_default::print_stmt(const ast::decl_statement& stmt)
