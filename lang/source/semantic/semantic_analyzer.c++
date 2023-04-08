@@ -298,6 +298,8 @@ void semantic_analyzer::visit_expr(context& ctx, middle::string_literal& in_expr
 void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 {
 	using enum ir::binary_operator;
+	if (!ty)
+		return;
 
 	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
 		switch(expr.op) {
@@ -343,7 +345,7 @@ auto semantic_analyzer::common_type(ir::type* a, ir::type* b) -> ir::type*
 		return nullptr;
 
 	if (a != b)
-		return error_t(); // TODO
+		return error(diag, diagnostic_id::type_mismathch, location(), a->name, b->name);
 
 	return a;
 }
