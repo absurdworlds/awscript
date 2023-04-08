@@ -351,18 +351,27 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 		return parse_statement_block();
 
 	case token_kind::identifier:
-		if (tok == "if"sv)
-			return parse_if_statement();
 		if (tok == "const"sv)
 			return parse_local_variable(ast::access::constant);
 		if (tok == "var"sv)
 			return parse_local_variable(ast::access::variable);
+		if (tok == "if"sv)
+			return parse_if_statement();
+		if (tok == "match"sv)
+			return {};
+		if (tok == "loop"sv)
+			return {};
 		if (tok == "while"sv)
 			return parse_while_statement();
 		if (tok == "for"sv)
 			return parse_for_statement();
+		if (tok == "continue"sv)
+			return {};
+		if (tok == "break"sv)
+			return {};
 		if (tok == "return"sv)
 			return parse_return_statement();
+
 		[[fallthrough]];
 	default:
 		return parse_expression();
