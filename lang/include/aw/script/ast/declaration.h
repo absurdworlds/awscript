@@ -51,6 +51,12 @@ struct function {
 	bool is_variadic() const { return params.variadic.has_value(); }
 };
 
+struct struct_decl {
+	std::string_view name;
+
+	std::vector<variable> members;
+};
+
 struct declaration;
 
 struct module {
