@@ -124,6 +124,8 @@ void ast_printer_default::print_type(const ast::type& type)
 {
 	if (auto _ = get_if<ast::unknown_type>(&type)) {
 		print_inline("<inferred type>");
+	} else if (auto ty = get_if<ast::regular_type>(&type)) {
+		print_inline(ty->name);
 	} else if (auto ty = get_if<ast::pointer_type>(&type)) {
 		print_inline(ty->pointee + "*");
 	} else if (auto ty = get_if<ast::reference_type>(&type)) {
