@@ -137,6 +137,12 @@ void semantic_analyzer::visit(context& ctx, middle::function& func)
 	}
 
 	if (func.body) {
+		if (func.is_variadic) {
+			using namespace std::string_view_literals;
+			error(diag, diagnostic_id::not_implemented_yet, location(), "variadic functions"sv);
+			return;
+		}
+
 		// TODO: local ctx instead of push/pop scope
 		ctx.push_scope();
 		ctx.current_scope()->add_symbol("$func", &func); // hack!
