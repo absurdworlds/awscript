@@ -63,6 +63,15 @@ struct convert_to_middle_visitor {
 		return std::visit(wrapper, in_decl);
 	}
 
+	auto convert_decl(const ast::struct_decl& in_struct) -> middle::struct_decl
+	{
+		middle::struct_decl st;
+		st.name = std::string(in_struct.name);
+		for (const auto& var : in_struct.members)
+			st.members.push_back(wrap(convert_decl(var)));
+		return st;
+	}
+
 	auto convert_decl(const ast::variable& in_var) -> middle::variable
 	{
 		middle::variable var;

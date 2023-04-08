@@ -65,6 +65,7 @@ private:
 
 	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
 	auto parse_function_declaration() -> std::optional<ast::function>;
+	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_function_prototype() -> std::optional<ast::function>;

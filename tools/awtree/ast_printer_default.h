@@ -18,9 +18,9 @@ public:
 
 private:
 	void print_decl(const ast::function& decl);
+	void print_var(const ast::variable& var);
 	void print_decl(const ast::variable& var);
-	template <typename T>
-	void print_decl(const T&) { /* catch-all */ }
+	void print_decl(const ast::struct_decl& var);
 
 	void print_type(const ast::type& type);
 
@@ -66,6 +66,7 @@ private:
 	};
 
 	void start_line();
+	void end_line();
 	void start(string_view name, scope_type type = block_scope);
 	void end();
 	void print_indent();

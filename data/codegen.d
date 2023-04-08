@@ -2,6 +2,11 @@ function putchar(var ch: int);
 function puts(var str: u8*);
 function printf(var str: u8*, var...args);
 
+struct vec2 {
+	var x: int;
+	var y: int;
+}
+
 var double: double = 4.0;
 var global: int = add(5,2);
 

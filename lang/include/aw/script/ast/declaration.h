@@ -51,10 +51,11 @@ struct function {
 	bool is_variadic() const { return params.variadic.has_value(); }
 };
 
+using var_list = hard_alias<std::vector<variable>>;
 struct struct_decl {
 	std::string_view name;
 
-	std::vector<variable> members;
+	var_list members;
 };
 
 struct declaration;
@@ -65,7 +66,8 @@ struct module {
 
 using declaration_variant = std::variant<
 	variable,
-	function
+	function,
+	struct_decl
 >;
 
 struct declaration : public declaration_variant {

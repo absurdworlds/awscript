@@ -163,6 +163,12 @@ void semantic_analyzer::visit(context& ctx, middle::variable& var)
 	}
 }
 
+void semantic_analyzer::visit(context &ctx, middle::struct_decl &decl)
+{
+	using namespace std::string_view_literals;
+	error(diag, diagnostic_id::not_implemented_yet, location(), "structures"sv);
+}
+
 /*
  * Statements
  */

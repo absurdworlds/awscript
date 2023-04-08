@@ -180,6 +180,9 @@ std::optional<ast::declaration> parser::parse_declaration()
 	if (match_id("function"sv))
 		return parse_function_declaration();
 
+	if (match_id("struct"sv))
+		return parse_struct_declaration();
+
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
@@ -214,6 +217,39 @@ auto parser::parse_function_declaration() -> std::optional<ast::function>
 	}
 
 	return func;
+}
+
+auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
+{
+	ast::struct_decl st;
+	st.name = parse_identifier();
+	if (st.name.empty())
+		return {};
+
+
+	if (!match(token_kind::l_brace))
+		return error_unexpected_token(diag, tok, token_kind::l_brace);
+
+	// TODO: support both 'var a: int' and 'a: int'
+	while (match("var"sv)) {
+		auto var = parse_variable_declaration(ast::access::variable);
+		if (!var)
+			return {};
+
+		st.members.push_back(std::move(*var));
+
+		if (tok == token_kind::r_brace)
+			break;
+
+		if (!match(token_kind::semicolon))
+			return error_unexpected_token(diag, tok, token_kind::comma);
+	}
+
+
+	if (!match(token_kind::r_brace))
+		return error_unexpected_token(diag, tok, token_kind::r_brace);
+
+	return st;
 }
 
 auto parser::parse_class_declaration() -> std::optional<ast::declaration>
@@ -261,7 +297,7 @@ bool parser::parse_variadic_parameter(ast::function& func)
 
 bool parser::parse_function_arguments(ast::function& func)
 {
-	// TODO: support both 'var int a' and 'int a'
+	// TODO: support both 'var a: int' and 'a: int'
 	// TODO: support const
 	while (match("var"sv)) {
 		if (parse_variadic_parameter(func)) {

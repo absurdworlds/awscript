@@ -13,6 +13,7 @@ ast_printer_default::ast_printer_default()
 void ast_printer_default::print_declaration(const ast::declaration& decl)
 {
 	std::visit([this] (auto&& node) { print_decl(node); }, decl);
+	end_line();
 }
 
 void ast_printer_default::start(string_view name, scope_type type)
@@ -43,6 +44,13 @@ void ast_printer_default::start_line()
 	std::cout << '\n';
 }
 
+void ast_printer_default::end_line()
+{
+	if (state == line_middle) {
+		state = line_start;
+		std::cout << '\n';
+	}
+}
 
 void ast_printer_default::print_inline(string_view text)
 {
@@ -93,6 +101,17 @@ void ast_printer_default::print_decl(const ast::variable& var)
 	start("var", inline_scope);
 	print_type(var.type);
 	print_inline(var.name);
+	end();
+}
+
+void ast_printer_default::print_decl(const ast::struct_decl& st)
+{
+	start("struct", mixed_scope);
+	print_inline(st.name);
+	for (const auto& var : st.members) {
+		start_line();
+		print_decl(var);
+	}
 	end();
 }
 

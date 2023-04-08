@@ -32,6 +32,12 @@ struct function {
 	std::unique_ptr<statement> body;
 };
 
+struct struct_decl {
+	std::string name;
+
+	std::vector<std::unique_ptr<variable>> members;
+};
+
 struct declaration;
 
 // TODO: proper modules
@@ -46,7 +52,8 @@ struct module {
 
 using declaration_variant = std::variant<
 	variable,
-	function
+	function,
+	struct_decl
 >;
 
 struct declaration : public declaration_variant

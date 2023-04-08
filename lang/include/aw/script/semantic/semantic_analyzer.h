@@ -27,6 +27,7 @@ private:
 	void visit(context& ctx, middle::declaration& decl);
 	void visit(context& ctx, middle::function& decl);
 	void visit(context& ctx, middle::variable& var);
+	void visit(context& ctx, middle::struct_decl& decl);
 
 	void visit_stmt(context& ctx, middle::statement& in_stmt);
 	void visit_stmt(context& ctx, middle::statement_block& in_stmt);
