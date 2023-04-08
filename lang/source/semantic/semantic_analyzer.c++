@@ -196,6 +196,16 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::if_else_statement& stmt
 		visit_stmt(ctx, *stmt.else_body);
 }
 
+void semantic_analyzer::visit_stmt(context &ctx, middle::while_statement& stmt)
+{
+	if (stmt.loop_body) {
+		visit_expr(ctx, *stmt.cond_expr);
+		propagate_type(ctx, ctx.find_type("bool"), *stmt.cond_expr);
+	}
+	if (stmt.loop_body)
+		visit_stmt(ctx, *stmt.loop_body);
+}
+
 void semantic_analyzer::visit_stmt(context& ctx, middle::return_statement& stmt)
 {
 	if (stmt.value)

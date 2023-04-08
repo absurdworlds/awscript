@@ -360,7 +360,7 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 		if (tok == "while"sv)
 			return parse_while_statement();
 		if (tok == "for"sv)
-			return parse_while_statement();
+			return parse_for_statement();
 		if (tok == "return"sv)
 			return parse_return_statement();
 		[[fallthrough]];
@@ -398,7 +398,20 @@ auto parser::parse_for_statement() -> std::optional<ast::statement>
 
 auto parser::parse_while_statement() -> std::optional<ast::statement>
 {
-	return {};
+	advance("while");
+
+	auto cond = parse_expression();
+	if (!cond)
+		return {};
+
+	auto body = parse_statement();
+	if (!body)
+		return {};
+
+	return ast::while_statement {
+		.cond_expr = wrap(std::move(*cond)),
+		.loop_body = wrap(std::move(*body)),
+	};
 }
 
 auto parser::parse_return_statement() -> std::optional<ast::statement>

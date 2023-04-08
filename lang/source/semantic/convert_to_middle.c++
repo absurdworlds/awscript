@@ -136,6 +136,18 @@ struct convert_to_middle_visitor {
 		return stmt;
 	}
 
+	auto convert_stmt(const ast::while_statement& in_stmt) -> middle::while_statement
+	{
+		middle::while_statement stmt;
+		if (in_stmt.cond_expr) {
+			stmt.cond_expr = wrap(convert_expr(*in_stmt.cond_expr));
+			stmt.cond_expr->type = ctx.find_type("bool");
+		}
+		if (in_stmt.loop_body)
+			stmt.loop_body = wrap(convert_stmt(*in_stmt.loop_body));
+		return stmt;
+	}
+
 	auto convert_stmt(const ast::return_statement& in_stmt) -> middle::return_statement
 	{
 		middle::return_statement stmt;

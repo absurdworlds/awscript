@@ -354,8 +354,6 @@ auto backend_llvm::gen(const middle::if_else_statement& stmt) -> llvm::Value*
 		return nullptr;
 	if (!IsATerminatorInst(then_v))
 		builder.CreateBr(merge_bb);
-	// Codegen can change the current block, update then_bb for the PHI.
-	then_bb = builder.GetInsertBlock();
 
 	if (stmt.else_body) {
 		function->insert(function->end(), else_bb);
@@ -365,11 +363,41 @@ auto backend_llvm::gen(const middle::if_else_statement& stmt) -> llvm::Value*
 			return nullptr;
 		if (!IsATerminatorInst(then_v))
 			builder.CreateBr(merge_bb);
-		else_bb = builder.GetInsertBlock();
 	}
 
 	function->insert(function->end(), merge_bb);
 	builder.SetInsertPoint(merge_bb);
+
+	return UndefValue::get(Type::getVoidTy(context));
+}
+
+auto backend_llvm::gen(const middle::while_statement& stmt) -> llvm::Value*
+{
+	auto* function = builder.GetInsertBlock()->getParent();
+
+	auto* loop_bb  = BasicBlock::Create(context, "loop", function);
+	auto* body_bb  = BasicBlock::Create(context, "body", function);
+	auto* after_bb = BasicBlock::Create(context, "endloop", function);
+
+	builder.CreateBr(loop_bb);
+
+	builder.SetInsertPoint(loop_bb);
+
+	auto* cond_v = gen_if_condition(stmt.cond_expr);
+	if (!cond_v)
+		return nullptr;
+
+	builder.CreateCondBr(cond_v, body_bb, after_bb);
+
+	builder.SetInsertPoint(body_bb);
+
+	auto loop_v = gen(stmt.loop_body);
+	if (!loop_v)
+		return nullptr;
+
+	builder.CreateBr(loop_bb);
+
+	builder.SetInsertPoint(after_bb);
 
 	return UndefValue::get(Type::getVoidTy(context));
 }

@@ -162,6 +162,21 @@ void ast_printer_default::print_stmt(const ast::if_else_statement& stmt)
 	end();
 }
 
+void ast_printer_default::print_stmt(const ast::while_statement& stmt)
+{
+	start("while", mixed_scope);
+
+	print_expr(stmt.cond_expr);
+	start_line();
+	{
+		start("do", block_scope);
+		if (stmt.loop_body)
+			print(*stmt.loop_body);
+		end();
+	}
+	end();
+}
+
 void ast_printer_default::print_stmt(const ast::empty_statement& stmt)
 {
 	start("", inline_scope);

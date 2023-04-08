@@ -5,12 +5,29 @@ function printf(var str: u8*, var...args);
 var double: double = 4.0;
 var global: int = add(5,2);
 
-var big: i128 = 0x1EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+const big: i128 = 0x1EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 function main(var argc: int) : int
 {
 	hello();
+	test(argc);
 
+	var test: i128 = big*2 + big / 3;
+
+	printf("\nbig:", test);
+	print(test);
+
+	while test > 0 {
+		test = test - 1;
+		printf("\nbig:", test);
+		print(test);
+	}
+
+	return 0;
+}
+
+function test(var argc: int)
+{
 	printf("argc = %d\n", argc);
 	printf("div = %d\n", div(global,1));
 
@@ -21,14 +38,12 @@ function main(var argc: int) : int
 	printf("x = %d\n", x);
 
 	test_reassign(argc);
-
-	const test: i128 = big*2 + big / 3;
-
-	printf("\nbig: %2$llx%1$llx", test);
-
-	return 0;
 }
 
+function print(var v: i128)
+{
+	printf("%2$llx%1$llx", v);
+}
 
 function add(var x: int, var y: int) : int
 {

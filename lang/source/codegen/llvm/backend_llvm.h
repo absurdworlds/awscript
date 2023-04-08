@@ -60,6 +60,7 @@ public:
 	auto gen(const middle::statement& stmt) -> llvm::Value*;
 	auto gen(const middle::decl_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::if_else_statement& stmt) -> llvm::Value*;
+	auto gen(const middle::while_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::statement_block& stmt) -> llvm::Value*;
 	auto gen(const middle::return_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::empty_statement& stmt) -> llvm::Value*;

@@ -51,12 +51,18 @@ struct if_else_statement {
 	std::unique_ptr<statement>  else_body;
 };
 
+struct while_statement {
+	std::unique_ptr<expression> cond_expr;
+	std::unique_ptr<statement>  loop_body;
+};
+
 using statement_block = hard_alias<statement_list>;
 
 using statement_variant = std::variant<
 	empty_statement,
 	statement_block,
 	if_else_statement,
+	while_statement,
 	return_statement,
 	expression,
 	decl_statement
