@@ -335,7 +335,15 @@ void ast_printer_default::print_expr(const ast::string_literal& expr)
 	// TODO: escape special chars
 	std::string tmp;
 	tmp += '"';
-	tmp += expr.value;
+	for (char c : expr.value)
+	{
+		if (c == '"')
+			tmp += "\\\"";
+		if (c == '\n')
+			tmp += "\\n";
+		else
+			tmp += c;
+	}
 	tmp += '"';
 	print_inline(tmp);
 }
