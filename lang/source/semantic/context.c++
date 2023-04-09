@@ -12,15 +12,19 @@ auto context::create_type(const ast::type &type) -> ir::type*
 	}
 
 	if (auto ty = get_if<ast::regular_type>(&type)) {
-		return find_type(ty->name);
+		auto existing_ty = find_type(ty->name);
+		if (existing_ty)
+			return existing_ty;
+
+		return add_type(ir::type{ ty->name });
 	}
 
 	if (auto ptr = get_if<ast::pointer_type>(&type)) {
 		auto name = ptr->pointee + "*";
 
 		// TODO: use composite keys instead of strings?
-		if (auto ty = find_type(name))
-			return ty;
+		if (auto existing_ty = find_type(name))
+			return existing_ty;
 
 		auto pointee = find_type(ptr->pointee);
 
@@ -40,6 +44,13 @@ auto context::create_type(const ast::type &type) -> ir::type*
 
 auto context::add_type(ir::type&& type) -> ir::type*
 {
+	auto existing_ty = find_type(type.name);
+	if (existing_ty) {
+		if (get_if<ir::unknown_type>(&existing_ty->kind))
+			*existing_ty = std::move(type);
+		return existing_ty;
+	}
+
 	auto new_type = wrap(std::move(type));
 	auto type_ref = new_type.get();
 
