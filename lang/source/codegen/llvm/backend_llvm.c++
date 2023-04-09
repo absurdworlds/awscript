@@ -311,17 +311,31 @@ auto backend_llvm::gen(const middle::statement& stmt) -> llvm::Value*
 	return std::visit([this] (auto&& stmt) { return gen(stmt); }, stmt);
 }
 
+
+auto backend_llvm::gen_local(const middle::variable& var) -> llvm::Value*
+{
+	if (var.value) {
+		// Elide the copy
+		if (auto lit = get_if<middle::struct_literal>(var.value.get()))
+			return gen(*lit, var.name);
+	}
+
+	auto* alloca = builder.CreateAlloca(get_llvm_type(context, var.type), nullptr, var.name);
+
+	if (var.value)
+		builder.CreateStore(gen(var.value), alloca);
+
+	return alloca;
+}
+
 auto backend_llvm::gen(const middle::decl_statement& stmt) -> llvm::Value*
 {
-	if (auto var = get_if<middle::variable>(stmt.decl.get()))
-	{
-		auto* alloca = builder.CreateAlloca(
-			get_llvm_type(context, var->type), nullptr, var->name);
+	if (auto var = get_if<middle::variable>(stmt.decl.get())) {
+		auto val = gen_local(*var);
 
-		if (var->value)
-			builder.CreateStore(gen(var->value), alloca);
+		symtab[var->name] = val;
 
-		symtab[var->name] = alloca;
+		return val;
 	}
 
 	return nullptr;

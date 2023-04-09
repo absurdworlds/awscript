@@ -58,6 +58,7 @@ public:
 	auto gen(const middle::struct_decl& var) -> llvm::Value*;
 
 	auto gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*;
+	auto gen_local(const middle::variable& stmt) -> llvm::Value*;
 	auto gen(const middle::statement& stmt) -> llvm::Value*;
 	auto gen(const middle::decl_statement& stmt) -> llvm::Value*;
 	auto gen(const middle::if_else_statement& stmt) -> llvm::Value*;
