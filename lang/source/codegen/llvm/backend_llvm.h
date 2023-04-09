@@ -76,12 +76,13 @@ public:
 	auto gen(const middle::binary_expression& expr) -> llvm::Value*;
 	auto gen(const middle::unary_expression& expr) -> llvm::Value*;
 	auto gen(const middle::call_expression& expr) -> llvm::Value*;
+	auto gen(const middle::field_expression& expr) -> llvm::Value*;
 	auto gen(const middle::if_expression& expr) -> llvm::Value*;
 
 	template<typename T>
 	auto gen(const T&) -> llvm::Value*
 	{
-		assert(false);
+		assert(!"Unimplemented visitor");
 		return nullptr;
 	}
 

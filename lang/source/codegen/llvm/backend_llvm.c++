@@ -467,10 +467,8 @@ auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 	auto* value_type = value->getType();
 	auto* expr_type = get_llvm_type(context, expr.type);
 	if (value_type->isPointerTy() && !expr_type->isPointerTy()) {
-		if (auto global = dyn_cast<GlobalValue>(value))
-			value = builder.CreateLoad(global->getValueType(), global, global->getName());
-		if (auto alloca = dyn_cast<AllocaInst>(value))
-			value = builder.CreateLoad(alloca->getAllocatedType(), alloca, value->getName());
+		// Assume the type is correct
+		return builder.CreateLoad(expr_type, value, value->getName());
 	}
 	return value;
 }
@@ -583,6 +581,36 @@ auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 	return callee->getReturnType()->isVoidTy() ?
 		builder.CreateCall(callee, argv):
 		builder.CreateCall(callee, argv, "calltmp");
+}
+
+
+auto get_element_index(const middle::struct_decl& decl, std::string_view name) -> int
+{
+	int index = 0;
+	for (const auto& field : decl.members) {
+		if (field->name == name)
+			break;
+		++index;
+	}
+
+	return index;
+}
+
+auto backend_llvm::gen(const middle::field_expression& expr) -> llvm::Value*
+{
+	auto lhs = gen_lvalue(expr.lhs);
+	if (!lhs)
+		return nullptr;
+
+	auto decl = expr.type->decl;
+	auto type = llvm::StructType::getTypeByName(context, decl->name);
+
+	int index = get_element_index(*decl, expr.name);
+
+	return builder.CreateGEP(
+		type, lhs,
+		{ builder.getInt32(0), builder.getInt32(index) },
+		lhs->getName() + "." + expr.name);
 }
 
 auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
