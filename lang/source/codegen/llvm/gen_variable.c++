@@ -72,6 +72,20 @@ auto backend_llvm::gen(const middle::variable& decl) -> llvm::Value*
 	return var;
 }
 
+auto backend_llvm::gen(const middle::struct_decl& decl) -> llvm::Value*
+{
+	std::vector<llvm::Type*> members;
+	for (const auto& field : decl.members)
+	{
+		members.push_back(get_llvm_type(context, field->type));
+	}
+
+	llvm::StructType::create(context, members, decl.name);
+
+	return nullptr;
+}
+
+
 template<typename Elem>
 auto to_llvm(array_ref<Elem> ref) -> llvm::ArrayRef<Elem>
 {
