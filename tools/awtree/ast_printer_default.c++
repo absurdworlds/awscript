@@ -102,40 +102,10 @@ void ast_printer_default::print_decl(const ast::variable& var)
 	start(kind, inline_scope);
 	print_type(var.type);
 	print_inline(var.name);
-	print_init(var.init);
+	if (var.value)
+		print_expr(*var.value);
 	end();
 }
-
-
-void ast_printer_default::print_init(const ast::initializer& init)
-{
-	if (!std::holds_alternative<ast::no_initializer>(init)) {
-		start("init", inline_scope);
-		std::visit([this] (auto&& node) { print_init(node); }, init);
-		end();
-	}
-}
-
-void ast_printer_default::print_init(const ast::no_initializer& init)
-{
-	print_inline("<uninitialized>");
-}
-
-void ast_printer_default::print_init(const ast::struct_initializer& init)
-{
-	for (const auto& field : init.fields) {
-		start("", inline_scope);
-		print_inline(field.name);
-		print_expr(field.value);
-		end();
-	}
-}
-
-void ast_printer_default::print_init(const ast::expr_initializer& init)
-{
-	print_expr(init.value);
-}
-
 
 void ast_printer_default::print_decl(const ast::struct_decl& st)
 {
@@ -392,6 +362,18 @@ void ast_printer_default::print_expr(const ast::string_literal& expr)
 	}
 	tmp += '"';
 	print_inline(tmp);
+}
+
+void ast_printer_default::print_expr(const ast::struct_literal& init)
+{
+	start("", inline_scope);
+	for (const auto& field : init.fields) {
+		start("", inline_scope);
+		print_inline(field.name);
+		print_expr(field.value);
+		end();
+	}
+	end();
 }
 
 } // namespace aw::script

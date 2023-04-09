@@ -64,8 +64,8 @@ private:
 	auto parse_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
-	auto parse_struct_initializer() -> ast::initializer;
-	auto parse_variable_initializer() -> ast::initializer;
+	auto parse_struct_initializer() -> std::optional<ast::expression>;
+	auto parse_variable_initializer() -> std::optional<ast::expression>;
 
 	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;

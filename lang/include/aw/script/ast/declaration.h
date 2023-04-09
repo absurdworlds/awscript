@@ -24,32 +24,11 @@
 
 namespace aw::script::ast {
 
-struct no_initializer {};
-
-struct struct_initializer {
-	struct field {
-		std::string_view name;
-		expression value;
-	};
-	using field_vec = hard_alias<std::vector<field>>;
-	field_vec fields;
-};
-
-struct expr_initializer {
-	expression value;
-};
-
-using initializer = std::variant<
-	no_initializer,
-	struct_initializer,
-	expr_initializer
->;
-
 struct variable {
 	std::string name;
 	ast::type type;
 	ast::access access;
-	initializer init;
+	std::optional<expression> value;
 };
 
 struct variadic_parameter {

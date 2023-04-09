@@ -1,20 +1,22 @@
 #ifndef aw_script_ir_type_h
 #define aw_script_ir_type_h
 
+#include <aw/script/utility/map.h>
+
 #include <string>
-#include <unordered_map>
 #include <variant>
 #include <vector>
 
-// TODO: think about it
 namespace aw::script::middle {
 struct struct_decl;
-struct initializer;
-}
+struct expression;
+} // namespace aw::script::middle
 
 namespace aw::script::ir {
 
 struct type;
+
+struct unknown_type {};
 
 enum class simple_type {
 	nothing,
@@ -59,17 +61,20 @@ struct tuple_type {
 };
 
 struct struct_type {
+	// TODO: rethink this
 	middle::struct_decl* decl;
 
 	struct field {
+		std::string name;
 		ir::type* type = nullptr;
-		middle::initializer const* init;
+		middle::expression const* init = nullptr;
 	};
 
-	std::unordered_map<std::string, field> fields;
+	map<std::string, field> fields;
 };
 
 using type_kind = std::variant<
+	unknown_type,
 	simple_type,
 	integer_type,
 	fp_type,
