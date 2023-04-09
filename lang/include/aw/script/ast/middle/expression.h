@@ -50,6 +50,12 @@ struct call_expression {
 	argument_list args;
 };
 
+struct field_expression {
+	ir::struct_type* type = nullptr;
+	std::unique_ptr<expression> lhs;
+	std::string name;
+};
+
 struct numeric_literal {
 	std::string_view value;
 	ir::type* type = nullptr;
@@ -80,6 +86,7 @@ using expression_variant = std::variant<
 	unary_expression,
 	binary_expression,
 	call_expression,
+	field_expression,
 	if_expression,
 	value_expression,
 	numeric_literal,

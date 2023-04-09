@@ -299,6 +299,25 @@ void semantic_analyzer::visit_expr(context& ctx, middle::call_expression& call)
 	}
 }
 
+void semantic_analyzer::visit_expr(context& ctx, middle::field_expression& expr)
+{
+	visit_expr(ctx, *expr.lhs);
+
+	auto type = infer_type(ctx, *expr.lhs);
+	if (!type) {
+		// TODO: error
+		return;
+	}
+
+	auto tkind = get_if<ir::struct_type>(&type->kind);
+	if (!tkind) {
+		// TODO: error
+		return;
+	}
+
+	expr.type = tkind;
+}
+
 void semantic_analyzer::visit_expr(context& ctx, middle::if_expression& in_expr)
 {
 	if (in_expr.if_expr)
@@ -460,6 +479,17 @@ auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) 
 	return nullptr;
 }
 
+auto semantic_analyzer::infer_type(context& ctx, middle::field_expression& expr) -> ir::type*
+{
+	if (expr.type) {
+		if (auto field = expr.type->fields.find(expr.name))
+			return field->type;
+
+		error(diag, diagnostic_id::no_such_field, location(), expr.type->decl->name, expr.name);
+	}
+	return nullptr;
+}
+
 auto semantic_analyzer::infer_type(context& ctx, middle::if_expression& expr) -> ir::type*
 {
 	if (!expr.if_body || !expr.else_body)
@@ -537,6 +567,11 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::if_
 	}
 
 	return common_type(ctx, type, *expr.if_body, *expr.else_body);
+}
+
+auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::field_expression& expr) -> ir::type*
+{
+	return infer_type(ctx, expr);
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::value_expression& expr) -> ir::type*
