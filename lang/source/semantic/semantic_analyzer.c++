@@ -154,19 +154,62 @@ void semantic_analyzer::visit(context& ctx, middle::function& func)
 void semantic_analyzer::visit(context& ctx, middle::variable& var)
 {
 	ctx.current_scope()->add_symbol(var.name, &var);
-	if (var.value) {
-		visit_expr(ctx, *var.value);
+
+	auto* v_init = var.init.get();
+
+	if (auto init = std::get_if<middle::expr_initializer>(v_init)) {
+		visit_expr(ctx, init->value);
 		if (!var.type)
-			var.type = infer_type(ctx, *var.value);
+			var.type = infer_type(ctx, init->value);
 		else
-			propagate_type(ctx, var.type, *var.value);
+			propagate_type(ctx, var.type, init->value);
+	} else if (auto init = std::get_if<middle::struct_initializer>(v_init)) {
+		if (!var.type) {
+			error(diag, diagnostic_id::initializer_requires_a_type, location(), var.name);
+			return;
+		}
+
+		auto struct_kind = get_if<ir::struct_type>(&var.type->kind);
+		if (!struct_kind) {
+			error(diag, diagnostic_id::is_not_a_struct_type, location(), var.type->name);
+			return;
+		}
+
+		auto struct_fields = struct_kind->fields;
+
+		for (auto& field : init->fields)
+		{
+			visit_expr(ctx, field.value);
+
+			auto field_it = struct_fields.find(field.name);
+			if (field_it == struct_fields.end()) {
+				error(diag, diagnostic_id::no_such_field, location(), var.type->name, field.name);
+				continue;
+			}
+
+			propagate_type(ctx, field_it->second.type, field.value);
+		}
 	}
 }
 
-void semantic_analyzer::visit(context &ctx, middle::struct_decl &decl)
+void semantic_analyzer::visit(context& ctx, middle::struct_decl& decl)
 {
-	using namespace std::string_view_literals;
-	error(diag, diagnostic_id::not_implemented_yet, location(), "structures"sv);
+	ir::struct_type type{
+		.decl = &decl
+	};
+
+	ctx.push_scope();
+	for (auto& field : decl.members) {
+		visit(ctx, *field);
+		type.fields[field->name] = ir::struct_type::field{
+			.type = field->type,
+			.init = field->init.get(),
+		};
+	}
+	ctx.pop_scope();
+
+
+	ctx.add_type(ir::type{ decl.name, std::move(type) });
 }
 
 /*

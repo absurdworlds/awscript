@@ -2,8 +2,15 @@
 #define aw_script_ir_type_h
 
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
+
+// TODO: think about it
+namespace aw::script::middle {
+struct struct_decl;
+struct initializer;
+}
 
 namespace aw::script::ir {
 
@@ -44,11 +51,22 @@ struct alias_type {
 };
 
 struct variant_type {
-	std::vector<type> alternatives;
+	std::vector<type*> alternatives;
 };
 
 struct tuple_type {
-	std::vector<type> members;
+	std::vector<type*> members;
+};
+
+struct struct_type {
+	middle::struct_decl* decl;
+
+	struct field {
+		ir::type* type = nullptr;
+		middle::initializer const* init;
+	};
+
+	std::unordered_map<std::string, field> fields;
 };
 
 using type_kind = std::variant<
@@ -59,7 +77,8 @@ using type_kind = std::variant<
 	reference_type,
 	alias_type,
 	variant_type,
-	tuple_type
+	tuple_type,
+	struct_type
 >;
 
 struct type {

@@ -207,45 +207,49 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 	return var;
 }
 
-auto parser::parse_variable_initializer() -> ast::initializer
+auto parser::parse_struct_initializer() -> ast::initializer
 {
-	if (match(token_kind::l_brace)) {
-		ast::struct_initializer init;
-		while (true) {
-			if (!match(token_kind::dot)) {
-				error_unexpected_token(diag, tok, token_kind::dot);
-				break;
-			}
-
-			auto name = parse_identifier();
-			if (name.empty())
-				break;
-
-			if (!match(token_kind::equal)) {
-				error_unexpected_token(diag, tok, token_kind::equal);
-				break;
-			}
-
-			auto expr = parse_expression();
-			if (!expr)
-				return init;
-
-			init.fields.push_back({
-				.name = name,
-				.value = std::move(*expr),
-			});
-
-			if (match(token_kind::r_brace))
-				break;
-
-			if (!match(token_kind::comma)) {
-				error_unexpected_token(diag, tok, token_kind::comma);
-				break;
-			}
+	ast::struct_initializer init;
+	while (true) {
+		if (!match(token_kind::dot)) {
+			error_unexpected_token(diag, tok, token_kind::dot);
+			break;
 		}
 
-		return init;
+		auto name = parse_identifier();
+		if (name.empty())
+			break;
+
+		if (!match(token_kind::equal)) {
+			error_unexpected_token(diag, tok, token_kind::equal);
+			break;
+		}
+
+		auto expr = parse_expression();
+		if (!expr)
+			return init;
+
+		init.fields.push_back({
+			.name = name,
+			.value = std::move(*expr),
+		});
+
+		if (match(token_kind::r_brace))
+			break;
+
+		if (!match(token_kind::comma)) {
+			error_unexpected_token(diag, tok, token_kind::comma);
+			break;
+		}
 	}
+
+	return init;
+}
+
+auto parser::parse_variable_initializer() -> ast::initializer
+{
+	if (match(token_kind::l_brace))
+		return parse_struct_initializer();
 
 	auto expr = parse_expression();
 	if (expr)
