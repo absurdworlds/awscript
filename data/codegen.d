@@ -43,7 +43,7 @@ function test(var argc: int)
 	x = add(x, 67);
 	printf("x = %d\n", x);
 
-	test_reassign(argc);
+	test_struct(1,2);
 }
 
 function print(var v: i128)
@@ -67,16 +67,13 @@ function divd(var x: f64, var y: f64) : f64
 		then 0
 		else x/y;
 
-function test_reassign(var c: int)
+function test_struct(const x: int, const y: int)
 {
-	c=66
-	putchar(c)
-
-	c=32
-	putchar(c)
-
-	c=65
-	putchar(c)
+	var p: vec2 = {
+		.x = x,
+		.y = y,
+	};
+	point = p;
 }
 
 function hello()

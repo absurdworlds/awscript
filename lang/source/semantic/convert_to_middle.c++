@@ -87,43 +87,11 @@ struct convert_to_middle_visitor {
 		var.access = in_var.access;
 		if (!get_if<ast::unknown_type>(&in_var.type))
 			var.type = ctx.create_type(in_var.type);
-		var.init = wrap(convert_init(in_var.init));
+		if (in_var.value)
+			var.value = wrap(convert_expr(*in_var.value));
 
 		return var;
 	}
-
-	auto convert_init(const ast::initializer& in_init) -> middle::initializer
-	{
-		auto wrapper = [this] (const auto& init) -> middle::initializer
-		{
-			return convert_init(init);
-		};
-
-		return std::visit(wrapper, in_init);
-	}
-
-	auto convert_init(const ast::no_initializer& in_init) -> middle::no_initializer
-	{
-		return {};
-	}
-
-	auto convert_init(const ast::expr_initializer& in_init) -> middle::expr_initializer
-	{
-		return { .value = convert_expr(in_init.value) };
-	}
-
-	auto convert_init(const ast::struct_initializer& in_init) -> middle::struct_initializer
-	{
-		middle::struct_initializer init;
-		for (const auto& field : in_init.fields) {
-			init.fields.push_back({
-				.name = std::string(field.name),
-				.value = convert_expr(field.value),
-			});
-		}
-		return init;
-	}
-
 
 	/*
 	 * Function
@@ -297,6 +265,19 @@ struct convert_to_middle_visitor {
 	{
 		return { .value = in_expr.value };
 	}
+
+	auto convert_expr(const ast::struct_literal& in_init) -> middle::struct_literal
+	{
+		middle::struct_literal init;
+		for (const auto& field : in_init.fields) {
+			init.fields.push_back({
+				.name = std::string(field.name),
+				.value = wrap(convert_expr(*field.value)),
+			});
+		}
+		return init;
+	}
+
 };
 
 } // namespace

@@ -155,40 +155,12 @@ void semantic_analyzer::visit(context& ctx, middle::variable& var)
 {
 	ctx.current_scope()->add_symbol(var.name, &var);
 
-	auto* v_init = var.init.get();
-
-	if (auto init = std::get_if<middle::expr_initializer>(v_init)) {
-		visit_expr(ctx, init->value);
+	if (var.value) {
+		visit_expr(ctx, *var.value);
 		if (!var.type)
-			var.type = infer_type(ctx, init->value);
+			var.type = infer_type(ctx, *var.value);
 		else
-			propagate_type(ctx, var.type, init->value);
-	} else if (auto init = std::get_if<middle::struct_initializer>(v_init)) {
-		if (!var.type) {
-			error(diag, diagnostic_id::initializer_requires_a_type, location(), var.name);
-			return;
-		}
-
-		auto struct_kind = get_if<ir::struct_type>(&var.type->kind);
-		if (!struct_kind) {
-			error(diag, diagnostic_id::is_not_a_struct_type, location(), var.type->name);
-			return;
-		}
-
-		auto struct_fields = struct_kind->fields;
-
-		for (auto& field : init->fields)
-		{
-			visit_expr(ctx, field.value);
-
-			auto field_it = struct_fields.find(field.name);
-			if (field_it == struct_fields.end()) {
-				error(diag, diagnostic_id::no_such_field, location(), var.type->name, field.name);
-				continue;
-			}
-
-			propagate_type(ctx, field_it->second.type, field.value);
-		}
+			propagate_type(ctx, var.type, *var.value);
 	}
 }
 
@@ -202,12 +174,12 @@ void semantic_analyzer::visit(context& ctx, middle::struct_decl& decl)
 	for (auto& field : decl.members) {
 		visit(ctx, *field);
 		type.fields[field->name] = ir::struct_type::field{
+			.name = field->name,
 			.type = field->type,
-			.init = field->init.get(),
+			.init = field->value.get(),
 		};
 	}
 	ctx.pop_scope();
-
 
 	ctx.add_type(ir::type{ decl.name, std::move(type) });
 }
@@ -349,6 +321,11 @@ void semantic_analyzer::visit_expr(context& ctx, middle::numeric_literal& in_exp
 void semantic_analyzer::visit_expr(context& ctx, middle::string_literal& in_expr)
 {
 }
+
+void semantic_analyzer::visit_expr(context& ctx, middle::struct_literal& in_expr)
+{
+}
+
 
 void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 {
@@ -508,6 +485,12 @@ auto semantic_analyzer::infer_type(context& ctx, middle::string_literal& expr) -
 	return ctx.find_type("string_literal");
 }
 
+auto semantic_analyzer::infer_type(context& ctx, middle::struct_literal& expr) -> ir::type*
+{
+	return nullptr;
+}
+
+
 /*
  * Type propagation
  */
@@ -573,5 +556,34 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::str
 {
 	return common_type(type, ctx.find_type("u8*")); // TODO: should be string_literal
 }
+
+auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::struct_literal& expr) -> ir::type*
+{
+	assert(type);
+
+	expr.type = get_if<ir::struct_type>(&type->kind);
+	if (!expr.type) {
+		error(diag, diagnostic_id::is_not_a_struct_type, location(), type->name);
+		return nullptr;
+	}
+
+	auto struct_fields = expr.type->fields;
+
+	for (auto& field : expr.fields)
+	{
+		visit_expr(ctx, *field.value);
+
+		auto struct_field = struct_fields.find(field.name);
+		if (!struct_field) {
+			error(diag, diagnostic_id::no_such_field, location(), type->name, field.name);
+			continue;
+		}
+
+		propagate_type(ctx, struct_field->type, *field.value);
+	}
+
+	return type;
+}
+
 
 } // namespace aw::script

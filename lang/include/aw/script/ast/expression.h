@@ -60,6 +60,16 @@ struct string_literal {
 	std::string value;
 };
 
+struct struct_literal {
+	struct field {
+		std::string_view name;
+		std::unique_ptr<expression> value;
+	};
+	using field_vec = hard_alias<std::vector<field>>;
+	field_vec fields;
+};
+
+
 struct if_expression {
 	std::unique_ptr<expression> if_expr;
 	std::unique_ptr<expression> if_body;
@@ -74,7 +84,8 @@ using expression_variant = std::variant<
 	if_expression,
 	value_expression,
 	numeric_literal,
-	string_literal
+	string_literal,
+	struct_literal
 >;
 
 struct expression : expression_variant

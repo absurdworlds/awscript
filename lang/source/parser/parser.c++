@@ -202,36 +202,36 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 		return {};
 
 	if (match(token_kind::equal))
-		var.init = parse_variable_initializer();
+		var.value = parse_variable_initializer();
 
 	return var;
 }
 
-auto parser::parse_struct_initializer() -> ast::initializer
+auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 {
-	ast::struct_initializer init;
-	while (true) {
+	ast::struct_literal init;
+	while (!match(token_kind::r_brace)) {
 		if (!match(token_kind::dot)) {
 			error_unexpected_token(diag, tok, token_kind::dot);
-			break;
+			return {};
 		}
 
 		auto name = parse_identifier();
 		if (name.empty())
-			break;
+			return {};
 
 		if (!match(token_kind::equal)) {
 			error_unexpected_token(diag, tok, token_kind::equal);
-			break;
+			return {};
 		}
 
 		auto expr = parse_expression();
 		if (!expr)
-			return init;
+			return {};
 
 		init.fields.push_back({
 			.name = name,
-			.value = std::move(*expr),
+			.value = wrap(std::move(*expr)),
 		});
 
 		if (match(token_kind::r_brace))
@@ -239,24 +239,20 @@ auto parser::parse_struct_initializer() -> ast::initializer
 
 		if (!match(token_kind::comma)) {
 			error_unexpected_token(diag, tok, token_kind::comma);
-			break;
+			return {};
 		}
 	}
 
 	return init;
 }
 
-auto parser::parse_variable_initializer() -> ast::initializer
+auto parser::parse_variable_initializer() -> std::optional<ast::expression>
 {
 	if (match(token_kind::l_brace))
 		return parse_struct_initializer();
 
-	auto expr = parse_expression();
-	if (expr)
-		return ast::expr_initializer{ .value = std::move(*expr) };
-
 	// TODO: parse until ';' or a reasonable place to start parsing the next thing
-	return {};
+	return parse_expression();
 }
 
 auto parser::parse_function_declaration() -> std::optional<ast::function>
