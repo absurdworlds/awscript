@@ -100,6 +100,9 @@ auto create_or_get_global_array(
 //! Generate the global ctor table
 void backend_llvm::gen_global_ctors()
 {
+	if (global_ctors.empty())
+		return;
+
 	using namespace std::string_view_literals;
 
 	auto pointer_type = llvm::PointerType::getUnqual(context);
