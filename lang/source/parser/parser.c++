@@ -226,13 +226,15 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 	if (st.name.empty())
 		return {};
 
-
 	if (!match(token_kind::l_brace))
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
 
-	// TODO: support both 'var a: int' and 'a: int'
-	while (match("var"sv)) {
-		auto var = parse_variable_declaration(ast::access::variable);
+	while (tok != token_kind::r_brace) {
+		auto var_kind = parse_variable_start();
+		if (!var_kind)
+			return {};
+
+		auto var = parse_variable_declaration(*var_kind);
 		if (!var)
 			return {};
 
@@ -295,20 +297,32 @@ bool parser::parse_variadic_parameter(ast::function& func)
 	return false;
 }
 
+auto parser::parse_variable_start() -> std::optional<ast::access>
+{
+	if (tok != token_kind::identifier)
+		return {};
+	if (match_id("var"sv))
+		return ast::access::variable;
+	match_id("const"sv);
+	return ast::access::constant;
+}
+
 bool parser::parse_function_arguments(ast::function& func)
 {
-	// TODO: support both 'var a: int' and 'a: int'
-	// TODO: support const
-	while (match("var"sv)) {
+	while (tok != token_kind::r_paren) {
+		auto var_kind = parse_variable_start();
+		if (!var_kind)
+			return false;
+
 		if (parse_variadic_parameter(func)) {
 			if (tok != token_kind::r_paren)
 				return error(diag, diagnostic_id::variadic_parameter, tok.loc);
 			break;
 		}
 
-		auto arg = parse_variable_declaration(ast::access::variable);
+		auto arg = parse_variable_declaration(*var_kind);
 		if (!arg)
-			return {};
+			return false;
 
 		func.params.push_back(std::move(*arg));
 
