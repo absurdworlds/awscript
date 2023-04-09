@@ -64,12 +64,13 @@ private:
 	auto parse_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
-	auto parse_function_declaration() -> std::optional<ast::function>;
+	auto parse_variable_initializer() -> ast::initializer;
+
 	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
+	auto parse_function_declaration() -> std::optional<ast::function>;
 	auto parse_function_prototype() -> std::optional<ast::function>;
-
 	bool parse_variadic_parameter(ast::function& func);
 	auto parse_variable_start() -> std::optional<ast::access>;
 	bool parse_function_arguments(ast::function& func);

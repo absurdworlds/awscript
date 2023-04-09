@@ -7,8 +7,9 @@ struct vec2 {
 	var y: int;
 }
 
+var point: vec2 = { .x = 10, .y = 20 };
 var double: double = 4.0;
-var global: int = add(5,2);
+var global: int = add(point.x, point.y);
 
 const big: i128 = 0x1EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
