@@ -179,6 +179,10 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 		return PointerType::get(base_type, 0);
 	}
 
+	if (auto stru = get_if<ir::struct_type>(&type->kind))
+	{
+		return llvm::StructType::getTypeByName(context, stru->decl->name);
+	}
 
 	if (auto integer = get_if<ir::integer_type>(&type->kind))
 	{

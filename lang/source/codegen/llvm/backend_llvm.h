@@ -55,6 +55,7 @@ public:
 	auto gen(const middle::declaration& decl) -> llvm::Value*;
 	auto gen(const middle::function& decl) -> llvm::Value*;
 	auto gen(const middle::variable& var) -> llvm::Value*;
+	auto gen(const middle::struct_decl& var) -> llvm::Value*;
 
 	auto gen(const std::unique_ptr<middle::statement>& stmt) -> llvm::Value*;
 	auto gen(const middle::statement& stmt) -> llvm::Value*;
