@@ -46,8 +46,13 @@ auto convert_operator(ast::binary_operator op) -> ir::binary_operator
 		return binop::not_equal;
 	case assignment:
 		return binop::assignment;
+	case access:
+		assert(!"Field access must be handled separately!");
+		break;
+	default:
+		assert(!"Corrupt value!");
+		break;
 	}
-	assert(!"Corrupt value!");
 };
 
 struct convert_to_middle_visitor {

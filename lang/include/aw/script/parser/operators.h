@@ -26,6 +26,7 @@ enum class precedence {
 	shift          = 9,  // <<, >>
 	additive       = 10, // +, -
 	multiplicative = 11, // *, *, %
+	field_access   = 12, // .
 	max
 };
 
@@ -64,6 +65,8 @@ inline precedence token_precedence(token tok)
 	case token_kind::ast:
 	case token_kind::slash:
 		return precedence::multiplicative;
+	case token_kind::dot:
+		return precedence::field_access;
 	}
 }
 

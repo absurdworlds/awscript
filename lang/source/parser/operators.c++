@@ -31,23 +31,29 @@ auto parser::parse_unary_operator(token tok) -> std::optional<ast::unary_operato
 
 auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_operator>
 {
+	using binop = ast::binary_operator;
+
 	switch (tok.kind) {
 	case token_kind::minus:
-		return ast::binary_operator::minus;
+		return binop::minus;
 	case token_kind::plus:
-		return ast::binary_operator::plus;
+		return binop::plus;
 	case token_kind::ast:
-		return ast::binary_operator::multiply;
+		return binop::multiply;
 	case token_kind::slash:
-		return ast::binary_operator::divide;
+		return binop::divide;
 	case token_kind::less:
-		return ast::binary_operator::less;
+		return binop::less;
 	case token_kind::greater:
-		return ast::binary_operator::greater;
+		return binop::greater;
 	case token_kind::equal_equal:
-		return ast::binary_operator::equal;
+		return binop::equal;
+	case token_kind::bang_equal:
+		return binop::not_equal;
 	case token_kind::equal:
-		return ast::binary_operator::assignment;
+		return binop::assignment;
+	case token_kind::dot:
+		return binop::access;
 	default:
 		return std::nullopt;
 	}
