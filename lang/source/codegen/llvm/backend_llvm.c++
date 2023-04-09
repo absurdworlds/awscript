@@ -625,12 +625,16 @@ auto mangle_string(std::string_view str) -> std::string
 {
 	constexpr auto max_str_len = 8;
 	std::string mstr;
-	for (auto [i, c] : ipairs(str))
+
+	size_t i = 0;
+	for (auto c : str)
 	{
 		if (i > max_str_len)
 			break;
-		if (isAlnum(c))
+		if (isAlnum(c)) {
 			mstr += c;
+			++i;
+		}
 	}
 	return ".str_" + mstr;
 }
