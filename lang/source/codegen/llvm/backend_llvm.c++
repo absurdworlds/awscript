@@ -693,5 +693,31 @@ auto backend_llvm::gen(const middle::string_literal& expr) -> llvm::Value*
 	return it->second;
 }
 
+// TODO: support constant structs
+auto backend_llvm::gen(const middle::struct_literal& expr, std::string_view name) -> llvm::Value*
+{
+	auto& decl = expr.type->decl;
+	if (name.empty())
+		name = decl->name;
+
+	auto type = llvm::StructType::getTypeByName(context, decl->name);
+
+	auto obj = builder.CreateAlloca(type, nullptr, name);
+
+	for (const auto& init : expr.fields) {
+		int index = get_element_index(*decl, init.name);
+
+		auto value = gen(init.value);
+
+		auto gep = builder.CreateGEP(
+			type, obj,
+			{ builder.getInt32(0), builder.getInt32(index) },
+			name + "." + init.name);
+		builder.CreateStore(value, gep);
+	}
+
+	return obj;
+}
+
 
 } // namespace aw::script
