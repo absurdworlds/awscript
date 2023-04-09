@@ -98,20 +98,59 @@ void ast_printer_default::print_decl(const ast::function& decl)
 
 void ast_printer_default::print_decl(const ast::variable& var)
 {
-	start("var", inline_scope);
+	auto kind = var.access == ast::access::variable ? "var" : "const";
+	start(kind, inline_scope);
 	print_type(var.type);
 	print_inline(var.name);
+	print_init(var.init);
 	end();
 }
+
+
+void ast_printer_default::print_init(const ast::initializer& init)
+{
+	if (!std::holds_alternative<ast::no_initializer>(init)) {
+		start("init", inline_scope);
+		std::visit([this] (auto&& node) { print_init(node); }, init);
+		end();
+	}
+}
+
+void ast_printer_default::print_init(const ast::no_initializer& init)
+{
+	print_inline("<uninitialized>");
+}
+
+void ast_printer_default::print_init(const ast::struct_initializer& init)
+{
+	for (const auto& field : init.fields) {
+		start("", inline_scope);
+		print_inline(field.name);
+		print_expr(field.value);
+		end();
+	}
+}
+
+void ast_printer_default::print_init(const ast::expr_initializer& init)
+{
+	print_expr(init.value);
+}
+
 
 void ast_printer_default::print_decl(const ast::struct_decl& st)
 {
 	start("struct", mixed_scope);
 	print_inline(st.name);
-	for (const auto& var : st.members) {
+	{
 		start_line();
-		print_decl(var);
+		start("members");
+		for (const auto& var : st.members) {
+			print_decl(var);
+			start_line();
+		}
+		end();
 	}
+
 	end();
 }
 

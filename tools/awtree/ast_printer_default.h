@@ -24,6 +24,11 @@ private:
 
 	void print_type(const ast::type& type);
 
+	void print_init(const ast::initializer& init);
+	void print_init(const ast::no_initializer& init);
+	void print_init(const ast::struct_initializer& init);
+	void print_init(const ast::expr_initializer& init);
+
 	void print(const ast::statement& stmt);
 	void print_stmt(const ast::decl_statement& stmt);
 	void print_stmt(const ast::return_statement& stmt);

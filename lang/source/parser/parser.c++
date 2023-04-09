@@ -109,6 +109,7 @@ bool parser::match_id(string_view identifier)
 	return true;
 }
 
+// TODO: optional
 std::string_view parser::parse_identifier()
 {
 	if (tok != token_kind::identifier)
@@ -200,13 +201,58 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 	if (!parse_type_specifier(var.type, ast::unknown_type{}))
 		return {};
 
-	if (match(token_kind::equal)) {
-		var.value = wrap(parse_expression());
-		if (!var.value)
-			return {};
-	}
+	if (match(token_kind::equal))
+		var.init = parse_variable_initializer();
 
 	return var;
+}
+
+auto parser::parse_variable_initializer() -> ast::initializer
+{
+	if (match(token_kind::l_brace)) {
+		ast::struct_initializer init;
+		while (true) {
+			if (!match(token_kind::dot)) {
+				error_unexpected_token(diag, tok, token_kind::dot);
+				break;
+			}
+
+			auto name = parse_identifier();
+			if (name.empty())
+				break;
+
+			if (!match(token_kind::equal)) {
+				error_unexpected_token(diag, tok, token_kind::equal);
+				break;
+			}
+
+			auto expr = parse_expression();
+			if (!expr)
+				return init;
+
+			init.fields.push_back({
+				.name = name,
+				.value = std::move(*expr),
+			});
+
+			if (match(token_kind::r_brace))
+				break;
+
+			if (!match(token_kind::comma)) {
+				error_unexpected_token(diag, tok, token_kind::comma);
+				break;
+			}
+		}
+
+		return init;
+	}
+
+	auto expr = parse_expression();
+	if (expr)
+		return ast::expr_initializer{ .value = std::move(*expr) };
+
+	// TODO: parse until ';' or a reasonable place to start parsing the next thing
+	return {};
 }
 
 auto parser::parse_function_declaration() -> std::optional<ast::function>
@@ -244,7 +290,7 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 			break;
 
 		if (!match(token_kind::semicolon))
-			return error_unexpected_token(diag, tok, token_kind::comma);
+			return error_unexpected_token(diag, tok, token_kind::semicolon);
 	}
 
 
