@@ -24,28 +24,30 @@ auto context::create_type(const ast::type &type) -> ir::type*
 
 		auto pointee = find_type(ptr->pointee);
 
-		auto new_type = wrap(
-			ir::type{
-				.name = name,
-				.kind = ir::pointer_type{
-					.base_type = pointee,
-					.is_mutable = false, // for now
-				}
+		return add_type(ir::type{
+			.name = name,
+			.kind = ir::pointer_type{
+				.base_type = pointee,
+				.is_mutable = false, // for now
 			}
-		);
-
-		auto result = new_type.get();
-
-		types.push_back(std::move(new_type));
-
-		default_scope.add_type(name, result);
-
-		return result;
+		});
 	}
 
 	// TODO
 	assert(!"Not implemented");
 	return nullptr;
+}
+
+auto context::add_type(ir::type&& type) -> ir::type*
+{
+	auto new_type = wrap(std::move(type));
+	auto type_ref = new_type.get();
+
+	types.push_back(std::move(new_type));
+
+	default_scope.add_type(type_ref->name, type_ref);
+
+	return type_ref;
 }
 
 

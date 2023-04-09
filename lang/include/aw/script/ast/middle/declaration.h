@@ -12,11 +12,37 @@
 #include <vector>
 
 namespace aw::script::middle {
+struct no_initializer {};
+
+struct struct_initializer {
+	struct field {
+		std::string name;
+		expression value;
+	};
+	using field_vec = hard_alias<std::vector<field>>;
+	field_vec fields;
+};
+
+struct expr_initializer {
+	expression value;
+};
+
+using initializer_variant = std::variant<
+	no_initializer,
+	struct_initializer,
+	expr_initializer
+>;
+
+struct initializer : initializer_variant {
+	using initializer_variant::initializer_variant;
+	using initializer_variant::operator=;
+};
+
 struct variable {
 	std::string name;
 	ir::type* type = nullptr;
 	ast::access access;
-	std::unique_ptr<expression> value;
+	std::unique_ptr<initializer> init;
 };
 
 using parameter_list = std::vector<std::unique_ptr<variable>>;

@@ -36,6 +36,7 @@ struct context {
 	}
 
 	ir::type* create_type(const ast::type& type);
+	ir::type* add_type(ir::type&& type);
 };
 } // namespace aw::script
 
