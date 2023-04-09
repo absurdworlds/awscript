@@ -328,12 +328,19 @@ std::string_view spell_operator(ast::binary_operator op)
 		return "*";
 	case ast::binary_operator::divide:
 		return "/";
+	case ast::binary_operator::equal:
+		return "==";
+	case ast::binary_operator::not_equal:
+		return "!=";
 	case ast::binary_operator::less:
 		return "<";
 	case ast::binary_operator::greater:
 		return ">";
 	case ast::binary_operator::assignment:
 		return "=";
+	case ast::binary_operator::access:
+		return ".";
+		break;
 	}
 	return "<invalid-binary-op>";
 }

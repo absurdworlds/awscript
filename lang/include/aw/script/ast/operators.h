@@ -19,6 +19,7 @@ enum class binary_operator {
 	less,
 	greater,
 	assignment,
+	access,
 };
 } // namespace aw::script::ast
 
