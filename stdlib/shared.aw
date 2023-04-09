@@ -30,9 +30,11 @@ public class<T> shared
 
 	construct(this, value: &T)
 	{
+		// TODO: this doesn't need to be a macro,
+		// replace lifetime:: macros with a func
 		#lifetime::create(alloc::default, ptr, value);
 
-		#lifetime::create(alloc::default, ptr, shared_control_block<T>{
+		#lifetime::create(alloc::default, ptr, shared_control_block::<T>{
 			.ptr = ptr,
 			.strong_ref = 1,
 			.weak_ref = 1,
