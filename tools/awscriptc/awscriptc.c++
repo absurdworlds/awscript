@@ -52,8 +52,5 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (options.output_file.empty())
-		options.output_file = "a.out";
-
 	return aw::script::driver::run_compiler(options);
 }

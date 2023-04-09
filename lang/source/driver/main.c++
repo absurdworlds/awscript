@@ -108,6 +108,13 @@ int run_compiler(const options& options, callbacks* callbacks)
 		}
 	}
 
+	std::string output_file = options.output_file;
+	if (output_file.empty()) {
+		output_file = std::filesystem::path(options.input_files[0])
+			.replace_extension()
+			.string();
+	}
+
 	if (options.mode == mode::link)
 	{
 		// This is a big TODO, I need to figure out how to find the linker,
@@ -122,7 +129,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 #if AW_PLATFORM != AW_PLATFORM_WIN32
 		std::string linker_invocation = "g++ -o";
-		linker_invocation += options.output_file;
+		linker_invocation += output_file;
 		linker_invocation += ' ';
 		linker_invocation += aw::string::join(objects, " ");
 #else
@@ -130,7 +137,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 		linker_invocation += " /machine:x64 /subsystem:console ";
 		linker_invocation += " /manifest /manifest:embed ";
 		linker_invocation += " /debug /OUT:";
-		linker_invocation += options.output_file;
+		linker_invocation += output_file;
 		linker_invocation += ' ';
 		linker_invocation += aw::string::join(objects, " ");
 		linker_invocation += " msvcrtd.lib kernel32.lib legacy_stdio_definitions.lib";
