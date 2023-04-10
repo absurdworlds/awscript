@@ -10,6 +10,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/utility/print_token.h
 		include/aw/script/utility/wrap.h
 		include/aw/script/utility/hard_alias.h
+		include/aw/script/utility/value_ptr.h
 		include/aw/script/utility/map.h
 		include/aw/script/ast/mutability.h
 		include/aw/script/ast/number_base.h
