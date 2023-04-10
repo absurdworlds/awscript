@@ -453,6 +453,11 @@ auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Constant*
 	return nullptr;
 }
 
+auto backend_llvm::gen(const middle::bool_literal& expr) -> llvm::ConstantInt*
+{
+	return llvm::ConstantInt::getBool(context, expr.value);
+}
+
 auto backend_llvm::gen(const middle::value_expression& expr) -> llvm::Value*
 {
 	auto it = symtab.find(expr.name);

@@ -62,6 +62,10 @@ struct numeric_literal {
 	ast::number_base base = ast::number_base::decimal;
 };
 
+struct bool_literal {
+	bool value = false;
+};
+
 struct string_literal {
 	std::string value;
 };
@@ -90,6 +94,7 @@ using expression_variant = std::variant<
 	if_expression,
 	value_expression,
 	numeric_literal,
+	bool_literal,
 	string_literal,
 	struct_literal
 >;

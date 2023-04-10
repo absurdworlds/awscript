@@ -260,9 +260,20 @@ struct convert_to_middle_visitor {
 		return expr;
 	}
 
-	auto convert_expr(const ast::value_expression& in_expr) -> middle::value_expression
+	auto convert_expr(const ast::value_expression& in_expr) -> middle::expression
 	{
-		return { .name = in_expr.name };
+		using namespace std::string_view_literals;
+		// TODO: transform at a later stage to allow (true) and (false) refer
+		//       to a variable?
+		if (in_expr.name == "true"sv)
+			return middle::bool_literal{ .value = true };
+
+		if (in_expr.name == "false"sv)
+			return middle::bool_literal{ .value = false };
+
+		return middle::value_expression{
+			.name = in_expr.name
+		};
 	}
 
 	auto convert_expr(const ast::numeric_literal& in_expr) -> middle::numeric_literal

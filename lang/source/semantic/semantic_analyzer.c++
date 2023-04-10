@@ -510,6 +510,12 @@ auto semantic_analyzer::infer_type(context& ctx, middle::numeric_literal& expr) 
 {
 	return expr.type;
 }
+
+auto semantic_analyzer::infer_type(context& ctx, middle::bool_literal& in_expr) -> ir::type*
+{
+	return ctx.find_type("bool");
+}
+
 auto semantic_analyzer::infer_type(context& ctx, middle::string_literal& expr) -> ir::type*
 {
 	return ctx.find_type("string_literal");
@@ -585,6 +591,11 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::num
 	if (!expr.type)
 		expr.type = type;
 	return common_type(expr.type, type);
+}
+
+auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::bool_literal& expr) -> ir::type*
+{
+	return common_type(type, ctx.find_type("bool"));
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::string_literal& expr) -> ir::type*
