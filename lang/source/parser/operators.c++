@@ -42,21 +42,49 @@ auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_ope
 		return binop::multiply;
 	case token_kind::slash:
 		return binop::divide;
+	case token_kind::percent:
+		return binop::modulo;
+
+	case token_kind::amp:
+		return binop::bitwise_and;
+	case token_kind::caret:
+		return binop::bitwise_xor;
+	case token_kind::pipe:
+		return binop::bitwise_or;
+	case token_kind::less_less:
+		return binop::shift_left;
+	case token_kind::greater_greater:
+		return binop::shift_right;
+
 	case token_kind::less:
 		return binop::less;
+	case token_kind::less_equal:
+		return binop::less_equal;
 	case token_kind::greater:
 		return binop::greater;
+	case token_kind::greater_equal:
+		return binop::greater_equal;
 	case token_kind::equal_equal:
 		return binop::equal;
 	case token_kind::bang_equal:
 		return binop::not_equal;
+
+	case token_kind::pipe_pipe:
+		return binop::logical_or;
+	case token_kind::amp_amp:
+		return binop::logical_and;
+
 	case token_kind::equal:
 		return binop::assignment;
 	case token_kind::dot:
 		return binop::access;
+	case token_kind::dot_dot:
+		return binop::range;
 	default:
-		return std::nullopt;
+		break;
 	}
+
+	return std::nullopt;
 }
 
 auto parser::parse_binary_operator(token tok) -> std::optional<ast::binary_operator>

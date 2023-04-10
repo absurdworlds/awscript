@@ -202,6 +202,12 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 	if (in(name, "f64", "double"))
 		return Type::getDoubleTy(context);
 
+	if (name == "numeric_literal")
+		return Type::getInt64Ty(context);
+
+	if (name == "string_literal")
+		return PointerType::getUnqual(context);
+
 	assert(!"Unknown type");
 	return Type::getVoidTy(context);
 }
@@ -524,37 +530,98 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 		return nullptr;
 
 	switch (expr.op) {
-	case ir::binary_operator::minus:
+		using enum ir::binary_operator;
+	case minus:
 		return builder.CreateSub(lhs, rhs, "subtmp");
-	case ir::binary_operator::plus:
+	case minus_fp:
+		return builder.CreateFSub(lhs, rhs, "subtmp");
+
+	case plus:
 		return builder.CreateAdd(lhs, rhs, "addtmp");
-	case ir::binary_operator::multiply:
+	case plus_fp:
+		return builder.CreateFAdd(lhs, rhs, "addtmp");
+
+	case multiply:
 		return builder.CreateMul(lhs, rhs, "multmp");
-	case ir::binary_operator::less:
-		return builder.CreateICmpSLT(lhs, rhs, "lttmp");
-	case ir::binary_operator::less_unsigned:
-		return builder.CreateICmpULT(lhs, rhs, "lttmp");
-	case ir::binary_operator::less_fp:
-		return builder.CreateFCmpOLT(lhs, rhs, "lttmp");
-	case ir::binary_operator::greater:
-		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
-	case ir::binary_operator::greater_unsigned:
-		return builder.CreateICmpUGT(lhs, rhs, "gttmp");
-	case ir::binary_operator::greater_fp:
-		return builder.CreateFCmpOGT(lhs, rhs, "lttmp");
-	case ir::binary_operator::divide:
+	case multiply_fp:
+		return builder.CreateFMul(lhs, rhs, "multmp");
+
+	case divide:
 		return builder.CreateSDiv(lhs, rhs, "divtmp");
-	case ir::binary_operator::divide_unsigned:
+	case divide_unsigned:
 		return builder.CreateUDiv(lhs, rhs, "divtmp");
-	case ir::binary_operator::divide_fp:
+	case divide_fp:
 		return builder.CreateFDiv(lhs, rhs, "divtmp");
-	case ir::binary_operator::not_equal:
+
+	case modulo:
+		return builder.CreateSRem(lhs, rhs, "modtmp");
+	case modulo_unsigned:
+		return builder.CreateURem(lhs, rhs, "modtmp");
+	case modulo_fp:
+		return builder.CreateFRem(lhs, rhs, "modtmp");
+
+	case bitwise_and:
+		return builder.CreateAnd(lhs, rhs, "andtmp");
+	case bitwise_xor:
+		return builder.CreateXor(lhs, rhs, "xortmp");
+	case bitwise_or:
+		return builder.CreateOr(lhs, rhs, "ortmp");
+
+	case shift_left:
+		return builder.CreateShl(lhs, rhs, "shrtmp");
+
+	case shift_right_unsigned:
+		return builder.CreateLShr(lhs, rhs, "shrtmp");
+	case shift_right:
+		return builder.CreateAShr(lhs, rhs, "shrtmp");
+
+	case less:
+		return builder.CreateICmpSLT(lhs, rhs, "lttmp");
+	case less_unsigned:
+		return builder.CreateICmpULT(lhs, rhs, "lttmp");
+	case less_equal_fp:
+		return builder.CreateFCmpOLT(lhs, rhs, "letmp");
+
+	case less_equal:
+		return builder.CreateICmpSLE(lhs, rhs, "letmp");
+	case less_equal_unsigned:
+		return builder.CreateICmpULE(lhs, rhs, "letmp");
+	case less_fp:
+		return builder.CreateFCmpOLE(lhs, rhs, "letmp");
+
+	case greater:
+		return builder.CreateICmpSGT(lhs, rhs, "gttmp");
+	case greater_unsigned:
+		return builder.CreateICmpUGT(lhs, rhs, "gttmp");
+	case greater_fp:
+		return builder.CreateFCmpOGT(lhs, rhs, "gttmp");
+
+	case greater_equal:
+		return builder.CreateICmpSGE(lhs, rhs, "getmp");
+	case greater_equal_unsigned:
+		return builder.CreateICmpUGE(lhs, rhs, "getmp");
+	case greater_equal_fp:
+		return builder.CreateFCmpOGE(lhs, rhs, "getmp");
+
+	case not_equal:
 		return builder.CreateICmpNE(lhs, rhs, "netmp");
-	case ir::binary_operator::equal:
+	case not_equal_fp:
+		return builder.CreateFCmpONE(lhs, rhs, "netmp");
+
+	case equal:
 		return builder.CreateICmpEQ(lhs, rhs, "netmp");
-	case ir::binary_operator::assignment:
+	case equal_fp:
+		return builder.CreateFCmpOEQ(lhs, rhs, "netmp");
+
+	case logical_and:
+		return builder.CreateLogicalAnd(lhs, rhs, "ortmp");
+	case logical_or:
+		return builder.CreateLogicalOr(lhs, rhs, "andtmp");
+
+	case assignment:
 		return builder.CreateStore(rhs, lhs);
 	}
+
 	return nullptr;
 }
 

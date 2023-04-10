@@ -70,6 +70,7 @@ static auto create_builtin_types()
 		.is_mutable = false,
 	}}));
 
+	types.push_back(create_type("numeric_literal"));
 	types.push_back(create_type("string_literal"));
 
 
@@ -333,57 +334,72 @@ void semantic_analyzer::visit_expr(context& ctx, middle::value_expression& expr)
 	expr.ref = ctx.current_scope()->find_var(expr.name);
 }
 
-void semantic_analyzer::visit_expr(context& ctx, middle::numeric_literal& in_expr)
+auto convert_to_fp(ir::binary_operator op) -> ir::binary_operator
 {
+	switch(op) {
+		using enum ir::binary_operator;
+	case plus:
+		return plus_fp;
+	case minus:
+		return minus_fp;
+	case multiply:
+		return multiply_fp;
+	case divide:
+		return divide_fp;
+	case modulo:
+		return modulo_fp;
+	case less:
+		return less_fp;
+	case greater:
+		return greater_fp;
+	case less_equal:
+		return less_equal_fp;
+	case greater_equal:
+		return greater_equal_fp;
+	case equal:
+		return equal_fp;
+	case not_equal:
+		return not_equal_fp;
+	default:
+		return op;
+	}
 }
 
-void semantic_analyzer::visit_expr(context& ctx, middle::string_literal& in_expr)
+auto convert_to_uint(ir::binary_operator op) -> ir::binary_operator
 {
+	switch(op) {
+		using enum ir::binary_operator;
+	case divide:
+		return divide_unsigned;
+	case shift_right:
+		return shift_right_unsigned;
+	case less:
+		return less_unsigned;
+	case greater:
+		return greater_unsigned;
+	case less_equal:
+		return less_equal_unsigned;
+	case greater_equal:
+		return greater_equal_unsigned;
+	default:
+		return op;
+	}
 }
-
-void semantic_analyzer::visit_expr(context& ctx, middle::struct_literal& in_expr)
-{
-}
-
 
 void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 {
-	using enum ir::binary_operator;
 	if (!ty)
 		return;
 
 	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
-		switch(expr.op) {
-		case less:
-			expr.op = less_fp;
-			break;
-		case greater:
-			expr.op = greater_fp;
-			break;
-		case divide:
-			expr.op = divide_fp;
-			break;
-		default:
-			break;
-		}
+		expr.op = convert_to_fp(expr.op);
+		return;
 	}
 
 	if (auto* integer = std::get_if<ir::integer_type>(&ty->kind)) {
-		const bool is_signed = integer->is_signed;
-
-		switch(expr.op) {
-		case less:
-			expr.op = is_signed ? less : less_unsigned;
-			break;
-		case greater:
-			expr.op = is_signed ? greater : greater_unsigned;
-			break;
-		case divide:
-			expr.op = is_signed ? divide : divide_unsigned;
-			break;
-		default:
-			break;
-		}
+		if (!integer->is_signed)
+			expr.op = convert_to_uint(expr.op);
+		return;
 	}
 }
 
@@ -395,8 +411,14 @@ auto semantic_analyzer::common_type(ir::type* a, ir::type* b) -> ir::type*
 	if (!a || !b)
 		return nullptr;
 
-	if (a != b)
+	if (a != b) {
+		if (a->name == "u8*" && b->name == "string_literal")
+			return a;
+		if (a->name == "string_literal" && b->name == "u8*")
+			return b;
+
 		return error(diag, diagnostic_id::type_mismathch, location(), a->name, b->name);
+	}
 
 	return a;
 }
@@ -424,10 +446,9 @@ auto semantic_analyzer::common_type(context& ctx, ir::type* type, middle::expres
 			lhs_type = propagate_type(ctx, rhs_type, lhs);
 		else if (lhs_type)
 			rhs_type = propagate_type(ctx, lhs_type, rhs);
-		else {
-			lhs_type = propagate_type(ctx, type, lhs);
-			lhs_type = propagate_type(ctx, type, rhs);
-		}
+	} else {
+		lhs_type = propagate_type(ctx, type, lhs);
+		rhs_type = propagate_type(ctx, type, rhs);
 	}
 
 	return common_type(lhs_type, rhs_type);
@@ -471,7 +492,10 @@ auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) 
 			propagate_type(ctx, param->type, expr);
 
 		for (size_t i = params.size(), e = expr.args.size(); i<e; ++i) {
-			infer_type(ctx, expr.args[i]);
+			auto& arg = expr.args[i];
+			auto type = infer_type(ctx, arg);
+			arg.type = propagate_type(ctx, type, arg);
+			type = arg.type;
 		}
 
 		return expr.func->return_type;
@@ -508,7 +532,9 @@ auto semantic_analyzer::infer_type(context& ctx, middle::value_expression& expr)
 }
 auto semantic_analyzer::infer_type(context& ctx, middle::numeric_literal& expr) -> ir::type*
 {
-	return expr.type;
+	if (expr.type)
+		return expr.type;
+	return ctx.find_type("numeric_literal");
 }
 
 auto semantic_analyzer::infer_type(context& ctx, middle::bool_literal& in_expr) -> ir::type*
@@ -600,7 +626,7 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::boo
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::string_literal& expr) -> ir::type*
 {
-	return common_type(type, ctx.find_type("u8*")); // TODO: should be string_literal
+	return common_type(type, ctx.find_type("string_literal"));
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::struct_literal& expr) -> ir::type*

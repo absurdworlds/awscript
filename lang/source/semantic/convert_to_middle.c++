@@ -36,23 +36,47 @@ auto convert_operator(ast::binary_operator op) -> ir::binary_operator
 		return binop::multiply;
 	case divide:
 		return binop::divide;
+	case modulo:
+		return binop::modulo;
+
+	case bitwise_and:
+		return binop::bitwise_and;
+	case bitwise_xor:
+		return binop::bitwise_xor;
+	case bitwise_or:
+		return binop::bitwise_or;
+	case shift_left:
+		return binop::shift_left;
+	case shift_right:
+		return binop::shift_right;
+
 	case less:
 		return binop::less;
+	case less_equal:
+		return binop::less_equal;
 	case greater:
 		return binop::greater;
+	case greater_equal:
+		return binop::greater_equal;
 	case equal:
 		return binop::equal;
 	case not_equal:
 		return binop::not_equal;
+	case logical_and:
+		return binop::logical_and;
+	case logical_or:
+		return binop::logical_or;
 	case assignment:
 		return binop::assignment;
+
+	case compare:
+	case range:
 	case access:
-		assert(!"Field access must be handled separately!");
-		break;
-	default:
-		assert(!"Corrupt value!");
+		assert(!"Unhandled special-case operator!");
 		break;
 	}
+
+	assert(!"Corrupt value!");
 };
 
 struct convert_to_middle_visitor {

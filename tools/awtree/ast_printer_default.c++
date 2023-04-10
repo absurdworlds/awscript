@@ -290,27 +290,51 @@ void ast_printer_default::print_expr(const ast::unary_expression& expr)
 std::string_view spell_operator(ast::binary_operator op)
 {
 	switch(op) {
-	case ast::binary_operator::minus:
+		using enum ast::binary_operator;
+	case minus:
 		return "-";
-	case ast::binary_operator::plus:
+	case plus:
 		return "+";
-	case ast::binary_operator::multiply:
+	case multiply:
 		return "*";
-	case ast::binary_operator::divide:
+	case divide:
 		return "/";
-	case ast::binary_operator::equal:
+	case modulo:
+		return "%";
+	case bitwise_and:
+		return "&";
+	case bitwise_xor:
+		return "^";
+	case bitwise_or:
+		return "|";
+	case shift_left:
+		return "<<";
+	case shift_right:
+		return ">>";
+	case equal:
 		return "==";
-	case ast::binary_operator::not_equal:
+	case not_equal:
 		return "!=";
-	case ast::binary_operator::less:
+	case less:
 		return "<";
-	case ast::binary_operator::greater:
+	case less_equal:
+		return "<=";
+	case greater:
 		return ">";
-	case ast::binary_operator::assignment:
+	case greater_equal:
+		return ">=";
+	case compare:
+		break; // NIY
+	case assignment:
 		return "=";
-	case ast::binary_operator::access:
+	case logical_or:
+		return "||";
+	case logical_and:
+		return "&&";
+	case access:
 		return ".";
-		break;
+	case range:
+		return "..";
 	}
 	return "<invalid-binary-op>";
 }

@@ -16,17 +16,18 @@ enum class precedence {
 	none           = -1, // Not an operator
 	unknown        = 0,
 	assignment     = 1,  // =, any= (except relational)
-	logical_or     = 2,
-	logical_and    = 3,
-	bitwise_or     = 4,
-	bitwise_xor    = 5,
-	bitwise_and    = 6,
+	logical_or     = 2,  // ||
+	logical_and    = 3,  // &&
+	bitwise_or     = 4,  // |
+	bitwise_xor    = 5,  // ^
+	bitwise_and    = 6,  // &
 	equality       = 7,  // ==, !=
 	relational     = 8,  // >=, <=, <, >
 	shift          = 9,  // <<, >>
 	additive       = 10, // +, -
-	multiplicative = 11, // *, *, %
+	multiplicative = 11, // *, /, %
 	field_access   = 12, // .
+	range          = 13, // ..
 	max
 };
 
@@ -64,6 +65,7 @@ inline precedence token_precedence(token tok)
 		return precedence::additive;
 	case token_kind::ast:
 	case token_kind::slash:
+	case token_kind::percent:
 		return precedence::multiplicative;
 	case token_kind::dot:
 		return precedence::field_access;
