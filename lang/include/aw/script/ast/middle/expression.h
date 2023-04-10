@@ -13,7 +13,7 @@
 #include <aw/script/ir/type.h>
 
 #include <aw/script/ir/operators.h>
-#include <aw/script/utility/hard_alias.h>
+#include <aw/script/utility/value_ptr.h>
 
 #include <memory>
 #include <variant>
@@ -25,13 +25,13 @@ class expression;
 
 struct unary_expression {
 	ir::unary_operator op;
-	std::unique_ptr<expression> lhs;
+	value_ptr<expression> lhs;
 };
 
 struct binary_expression {
 	ir::binary_operator op;
-	std::unique_ptr<expression> lhs;
-	std::unique_ptr<expression> rhs;
+	value_ptr<expression> lhs;
+	value_ptr<expression> rhs;
 };
 
 // TODO: tell apart lvalue and rvalue
@@ -43,7 +43,7 @@ struct value_expression {
 };
 
 class function;
-using argument_list = hard_alias<std::vector<expression>>;
+using argument_list = std::vector<expression>;
 struct call_expression {
 	function* func = nullptr;
 	std::string_view func_name;
@@ -52,7 +52,7 @@ struct call_expression {
 
 struct field_expression {
 	ir::struct_type* type = nullptr;
-	std::unique_ptr<expression> lhs;
+	value_ptr<expression> lhs;
 	std::string name;
 };
 
@@ -74,16 +74,16 @@ struct struct_literal {
 	ir::struct_type* type = nullptr;
 	struct field {
 		std::string name;
-		std::unique_ptr<expression> value;
+		value_ptr<expression> value;
 	};
-	using field_vec = hard_alias<std::vector<field>>;
+	using field_vec = std::vector<field>;
 	field_vec fields;
 };
 
 struct if_expression {
-	std::unique_ptr<expression> if_expr;
-	std::unique_ptr<expression> if_body;
-	std::unique_ptr<expression> else_body;
+	value_ptr<expression> if_expr;
+	value_ptr<expression> if_body;
+	value_ptr<expression> else_body;
 };
 
 using expression_variant = std::variant<

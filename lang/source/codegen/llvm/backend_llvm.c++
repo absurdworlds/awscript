@@ -482,6 +482,11 @@ auto backend_llvm::gen(const std::unique_ptr<middle::expression>& expr) -> llvm:
 	return expr ? gen(*expr) : nullptr;
 }
 
+auto backend_llvm::gen(const value_ptr<middle::expression>& expr) -> llvm::Value*
+{
+	return expr ? gen(*expr) : nullptr;
+}
+
 
 auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 {

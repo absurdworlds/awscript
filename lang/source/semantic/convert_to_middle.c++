@@ -66,7 +66,18 @@ auto convert_operator(ast::binary_operator op) -> ir::binary_operator
 		return binop::logical_and;
 	case logical_or:
 		return binop::logical_or;
+
 	case assignment:
+	case assign_minus:
+	case assign_plus:
+	case assign_multiply:
+	case assign_divide:
+	case assign_modulo:
+	case assign_or:
+	case assign_xor:
+	case assign_and:
+	case assign_shift_left:
+	case assign_shift_right:
 		return binop::assignment;
 
 	case compare:
@@ -78,6 +89,36 @@ auto convert_operator(ast::binary_operator op) -> ir::binary_operator
 
 	assert(!"Corrupt value!");
 };
+
+auto break_composite_op(ast::binary_operator op) -> std::optional<ir::binary_operator>
+{
+	using binop = ir::binary_operator;
+	switch(op) {
+		using enum ast::binary_operator;
+	case assign_minus:
+		return binop::minus;
+	case assign_plus:
+		return binop::plus;
+	case assign_multiply:
+		return binop::multiply;
+	case assign_divide:
+		return binop::divide;
+	case assign_modulo:
+		return binop::modulo;
+	case assign_or:
+		return binop::bitwise_or;
+	case assign_xor:
+		return binop::bitwise_xor;
+	case assign_and:
+		return binop::bitwise_and;
+	case assign_shift_left:
+		return binop::shift_left;
+	case assign_shift_right:
+		return binop::shift_right;
+	default:
+		return std::nullopt;
+	}
+}
 
 struct convert_to_middle_visitor {
 	context& ctx;
@@ -242,8 +283,7 @@ struct convert_to_middle_visitor {
 
 	auto convert_expr(const ast::binary_expression& in_expr) -> middle::expression
 	{
-		if (in_expr.op == ast::binary_operator::access)
-		{
+		if (in_expr.op == ast::binary_operator::access) {
 			auto rhs = get_if<ast::value_expression>(in_expr.rhs.get());
 			if (rhs) {
 				return middle::field_expression{
@@ -254,10 +294,21 @@ struct convert_to_middle_visitor {
 			//TODO: error case
 		}
 
+		auto op = convert_operator(in_expr.op);
+		auto lhs = convert_expr(*in_expr.lhs);
+		auto rhs = convert_expr(*in_expr.rhs);
+		if (auto second_op = break_composite_op(in_expr.op)) {
+			rhs = middle::binary_expression{
+				.op = *second_op,
+				.lhs = wrap(lhs),
+				.rhs = wrap(std::move(rhs)),
+			};
+		}
+
 		return middle::binary_expression{
 			.op = convert_operator(in_expr.op),
-			.lhs = wrap(convert_expr(*in_expr.lhs)),
-			.rhs = wrap(convert_expr(*in_expr.rhs)),
+			.lhs = wrap(std::move(lhs)),
+			.rhs = wrap(std::move(rhs)),
 		};
 	}
 

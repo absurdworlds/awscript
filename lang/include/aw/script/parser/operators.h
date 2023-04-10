@@ -41,6 +41,12 @@ inline precedence token_precedence(token tok)
 	case token_kind::plus_equal:
 	case token_kind::minus_equal:
 	case token_kind::slash_equal:
+	case token_kind::percent_equal:
+	case token_kind::amp_equal:
+	case token_kind::pipe_equal:
+	case token_kind::caret_equal:
+	case token_kind::less_less_equal:
+	case token_kind::greater_greater_equal:
 		return precedence::assignment;
 	case token_kind::pipe_pipe:
 		return precedence::logical_or;
@@ -60,6 +66,9 @@ inline precedence token_precedence(token tok)
 	case token_kind::greater:
 	case token_kind::greater_equal:
 		return precedence::relational;
+	case token_kind::less_less:
+	case token_kind::greater_greater:
+		return precedence::shift;
 	case token_kind::plus:
 	case token_kind::minus:
 		return precedence::additive;
@@ -69,6 +78,8 @@ inline precedence token_precedence(token tok)
 		return precedence::multiplicative;
 	case token_kind::dot:
 		return precedence::field_access;
+	case token_kind::dot_dot:
+		return precedence::range;
 	}
 }
 

@@ -176,7 +176,9 @@ bool lexer::lex_operator(token& token)
 
 	switch (*cur) {
 	case '^':
-		token.kind = token_kind::caret;
+		token.kind = match('=') ?
+			token_kind::caret_equal:
+			token_kind::caret;
 		break;
 	case '~':
 		token.kind = token_kind::tilde;
@@ -242,9 +244,10 @@ bool lexer::lex_operator(token& token)
 		}
 		break;
 	case '<':
-		if (peek() == '<') {
-			token.kind = token_kind::less_less;
-			++cur;
+		if (match('<')) {
+			token.kind = match('=') ?
+				token_kind::less_less_equal :
+				token_kind::less_less;
 		} else if (peek() == '=') {
 			token.kind = token_kind::less_equal;
 			++cur;
@@ -253,9 +256,10 @@ bool lexer::lex_operator(token& token)
 		}
 		break;
 	case '>':
-		if (peek() == '>') {
-			token.kind = token_kind::greater_greater;
-			++cur;
+		if (match('>')) {
+			token.kind = match('=') ?
+				token_kind::greater_greater_equal :
+				token_kind::greater_greater;
 		} else if (peek() == '=') {
 			token.kind = token_kind::greater_equal;
 			++cur;
@@ -302,19 +306,21 @@ bool lexer::lex_operator(token& token)
 		}
 		break;
 	case '&':
-		if (peek() == '&') {
+		if (match('&')) {
 			token.kind = token_kind::amp_amp;
-			++cur;
 		} else {
-			token.kind = token_kind::amp;
+			token.kind = (match('=')) ?
+				token_kind::amp_equal :
+				token_kind::amp;
 		}
 		break;
 	case '|':
-		if (peek() == '|') {
-			token.kind = token_kind::pipe_pipe;
-			++cur;
+		if (match('|')) {
+				token.kind = token_kind::pipe_pipe;
 		} else {
-			token.kind = token_kind::pipe;
+			token.kind = (match('=')) ?
+				token_kind::pipe_equal :
+				token_kind::pipe;
 		}
 		break;
 	}

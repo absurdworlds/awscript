@@ -252,10 +252,9 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::empty_statement& /*stmt
 void semantic_analyzer::visit_stmt(context& ctx, middle::expression& expr)
 {
 	visit_expr(ctx, expr);
-	if (expr.type)
-		propagate_type(ctx, expr.type, expr);
-	else
+	if (!expr.type)
 		expr.type = infer_type(ctx, expr);
+	propagate_type(ctx, expr.type, expr);
 }
 
 /*
@@ -403,6 +402,12 @@ void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 	}
 }
 
+bool is_number(ir::type* type)
+{
+	return std::holds_alternative<ir::integer_type>(type->kind) ||
+	       std::holds_alternative<ir::fp_type>(type->kind);
+}
+
 /*
  * Type inference
  */
@@ -416,7 +421,10 @@ auto semantic_analyzer::common_type(ir::type* a, ir::type* b) -> ir::type*
 			return a;
 		if (a->name == "string_literal" && b->name == "u8*")
 			return b;
-
+		if (is_number(a) && b->name == "numeric_literal")
+			return a;
+		if (a->name == "numeric_literal" && is_number(b))
+			return b;
 		return error(diag, diagnostic_id::type_mismathch, location(), a->name, b->name);
 	}
 
@@ -616,7 +624,10 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::num
 {
 	if (!expr.type)
 		expr.type = type;
-	return common_type(expr.type, type);
+	else
+		expr.type = common_type(expr.type, type);
+
+	return expr.type;
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::bool_literal& expr) -> ir::type*

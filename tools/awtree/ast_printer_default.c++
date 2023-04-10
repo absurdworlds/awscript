@@ -331,6 +331,26 @@ std::string_view spell_operator(ast::binary_operator op)
 		return "||";
 	case logical_and:
 		return "&&";
+	case assign_minus:
+		return "-=";
+	case assign_plus:
+		return "+=";
+	case assign_multiply:
+		return "*=";
+	case assign_divide:
+		return "/=";
+	case assign_modulo:
+		return "%=";
+	case assign_or:
+		return "|=";
+	case assign_xor:
+		return "^=";
+	case assign_and:
+		return "&=";
+	case assign_shift_left:
+		return "<<=";
+	case assign_shift_right:
+		return ">>=";
 	case access:
 		return ".";
 	case range:

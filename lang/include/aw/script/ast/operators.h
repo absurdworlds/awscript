@@ -35,6 +35,16 @@ enum class binary_operator {
 	logical_and,
 	// assignment operators
 	assignment,
+	assign_minus,
+	assign_plus,
+	assign_multiply,
+	assign_divide,
+	assign_modulo,
+	assign_or,
+	assign_xor,
+	assign_and,
+	assign_shift_left,
+	assign_shift_right,
 	// other operators
 	access,
 	range,

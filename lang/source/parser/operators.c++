@@ -76,6 +76,27 @@ auto static token_to_binary_operator(token tok) -> std::optional<ast::binary_ope
 
 	case token_kind::equal:
 		return binop::assignment;
+	case token_kind::minus_equal:
+		return binop::assign_minus;
+	case token_kind::plus_equal:
+		return binop::assign_plus;
+	case token_kind::ast_equal:
+		return binop::assign_multiply;
+	case token_kind::slash_equal:
+		return binop::assign_divide;
+	case token_kind::percent_equal:
+		return binop::assign_modulo;
+	case token_kind::pipe_equal:
+		return binop::assign_or;
+	case token_kind::caret_equal:
+		return binop::assign_xor;
+	case token_kind::amp_equal:
+		return binop::assign_and;
+	case token_kind::less_less_equal:
+		return binop::assign_shift_left;
+	case token_kind::greater_greater_equal:
+		return binop::assign_shift_right;
+
 	case token_kind::dot:
 		return binop::access;
 	case token_kind::dot_dot:
