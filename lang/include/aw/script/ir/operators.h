@@ -5,6 +5,7 @@ namespace aw::script::ir {
 
 enum class unary_operator {
 	minus,
+	minus_fp,
 	plus,
 	negation,
 };

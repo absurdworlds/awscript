@@ -636,6 +636,8 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 	switch (expr.op) {
 	case ir::unary_operator::minus:
 		return builder.CreateNeg(val, "neg");
+	case ir::unary_operator::minus_fp:
+		return builder.CreateFNeg(val, "neg");
 	case ir::unary_operator::plus:
 		return val;
 	case ir::unary_operator::negation:
