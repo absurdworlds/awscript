@@ -202,32 +202,32 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 		return {};
 
 	if (match(token_kind::equal))
-		var.value = parse_variable_initializer();
+		var.value = parse_variable_initializer().value;
 
 	return var;
 }
 
-auto parser::parse_struct_initializer() -> std::optional<ast::expression>
+auto parser::parse_struct_initializer() -> result<ast::expression>
 {
+	error_t err;
+
 	ast::struct_literal init;
 	while (!match(token_kind::r_brace)) {
-		if (!match(token_kind::dot)) {
-			error_unexpected_token(diag, tok, token_kind::dot);
-			return {};
-		}
+		if (!match(token_kind::dot))
+			err = error_unexpected_token(diag, tok, token_kind::dot);
 
 		auto name = parse_identifier();
 		if (name.empty())
-			return {};
+			continue;
 
-		if (!match(token_kind::equal)) {
-			error_unexpected_token(diag, tok, token_kind::equal);
-			return {};
-		}
+		if (!match(token_kind::equal))
+			err = error_unexpected_token(diag, tok, token_kind::equal);
 
 		auto expr = parse_expression();
-		if (!expr)
-			return {};
+		if (!expr) {
+			err = expr.error;
+			continue;
+		}
 
 		init.fields.push_back({
 			.name = name,
@@ -237,16 +237,14 @@ auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 		if (match(token_kind::r_brace))
 			break;
 
-		if (!match(token_kind::comma)) {
-			error_unexpected_token(diag, tok, token_kind::comma);
-			return {};
-		}
+		if (!match(token_kind::comma))
+			err = error_unexpected_token(diag, tok, token_kind::comma);
 	}
 
-	return init;
+	return { std::move(init), err };
 }
 
-auto parser::parse_variable_initializer() -> std::optional<ast::expression>
+auto parser::parse_variable_initializer() -> opt_result<ast::expression>
 {
 	if (match(token_kind::l_brace))
 		return parse_struct_initializer();
@@ -470,19 +468,29 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 
 		[[fallthrough]];
 	default:
-		return parse_expression();
+		return parse_expression().value;
 	}
+}
+
+auto wrap(opt_result<ast::expression> r) -> std::pair<
+	std::unique_ptr<ast::expression>,
+	error_t>
+{
+	return { wrap(std::move(r.value)), r.error };
 }
 
 auto parser::parse_if_statement() -> std::optional<ast::statement>
 {
 	advance("if");
 
+	error_t err;
 	ast::if_else_statement stmt;
 
-	stmt.if_expr = wrap(parse_expression());
-	if (!stmt.if_expr)
-		return error_expected_expression(diag, tok);
+	if (tok == "then"sv) {
+		err = error_expected_expression(diag, tok);
+		advance();
+	} else
+		std::tie(stmt.if_expr, err) = wrap(parse_expression());
 
 	match("then");
 
@@ -526,9 +534,10 @@ auto parser::parse_return_statement() -> std::optional<ast::statement>
 	ast::return_statement stmt;
 	if (!match(token_kind::semicolon))
 	{
-		stmt.value = wrap(parse_expression());
-		if (!stmt.value)
+		auto expr = parse_expression();
+		if (!expr)
 			return {};
+		stmt.value = wrap(std::move(*expr));
 	}
 
 	return stmt;
@@ -545,54 +554,63 @@ auto parser::parse_local_variable(ast::access access) -> std::optional<ast::decl
 }
 
 /********************** Expressions **********************/
-auto parser::parse_expression() -> std::optional<ast::expression>
+auto parser::parse_expression() -> opt_result<ast::expression>
 {
 	auto lhs = parse_postfix_expression();
 	if (!lhs)
-		return {};
+		return lhs;
 
 	return parse_binary_expression(std::move(*lhs), precedence::unknown);
 }
 
-auto parser::parse_postfix_expression() -> std::optional<ast::expression>
+auto parser::parse_postfix_expression() -> opt_result<ast::expression>
 {
 	auto expr = parse_unary_expression();
 	if (!expr)
 		return expr;
 
-	if (match("as")) {
-		auto type = parse_type();
-		if (!type) {
-			error(diag, diagnostic_id::expected_a_type, tok);
-			return expr;
-		}
-
-		expr = ast::cast_expression{
-			.to_type = std::move(*type),
-			.lhs = wrap(std::move(*expr)),
-		};
-	}
+	if (match("as"))
+		expr = parse_as_expression(std::move(*expr));
 
 	return expr;
 }
 
-auto parser::parse_unary_expression() -> std::optional<ast::expression>
+// TODO: replace optional with non-optional, but able to indicate an error
+auto parser::parse_as_expression(ast::expression expr) -> result<ast::expression>
+{
+	error_t err;
+
+	auto type = parse_type();
+	if (type)
+		expr = ast::cast_expression{
+			.to_type = std::move(*type),
+			.lhs = wrap(std::move(expr)),
+		};
+	else
+		err = error(diag, diagnostic_id::expected_a_type, tok);
+
+	return {
+		.value = std::move(expr),
+		.error = err,
+	};
+}
+
+
+auto parser::parse_unary_expression() -> opt_result<ast::expression>
 {
 	auto op = parse_unary_operator(tok);
 	if (!op)
 		return parse_primary_expression();
 
-	ast::unary_expression expr {
+	auto expr = parse_unary_expression();
+	if (!expr)
+		return expr;
+
+	return ast::unary_expression{
 		.op = *op,
-		.lhs = wrap(parse_unary_expression())
+		.lhs = wrap(std::move(*expr)),
 	};
-
-	if (!expr.lhs)
-		return {};
-
-	return expr;
 }
-
 static precedence move_prec(precedence prec, int count)
 {
 	auto result = precedence( to_underlying(prec) + count );
@@ -601,33 +619,36 @@ static precedence move_prec(precedence prec, int count)
 }
 
 auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) ->
-	std::optional<ast::expression>
+	result<ast::expression>
 {
-	while (true) {
+	error_t err;
+
+	while (!err.has_value()) {
 		precedence cur_prec = token_precedence(tok);
 		if (cur_prec < min_prec)
 			break;
 
 		auto op = parse_binary_operator(tok);
-		if (!op)
-			return {};
+		assert(op && "token_precedence isn't implemented correctly!");
 
 		auto rhs = parse_postfix_expression();
-		if (!rhs)
-			return {};
+		if (!rhs) {
+			err = diagnostic_id::expected_expression;
+			break;
+		}
 
 		const precedence next_prec = token_precedence(tok);
 		const bool is_right_assoc = is_right_associative(tok);
 
 		if (cur_prec < next_prec ||
 		   (cur_prec == next_prec && is_right_assoc)) {
-			rhs = parse_binary_expression(
+			auto res = parse_binary_expression(
 				std::move(*rhs),
 				move_prec(cur_prec, !is_right_assoc)
 			);
 
-			if (!rhs)
-				return {};
+			err = res.error;
+			rhs = std::move(res.value);
 		}
 
 		lhs = ast::binary_expression {
@@ -637,10 +658,13 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 		};
 	}
 
-	return lhs;
+	return {
+		.value = std::move(lhs),
+		.error = err,
+	};
 }
 
-auto parser::parse_primary_expression() -> std::optional<ast::expression>
+auto parser::parse_primary_expression() -> opt_result<ast::expression>
 {
 	switch(tok.kind) {
 	case token_kind::l_paren:
@@ -652,59 +676,68 @@ auto parser::parse_primary_expression() -> std::optional<ast::expression>
 	case token_kind::string_literal:
 		return parse_string_literal_expression();
 	default:
-		return {}; // expected expression
+		return diagnostic_id::expected_expression;
 	}
 }
 
-auto parser::parse_paren_expression() -> std::optional<ast::expression>
+auto parser::parse_paren_expression() -> result<ast::expression>
 {
+	error_t err;
+
 	advance(token_kind::l_paren);
 
-	auto expr = parse_expression();
+	auto result = parse_expression();
+
+	err = result.error;
 
 	if (!match(token_kind::r_paren))
-		error_unexpected_token(diag, tok, token_kind::r_paren);
+		err = error_unexpected_token(diag, tok, token_kind::r_paren);
 
-	return ast::paren_expression{
-		.inner = wrap(std::move(expr))
+	ast::paren_expression expr{
+		.inner = wrap(std::move(result.value))
 	};
+
+	return { std::move(expr), err };
 }
 
-auto parser::parse_if_expression() -> std::optional<ast::expression>
+auto parser::parse_if_expression() -> result<ast::expression>
 {
 	advance("if");
 
+	error_t err;
 	ast::if_expression expr;
 
-	expr.if_expr = wrap(parse_expression());
-	if (!expr.if_expr)
-		return error_expected_expression(diag, tok);
+	if (tok == "then"sv) {
+		err = error_expected_expression(diag, tok);
+		advance();
+	} else
+		std::tie(expr.if_expr, err) = wrap(parse_expression());
 
 	match("then");
 
-	expr.if_body = wrap(parse_expression());
+	std::tie(expr.if_body, err) = wrap(parse_expression());
 
 	if (!match("else"))
-		return error_unexpected_token(diag, tok, "else"sv);
+		err = error_unexpected_token(diag, tok, "else"sv);
 
-	expr.else_body = wrap(parse_expression());
+	std::tie(expr.else_body, err) = wrap(parse_expression());
 
-	return expr;
+	return { std::move(expr), err };
 }
 
-auto parser::parse_identifier_expression() -> std::optional<ast::expression>
+auto parser::parse_identifier_expression() -> result<ast::expression>
 {
+	assert(tok == token_kind::identifier &&
+	       "invalid use of parse_identifier_expression");
+
 	const auto sp = save_state();
 
 	std::string_view name = parse_identifier();
-	if (name.empty())
-		return {};
 
 	if (name == "if"sv) {
-		if (tok != token_kind::r_paren)
-		{
+		if (tok != token_kind::r_paren) {
 			// Restoring state isn't necessary (and even slightly detrimental
-			// for performance), but I think it's more elegant
+			// for performance), but I think it states intent more clearly
 			restore_state(sp);
 			return parse_if_expression();
 		}
@@ -713,11 +746,7 @@ auto parser::parse_identifier_expression() -> std::optional<ast::expression>
 	if (match(token_kind::l_paren))
 		return parse_call_expression(name);
 
-	// TODO: postfix operators ?
-
-	ast::value_expression expr{ .name = name };
-
-	return expr;
+	return { ast::value_expression{ .name = name } };
 }
 
 char escape_char(char c)
@@ -766,7 +795,7 @@ static std::string parse_string(string_view s)
 	return result;
 }
 
-auto parser::parse_string_literal_expression() -> std::optional<ast::expression>
+auto parser::parse_string_literal_expression() -> ast::string_literal
 {
 	assert(tok == token_kind::string_literal &&
 	       "parse_string_literal_expression called when there's no string literal!");
@@ -793,7 +822,7 @@ auto decode_base(std::string_view num) -> ast::number_base
 	return decimal;
 }
 
-auto parser::parse_numeric_literal_expression() -> std::optional<ast::expression>
+auto parser::parse_numeric_literal_expression() -> ast::numeric_literal
 {
 	assert(tok == token_kind::numeric_constant &&
 	       "parse_numeric_literal_expression called when there's no number!");
@@ -812,29 +841,34 @@ auto parser::parse_numeric_literal_expression() -> std::optional<ast::expression
 	return num;
 }
 
-auto parser::parse_call_expression(std::string_view name) -> std::optional<ast::expression>
+auto parser::parse_call_expression(std::string_view name) -> result<ast::expression>
 {
+	error_t err;
+
 	ast::call_expression expr;
 
 	expr.func = name;
 
-	if (!match(token_kind::r_paren)) {
-		while (true) {
-			auto arg = parse_expression();
-			if (!arg)
-				return {};
-
-			expr.args.push_back(std::move(*arg));
-
-			if (match(token_kind::r_paren))
-				break;
-
-			if (!match(token_kind::comma))
-				return error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+	while (!match(token_kind::r_paren)) {
+		auto arg = parse_expression();
+		if (!arg) {
+			err = error_expected_expression(diag, tok);
+			break;
 		}
+
+		expr.args.push_back(std::move(*arg));
+
+		if (match(token_kind::r_paren))
+			break;
+
+		if (!match(token_kind::comma))
+			err = error_unexpected_token(diag, tok, token_kind::comma);
 	}
 
-	return expr;
+	return {
+		.value = std::move(expr),
+		.error = err
+	};
 }
 
 } // namespace aw::script

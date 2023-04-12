@@ -16,8 +16,19 @@
 
 namespace aw::script {
 
-struct error_t {
-	constexpr operator bool() const { return false; }
+struct error_t : std::optional<diagnostic_id> {
+	constexpr error_t() = default;
+	constexpr error_t(diagnostic_id diag)
+		: std::optional<diagnostic_id>(diag)
+	{}
+
+	constexpr error_t& operator=(diagnostic_id diag)
+	{
+		std::optional<diagnostic_id>::operator=(diag);
+		return *this;
+	}
+
+	constexpr operator bool() const { return !has_value(); }
 
 	constexpr operator std::string_view() const { return {}; }
 
@@ -27,7 +38,7 @@ struct error_t {
 	template <typename T>
 	constexpr operator T*() const { return nullptr; }
 
-	template <typename T>
+	template <typename T> requires (!std::is_same_v<T, diagnostic_id>)
 	constexpr operator std::optional<T>() const { return std::nullopt; }
 };
 
@@ -39,7 +50,7 @@ inline error_t error(diagnostics_engine& diag, diagnostic_id id, location loc, A
 		(msg << ... << args);
 	diag.report(msg);
 
-	return {};
+	return id;
 }
 
 template<typename...Args>

@@ -39,7 +39,7 @@ private:
 	void visit_stmt(context& ctx, middle::expression& in_stmt);
 
 	void visit_expr(context& ctx, middle::expression& in_expr);
-	void visit_expr(context& ctx, middle::cast_expression& expr);
+	void visit_expr(context& ctx, middle::cast_expression& in_expr);
 	void visit_expr(context& ctx, middle::unary_expression& in_expr);
 	void visit_expr(context& ctx, middle::binary_expression& in_expr);
 	void visit_expr(context& ctx, middle::call_expression& in_expr);
