@@ -663,7 +663,7 @@ auto parser::parse_paren_expression() -> std::optional<ast::expression>
 	auto expr = parse_expression();
 
 	if (!match(token_kind::r_paren))
-		return error_unexpected_token(diag, tok, token_kind::r_paren); // expected ')'
+		error_unexpected_token(diag, tok, token_kind::r_paren);
 
 	return ast::paren_expression{
 		.inner = wrap(std::move(expr))
