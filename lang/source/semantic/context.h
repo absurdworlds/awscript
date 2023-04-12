@@ -15,11 +15,11 @@ struct context {
 	// TODO: solve this mess
 	std::vector<std::unique_ptr<ir::type>> types;
 
-
 	void push_scope()
 	{
 		stack.push_back(std::make_unique<scope>(current_scope()));
 	}
+
 	void pop_scope()
 	{
 		stack.pop_back();

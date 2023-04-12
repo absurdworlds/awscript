@@ -23,6 +23,11 @@ namespace aw::script::middle {
 
 class expression;
 
+struct cast_expression {
+	ir::type* to_type;
+	value_ptr<expression> lhs;
+};
+
 struct unary_expression {
 	ir::unary_operator op;
 	value_ptr<expression> lhs;
@@ -87,6 +92,7 @@ struct if_expression {
 };
 
 using expression_variant = std::variant<
+	cast_expression,
 	unary_expression,
 	binary_expression,
 	call_expression,

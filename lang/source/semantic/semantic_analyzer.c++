@@ -23,7 +23,7 @@ static auto create_builtin_types()
 	std::vector<std::unique_ptr<ir::type>> types;
 
 	types.push_back(create_type("void"));
-	types.push_back(create_type("bool"));
+	types.push_back(wrap(ir::type{ "bool", ir::simple_type::boolean }));
 
 	auto create_int = [&types] (char kind, int size, std::string_view name = {}) {
 		std::string type_name;
@@ -269,6 +269,11 @@ void semantic_analyzer::visit_expr(context& ctx, middle::expression& expr)
 	return std::visit(expr_visitor, expr);
 }
 
+void semantic_analyzer::visit_expr(context& ctx, middle::cast_expression& in_expr)
+{
+	visit_expr(ctx, *in_expr.lhs);
+}
+
 void semantic_analyzer::visit_expr(context& ctx, middle::unary_expression& in_expr)
 {
 	visit_expr(ctx, *in_expr.lhs);
@@ -402,6 +407,16 @@ void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
 	}
 }
 
+void visit_op(context& ctx, ir::type* ty, middle::unary_expression& expr)
+{
+	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
+		if (expr.op == ir::unary_operator::minus)
+			expr.op = ir::unary_operator::minus_fp;
+		return;
+	}
+
+}
+
 bool is_number(ir::type* type)
 {
 	return std::holds_alternative<ir::integer_type>(type->kind) ||
@@ -475,9 +490,21 @@ auto semantic_analyzer::infer_type(context& ctx, middle::expression& expr) -> ir
 	return expr.type;
 }
 
+auto semantic_analyzer::infer_type(context& ctx, middle::cast_expression& expr) -> ir::type*
+{
+	auto from_type = infer_type(ctx, *expr.lhs);
+	if (!from_type)
+		propagate_type(ctx, expr.to_type, *expr.lhs);
+	return expr.to_type;
+}
+
 auto semantic_analyzer::infer_type(context& ctx, middle::unary_expression& expr) -> ir::type*
 {
-	return infer_type(ctx, *expr.lhs);
+	auto ty = infer_type(ctx, *expr.lhs);
+
+	visit_op(ctx, ty, expr);
+
+	return ty;
 }
 
 auto semantic_analyzer::infer_type(context& ctx, middle::binary_expression& expr) -> ir::type*
@@ -576,9 +603,21 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::exp
 	return expr.type;
 }
 
+auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::cast_expression& expr) -> ir::type*
+{
+	auto from_type = infer_type(ctx, *expr.lhs);
+	if (!from_type)
+		propagate_type(ctx, expr.to_type, *expr.lhs);
+	return common_type(type, expr.to_type);
+}
+
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::unary_expression& expr) -> ir::type*
 {
-	return propagate_type(ctx, type, *expr.lhs);
+	auto ty = propagate_type(ctx, type, *expr.lhs);
+
+	visit_op(ctx, ty, expr);
+
+	return ty;
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::binary_expression& expr) -> ir::type*

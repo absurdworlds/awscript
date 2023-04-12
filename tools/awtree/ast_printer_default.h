@@ -36,6 +36,7 @@ private:
 	void print_expr(const std::unique_ptr<ast::expression>& expr);
 	void print_expr(const ast::expression& expr);
 	void print_expr(const ast::paren_expression& expr);
+	void print_expr(const ast::cast_expression& expr);
 	void print_expr(const ast::unary_expression& expr);
 	void print_expr(const ast::if_expression& expr);
 	void print_expr(const ast::binary_expression& expr);

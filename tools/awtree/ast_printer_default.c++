@@ -241,6 +241,16 @@ void ast_printer_default::print_expr(const ast::paren_expression& expr)
 	end();
 }
 
+void ast_printer_default::print_expr(const ast::cast_expression& expr)
+{
+	start("as", inline_scope);
+
+	print_type(expr.to_type);
+	print_expr(expr.lhs);
+
+	end();
+}
+
 void ast_printer_default::print_expr(const ast::if_expression& expr)
 {
 	start("if", inline_scope);

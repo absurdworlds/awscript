@@ -547,11 +547,33 @@ auto parser::parse_local_variable(ast::access access) -> std::optional<ast::decl
 /********************** Expressions **********************/
 auto parser::parse_expression() -> std::optional<ast::expression>
 {
-	auto lhs = parse_unary_expression();
+	auto lhs = parse_postfix_expression();
 	if (!lhs)
 		return {};
 
 	return parse_binary_expression(std::move(*lhs), precedence::unknown);
+}
+
+auto parser::parse_postfix_expression() -> std::optional<ast::expression>
+{
+	auto expr = parse_unary_expression();
+	if (!expr)
+		return expr;
+
+	if (match("as")) {
+		auto type = parse_type();
+		if (!type) {
+			error(diag, diagnostic_id::expected_a_type, tok);
+			return expr;
+		}
+
+		expr = ast::cast_expression{
+			.to_type = std::move(*type),
+			.lhs = wrap(std::move(*expr)),
+		};
+	}
+
+	return expr;
 }
 
 auto parser::parse_unary_expression() -> std::optional<ast::expression>
@@ -590,7 +612,7 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 		if (!op)
 			return {};
 
-		auto rhs = parse_unary_expression();
+		auto rhs = parse_postfix_expression();
 		if (!rhs)
 			return {};
 

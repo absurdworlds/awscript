@@ -520,8 +520,6 @@ auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 	return type->isPointerTy() ? value : nullptr;
 }
 
-
-
 bool requires_lvalue(const ir::binary_operator op)
 {
 	return op == ir::binary_operator::assignment;

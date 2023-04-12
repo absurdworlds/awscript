@@ -39,6 +39,7 @@ private:
 	void visit_stmt(context& ctx, middle::expression& in_stmt);
 
 	void visit_expr(context& ctx, middle::expression& in_expr);
+	void visit_expr(context& ctx, middle::cast_expression& expr);
 	void visit_expr(context& ctx, middle::unary_expression& in_expr);
 	void visit_expr(context& ctx, middle::binary_expression& in_expr);
 	void visit_expr(context& ctx, middle::call_expression& in_expr);
@@ -56,6 +57,7 @@ private:
 	auto common_type(context& ctx, ir::type* type, middle::expression& lhs, middle::expression& rhs) -> ir::type*;
 
 	auto infer_type(context& ctx, middle::expression& in_expr) -> ir::type*;
+	auto infer_type(context& ctx, middle::cast_expression& expr) -> ir::type*;
 	auto infer_type(context& ctx, middle::unary_expression& in_expr) -> ir::type*;
 	auto infer_type(context& ctx, middle::binary_expression& in_expr) -> ir::type*;
 	auto infer_type(context& ctx, middle::call_expression& in_expr) -> ir::type*;
@@ -67,7 +69,8 @@ private:
 	auto infer_type(context& ctx, middle::string_literal& in_expr) -> ir::type*;
 	auto infer_type(context& ctx, middle::struct_literal& in_expr) -> ir::type*;
 
-	auto propagate_type(context& ctx, ir::type* type, middle::expression& in_expr) -> ir::type*;
+	auto propagate_type(context& ctx, ir::type* type, middle::expression& expr) -> ir::type*;
+	auto propagate_type(context& ctx, ir::type* type, middle::cast_expression& in_expr) -> ir::type*;
 	auto propagate_type(context& ctx, ir::type* type, middle::unary_expression& in_expr) -> ir::type*;
 	auto propagate_type(context& ctx, ir::type* type, middle::binary_expression& in_expr) -> ir::type*;
 	auto propagate_type(context& ctx, ir::type* type, middle::call_expression& in_expr) -> ir::type*;

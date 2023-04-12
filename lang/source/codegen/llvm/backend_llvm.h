@@ -72,6 +72,7 @@ public:
 	auto gen(const middle::expression& expr) -> llvm::Value*;
 	auto gen_lvalue(const std::unique_ptr<middle::expression>& expr) -> llvm::Value*;
 	auto gen_lvalue(const middle::expression& expr) -> llvm::Value*;
+	auto gen(const middle::cast_expression& expr) -> llvm::Value*;
 	auto gen(const middle::numeric_literal& expr) -> llvm::Constant*;
 	auto gen(const middle::bool_literal& expr) -> llvm::ConstantInt*;
 	auto gen(const middle::string_literal& expr) -> llvm::Value*;

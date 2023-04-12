@@ -11,6 +11,7 @@
 
 #include <aw/script/ast/number_base.h>
 #include <aw/script/ast/operators.h>
+#include <aw/script/ast/type.h>
 #include <aw/script/utility/hard_alias.h>
 
 #include <aw/types/string_view.h>
@@ -25,6 +26,11 @@ class expression;
 
 struct paren_expression {
 	std::unique_ptr<expression> inner;
+};
+
+struct cast_expression {
+	ast::type to_type;
+	std::unique_ptr<expression> lhs;
 };
 
 struct unary_expression {
@@ -77,6 +83,7 @@ struct if_expression {
 };
 
 using expression_variant = std::variant<
+	cast_expression,
 	paren_expression,
 	unary_expression,
 	binary_expression,

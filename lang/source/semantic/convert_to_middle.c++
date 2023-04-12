@@ -263,6 +263,14 @@ struct convert_to_middle_visitor {
 		return std::visit(expr_visitor, in_expr);
 	}
 
+	auto convert_expr(const ast::cast_expression& in_expr) -> middle::cast_expression
+	{
+		return middle::cast_expression{
+			.to_type = ctx.create_type(in_expr.to_type),
+			.lhs = wrap(convert_expr(*in_expr.lhs)),
+		};
+	}
+
 	auto convert_expr(const ast::paren_expression& in_expr) -> middle::expression
 	{
 		return convert_expr(*in_expr.inner);

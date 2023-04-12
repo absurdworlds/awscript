@@ -89,6 +89,7 @@ private:
 
 	auto parse_expression() -> std::optional<ast::expression>;
 	auto parse_if_expression() -> std::optional<ast::expression>;
+	auto parse_postfix_expression() -> std::optional<ast::expression>;
 	auto parse_unary_expression() -> std::optional<ast::expression>;
 	auto parse_binary_expression(ast::expression lhs, precedence min_prec)
 		-> std::optional<ast::expression>;

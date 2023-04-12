@@ -59,6 +59,7 @@ aw_add_library(awscript-lang STATIC
 		source/codegen/llvm/backend_llvm.c++
 		source/codegen/llvm/optimizer_llvm.c++
 		source/codegen/llvm/gen_variable.c++
+		source/codegen/llvm/gen_cast.c++
 		source/driver/main.c++
 	)
 
