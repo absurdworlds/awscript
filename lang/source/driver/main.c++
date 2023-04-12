@@ -55,10 +55,13 @@ int run_compiler(const options& options, callbacks* callbacks)
 			auto decl = parser.parse_top_level();
 			if (!decl)
 				break;
-			callbacks->on_parse_declaration(*decl);
+			callbacks->process_declaration(*decl);
 			mod.decls.push_back(std::move(*decl));
 		}
 	}
+
+	if (diag.has_error())
+		return EXIT_FAILURE;
 
 	// Temporary
 	semantic_analyzer analyzer(diag);
@@ -73,10 +76,6 @@ int run_compiler(const options& options, callbacks* callbacks)
 		mod.dir_path = input_path.parent_path();
 		modules.push_back(std::move(mod));
 	}
-
-	for (const auto& [_,mod] : decl_source_map)
-		for (const auto& decl : mod.decls)
-			callbacks->process_declaration(decl);
 
 	if (diag.has_error())
 		return EXIT_FAILURE;
