@@ -45,6 +45,15 @@ void parser::skip_comments()
 		tok = lex.next();
 }
 
+token parser::skip_illegal_tokens()
+{
+	auto first_illegal_token = tok;
+	while (tok == token_kind::illegal)
+		tok = lex.next();
+	skip_comments();
+	return first_illegal_token;
+}
+
 bool parser::advance(token_kind expected)
 {
 	assert(tok == expected);
@@ -94,6 +103,17 @@ bool parser::match(string_view identifier)
 
 	// consume token
 	advance();
+	return true;
+}
+
+// Opposite of 'match': expects that should NOT be a specific token
+bool parser::unmatch(string_view identifier, string_view expect)
+{
+	if (tok == identifier) {
+		error(diag, diagnostic_id::expected, tok, expect);
+		advance();
+		return false;
+	}
 	return true;
 }
 
@@ -420,7 +440,7 @@ auto parser::parse_statement_block() -> std::optional<ast::statement>
 	while (!match(token_kind::r_brace)) {
 		auto statement = parse_statement();
 		if (!statement)
-			return {};
+			continue;
 
 		statements.push_back(std::move(*statement));
 	}
@@ -430,7 +450,13 @@ auto parser::parse_statement_block() -> std::optional<ast::statement>
 
 auto parser::parse_statement() -> std::optional<ast::statement>
 {
+	const auto start_tok = tok;
+
 	auto stmt = parse_statement_inner();
+
+	// skip a token to avoid looping forever
+	if (!stmt && start_tok == tok)
+		advance();
 
 	while (match(token_kind::semicolon));
 
@@ -480,18 +506,18 @@ auto parser::parse_if_statement() -> std::optional<ast::statement>
 
 	ast::if_else_statement stmt;
 
-	stmt.if_expr = wrap(parse_expression());
-	if (!stmt.if_expr)
-		return error_expected_expression(diag, tok);
+	if (unmatch("then", "expression")) {
+		stmt.if_expr = wrap(parse_expression());
+		if (!stmt.if_expr)
+			error_expected_expression(diag, tok);
+	}
 
 	match("then");
 
 	stmt.if_body = wrap(parse_statement());
 
 	if (match("else"))
-	{
 		stmt.else_body = wrap(parse_statement());
-	}
 
 	return stmt;
 }
@@ -600,8 +626,7 @@ static precedence move_prec(precedence prec, int count)
 	return result;
 }
 
-auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) ->
-	std::optional<ast::expression>
+auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -> ast::expression
 {
 	while (true) {
 		precedence cur_prec = token_precedence(tok);
@@ -609,12 +634,13 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 			break;
 
 		auto op = parse_binary_operator(tok);
-		if (!op)
-			return {};
+		assert(op && "token_precedence implemented incorrectly!");
 
 		auto rhs = parse_postfix_expression();
-		if (!rhs)
-			return {};
+		if (!rhs) {
+			error_expected_expression(diag, tok);
+			break;
+		}
 
 		const precedence next_prec = token_precedence(tok);
 		const bool is_right_assoc = is_right_associative(tok);
@@ -625,9 +651,6 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 				std::move(*rhs),
 				move_prec(cur_prec, !is_right_assoc)
 			);
-
-			if (!rhs)
-				return {};
 		}
 
 		lhs = ast::binary_expression {
@@ -651,6 +674,8 @@ auto parser::parse_primary_expression() -> std::optional<ast::expression>
 		return parse_numeric_literal_expression();
 	case token_kind::string_literal:
 		return parse_string_literal_expression();
+	case token_kind::illegal:
+		return error(diag, diagnostic_id::illegal_token, skip_illegal_tokens());
 	default:
 		return {}; // expected expression
 	}
@@ -676,16 +701,18 @@ auto parser::parse_if_expression() -> std::optional<ast::expression>
 
 	ast::if_expression expr;
 
-	expr.if_expr = wrap(parse_expression());
-	if (!expr.if_expr)
-		return error_expected_expression(diag, tok);
+	if (unmatch("then", "expression")) {
+		expr.if_expr = wrap(parse_expression());
+		if (!expr.if_expr)
+			error_expected_expression(diag, tok);
+	}
 
 	match("then");
 
 	expr.if_body = wrap(parse_expression());
 
 	if (!match("else"))
-		return error_unexpected_token(diag, tok, "else"sv);
+		error_unexpected_token(diag, tok, "else"sv);
 
 	expr.else_body = wrap(parse_expression());
 
@@ -821,8 +848,10 @@ auto parser::parse_call_expression(std::string_view name) -> std::optional<ast::
 	if (!match(token_kind::r_paren)) {
 		while (true) {
 			auto arg = parse_expression();
-			if (!arg)
-				return {};
+			if (!arg) {
+				error_expected_expression(diag, tok);
+				break;
+			}
 
 			expr.args.push_back(std::move(*arg));
 
@@ -830,7 +859,7 @@ auto parser::parse_call_expression(std::string_view name) -> std::optional<ast::
 				break;
 
 			if (!match(token_kind::comma))
-				return error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+				error_unexpected_token(diag, tok, token_kind::comma); // expected ,
 		}
 	}
 

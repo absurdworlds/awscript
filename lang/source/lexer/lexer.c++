@@ -406,8 +406,7 @@ bool lexer::lex_comment(token& token)
 bool lexer::lex_illegal_token(token& token)
 {
 	char const* begin = cur;
-	// TODO: search until token-beginnning character
-	cur = std::find_if(begin, end, isspace);
+	cur = std::find_if(begin+1, end, is_separator);
 
 	token = {
 		.kind = token_kind::illegal,

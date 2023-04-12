@@ -40,5 +40,12 @@ inline bool operator==(token tok, std::string_view sv)
 {
 	return tok.data == sv;
 }
+
+inline bool operator==(token tok1, token tok2)
+{
+	return tok1.data == tok2.data &&
+	       tok1.loc == tok2.loc &&
+	       tok1.kind == tok2.kind;
+}
 } // namespace aw::script
 #endif//aw_script_token_h

@@ -51,8 +51,10 @@ private:
 	void restore_state(save_point sp);
 
 	void skip_comments();
+	token skip_illegal_tokens();
 	bool match(token_kind expected);
 	bool match(string_view identifier);
+	bool unmatch(string_view identifier, string_view expect);
 
 	/// Matches an identifier. Expects that the token kind was already checked.
 	bool match_id(string_view identifier);
@@ -91,8 +93,7 @@ private:
 	auto parse_if_expression() -> std::optional<ast::expression>;
 	auto parse_postfix_expression() -> std::optional<ast::expression>;
 	auto parse_unary_expression() -> std::optional<ast::expression>;
-	auto parse_binary_expression(ast::expression lhs, precedence min_prec)
-		-> std::optional<ast::expression>;
+	auto parse_binary_expression(ast::expression lhs, precedence min_prec) -> ast::expression;
 
 	auto parse_primary_expression() -> std::optional<ast::expression>;
 

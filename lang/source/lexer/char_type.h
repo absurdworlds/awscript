@@ -15,16 +15,17 @@ namespace aw::script {
  * Character categories
  */
 enum char_category {
-	name_begin    = 0x01,
-	numeric       = 0x02,
-	punctuation   = 0x04,
-	space         = 0x08,
-	reserved1     = 0x10,
-	reserved2     = 0x20,
-	unicode_head  = 0x40,
-	unicode_tail  = 0x80,
-	name          = name_begin | numeric,
-	token_begin   = name_begin | numeric | punctuation,
+	name_begin      = 0x01,
+	numeric         = 0x02,
+	punctuation     = 0x04,
+	space           = 0x08,
+	reserved1       = 0x10,
+	reserved2       = 0x20,
+	unicode_head    = 0x40,
+	unicode_tail    = 0x80,
+	name            = name_begin | numeric,
+	token_begin     = name_begin | numeric | punctuation,
+	token_separator = space | punctuation,
 };
 
 /*!
@@ -57,6 +58,12 @@ static u8 char_types[] = {
 0x40,0x40,0x40,0x40,0x60,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
 0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x00,
 };
+
+// clearly spearates two tokens
+bool is_separator(char c)
+{
+	return char_types[(unsigned char)c] & token_separator;
+}
 
 bool is_name_char(char c)
 {

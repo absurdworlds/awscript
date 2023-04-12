@@ -25,5 +25,10 @@ struct location {
 	u32 file_id = 0;
 	u32 pos     = 0;
 };
+
+inline bool operator==(location loc1, location loc2)
+{
+	return loc1.file_id == loc2.file_id && loc1.pos == loc2.pos;
+}
 } // namespace aw::script
 #endif//aw_script_utility_location_h
