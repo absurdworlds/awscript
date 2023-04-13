@@ -54,7 +54,9 @@ private:
 	token skip_illegal_tokens();
 	bool match(token_kind expected);
 	bool match(string_view identifier);
-	bool unmatch(string_view identifier, string_view expect);
+	bool unmatch(string_view identifier, diagnostic_id msg);
+
+	bool check_eof(token_kind expect);
 
 	/// Matches an identifier. Expects that the token kind was already checked.
 	bool match_id(string_view identifier);
@@ -87,6 +89,7 @@ private:
 	auto parse_for_statement() -> std::optional<ast::statement>;
 	auto parse_while_statement() -> std::optional<ast::statement>;
 	auto parse_return_statement() -> std::optional<ast::statement>;
+	auto parse_nested_function() -> std::optional<ast::decl_statement>;
 	auto parse_local_variable(ast::access access) -> std::optional<ast::decl_statement>;
 
 	auto parse_expression() -> std::optional<ast::expression>;

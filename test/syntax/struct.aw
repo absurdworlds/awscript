@@ -1,6 +1,6 @@
 // expect: 1.0, 2.0, 3.0
 
-function printf(var str: u8*, var...args);
+function printf(str: u8*, var...args);
 
 struct vec3 {
 	x: f64;

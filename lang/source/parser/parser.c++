@@ -107,14 +107,23 @@ bool parser::match(string_view identifier)
 }
 
 // Opposite of 'match': expects that should NOT be a specific token
-bool parser::unmatch(string_view identifier, string_view expect)
+bool parser::unmatch(string_view identifier, diagnostic_id msg)
 {
 	if (tok == identifier) {
-		error(diag, diagnostic_id::expected, tok, expect);
+		error(diag, msg, tok);
 		advance();
 		return false;
 	}
 	return true;
+}
+
+bool parser::check_eof(token_kind expect)
+{
+	if (tok == token_kind::eof) {
+		error(diag, diagnostic_id::unexpected_eof, tok.loc, expect);
+		return true;
+	}
+	return false;
 }
 
 bool parser::match_id(string_view identifier)
@@ -133,7 +142,7 @@ bool parser::match_id(string_view identifier)
 std::string_view parser::parse_identifier()
 {
 	if (tok != token_kind::identifier)
-		return error(diag, diagnostic_id::expected_type_name, tok);
+		return error(diag, diagnostic_id::expected_identifier, tok);
 
 	auto name = tok.data;
 	advance();
@@ -231,6 +240,9 @@ auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 {
 	ast::struct_literal init;
 	while (!match(token_kind::r_brace)) {
+		if (check_eof(token_kind::r_brace))
+			break;
+
 		if (!match(token_kind::dot)) {
 			error_unexpected_token(diag, tok, token_kind::dot);
 			return {};
@@ -296,6 +308,9 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
 
 	while (tok != token_kind::r_brace) {
+		if (check_eof(token_kind::r_brace))
+			break;
+
 		auto var_kind = parse_variable_start();
 		if (!var_kind)
 			return {};
@@ -327,23 +342,18 @@ auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 
 auto parser::parse_function_prototype() -> std::optional<ast::function>
 {
-	const auto name = parse_identifier();
-	if (name.empty())
-		return {};
-
 	ast::function func;
-	func.name = name;
+	func.name = parse_identifier();
 
 	if (!match(token_kind::l_paren))
-		return error_unexpected_token(diag, tok, token_kind::l_paren);
+		error_unexpected_token(diag, tok, token_kind::l_paren);
 
 	parse_function_arguments(func);
 
 	if (!match(token_kind::r_paren))
-		return error_unexpected_token(diag, tok, token_kind::r_paren);
+		error_unexpected_token(diag, tok, token_kind::r_paren);
 
-	if (!parse_function_return_type(func))
-		return {};
+	parse_function_return_type(func);
 
 	return func;
 }
@@ -376,13 +386,17 @@ auto parser::parse_variable_start() -> std::optional<ast::access>
 bool parser::parse_function_arguments(ast::function& func)
 {
 	while (tok != token_kind::r_paren) {
+		if (check_eof(token_kind::r_paren))
+			break;
+
 		auto var_kind = parse_variable_start();
 		if (!var_kind)
 			return false;
 
 		if (parse_variadic_parameter(func)) {
 			if (tok != token_kind::r_paren)
-				return error(diag, diagnostic_id::variadic_parameter, tok.loc);
+				error(diag, diagnostic_id::variadic_parameter, tok.loc);
+			// TODO: skip rest of parameters
 			break;
 		}
 
@@ -396,8 +410,7 @@ bool parser::parse_function_arguments(ast::function& func)
 			break;
 
 		if (!match(token_kind::comma))
-			// TODO: remove comma operator
-			return error_unexpected_token(diag, tok, token_kind::comma);
+			error_unexpected_token(diag, tok, token_kind::comma);
 	}
 
 	return true;
@@ -438,6 +451,8 @@ auto parser::parse_statement_block() -> std::optional<ast::statement>
 
 	ast::statement_block statements;
 	while (!match(token_kind::r_brace)) {
+		if (check_eof(token_kind::r_brace))
+			break;
 		auto statement = parse_statement();
 		if (!statement)
 			continue;
@@ -473,6 +488,8 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 		return parse_statement_block();
 
 	case token_kind::identifier:
+		if (tok == "function"sv)
+			return parse_nested_function();
 		if (tok == "const"sv)
 			return parse_local_variable(ast::access::constant);
 		if (tok == "var"sv)
@@ -506,7 +523,7 @@ auto parser::parse_if_statement() -> std::optional<ast::statement>
 
 	ast::if_else_statement stmt;
 
-	if (unmatch("then", "expression")) {
+	if (unmatch("then", diagnostic_id::expected_expression)) {
 		stmt.if_expr = wrap(parse_expression());
 		if (!stmt.if_expr)
 			error_expected_expression(diag, tok);
@@ -533,15 +550,15 @@ auto parser::parse_while_statement() -> std::optional<ast::statement>
 
 	auto cond = parse_expression();
 	if (!cond)
-		return {};
+		error_expected_expression(diag, tok);
 
 	auto body = parse_statement();
 	if (!body)
-		return {};
+		error(diag, diagnostic_id::expected_a_statement, tok);
 
 	return ast::while_statement {
-		.cond_expr = wrap(std::move(*cond)),
-		.loop_body = wrap(std::move(*body)),
+		.cond_expr = wrap(std::move(cond)),
+		.loop_body = wrap(std::move(body)),
 	};
 }
 
@@ -558,6 +575,16 @@ auto parser::parse_return_statement() -> std::optional<ast::statement>
 	}
 
 	return stmt;
+}
+
+auto parser::parse_nested_function() -> std::optional<ast::decl_statement>
+{
+	advance("function");
+
+	auto func = parse_function_declaration();
+	if (func)
+		return ast::decl_statement(std::move(*func));
+	return {};
 }
 
 auto parser::parse_local_variable(ast::access access) -> std::optional<ast::decl_statement>
@@ -701,7 +728,7 @@ auto parser::parse_if_expression() -> std::optional<ast::expression>
 
 	ast::if_expression expr;
 
-	if (unmatch("then", "expression")) {
+	if (unmatch("then", diagnostic_id::expected_expression)) {
 		expr.if_expr = wrap(parse_expression());
 		if (!expr.if_expr)
 			error_expected_expression(diag, tok);
