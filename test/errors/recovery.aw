@@ -61,7 +61,7 @@ function decls()
 	// (func void test2 (fn-args (var int x) (fn-body))
 	function test2 var x: int);
 
-	// error: stray_token, missing_comma
+	// error: missing_comma
 	// (func void test3 (fn-args (var <inferred type> x) (var <inferred type> y) (fn-body))
 	function test3 (var x var y);
 }
