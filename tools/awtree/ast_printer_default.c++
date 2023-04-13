@@ -234,7 +234,7 @@ void ast_printer_default::print_expr(const ast::expression& expr)
 
 void ast_printer_default::print_expr(const ast::paren_expression& expr)
 {
-	start("group", inline_scope);
+	start("", inline_scope);
 
 	print_expr(expr.inner);
 
