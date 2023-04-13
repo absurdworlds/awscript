@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+  <!ENTITY identifier "\b[a-zA-Z_][a-zA-Z_0-9]*">
+  <!ENTITY type_modifier "\**\s*&amp;?">
+]>
+<language name="awlang" version="1" kateversion="5.62" section="Sources" extensions="*.aw" mimetype="" author="Hudd (haddayn@gmail.com)" license="LGPL">
+  <highlighting>
+    <list name="controlflow">
+      <item>if</item>
+      <item>else</item>
+      <item>then</item>
+      <item>match</item>
+      <item>while</item>
+      <item>for</item>
+      <item>true</item>
+      <item>false</item>
+    </list>
+    <contexts>
+      <context name="File" attribute="Normal Text" lineEndContext="#stay">
+
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+
+        <WordDetect attribute="Keyword" context="Function" String="function" />
+        <WordDetect attribute="Keyword" context="Struct"   String="struct" />
+        <WordDetect attribute="Keyword" context="Type"     String="as" />
+
+        <keyword attribute="ControlFlow" String="controlflow" />
+
+        <IncludeRules context="FindNumbers" />
+        <IncludeRules context="FindComments" />
+        <IncludeRules context="FindVariable" />
+
+        <RegExpr attribute="Function" context="#stay" String="&identifier;(?=\s*\()" />
+        <RegExpr attribute="Variable" context="#stay" String="&identifier;" />
+      </context>
+
+
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindNumbers">
+        <RegExpr attribute="Number" String="\b0(?:x[0-9a-fA-F_]+|o[0-7_]+|b[01_]+)\b" context="#stay"/>
+        <RegExpr attribute="Decimal" String="\b[0-9][0-9_]*(?:(?:\.[0-9][0-9_]*)?(?:[eE][\+\-]?[0-9_]+)?)\b" context="#stay"/>
+      </context>
+
+      <context attribute="String" lineEndContext="#pop" name="String">
+        <DetectChar context="StringEscapedChar" char="\" lookAhead="1"/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+
+      <context attribute="String" lineEndContext="#pop" name="StringEscapedChar">
+          <HlCStringChar attribute="String Char" context="#pop"/>
+          <RegExpr attribute="String Char" context="#pop" String="\\u+[0-9a-fA-F]{4}"/>
+          <RegExpr attribute="Error" context="#pop" String="\\(u+[0-9a-fA-F]*|.)?"/>
+      </context>
+
+
+      <!-- structs -->
+      <context name="Struct" attribute="Type" lineEndContext="#stay">
+        <DetectSpaces />
+        <DetectChar attribute="Symbol" context="#pop" char=";" />
+        <DetectChar attribute="Symbol" context="#pop!Struct Body" char="{" />
+        <IncludeRules context="FindComments" />
+        <IncludeRules context="FindNumbers" />
+      </context>
+
+      <context name="Struct Body" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <DetectChar attribute="Symbol" context="#pop" char="}" />
+        <IncludeRules context="FindVariableExt" />
+        <IncludeRules context="FindComments" />
+      </context>
+
+
+      <!-- functions -->
+      <context name="Function" attribute="Function" lineEndContext="#stay">
+        <DetectSpaces />
+        <DetectChar attribute="Symbol" context="#pop!Function Parameters" char="(" />
+        <IncludeRules context="FindComments" />
+        <RegExpr attribute="Function" context="#stay" String="&identifier;" />
+        <RegExpr attribute="Error" context="#stay" String="[^(]+"/>
+      </context>
+
+       <context name="Function Parameters" attribute="Normal Text" lineEndContext="#stay">
+         <DetectChar attribute="Symbol" context="#pop" char=")"/>
+
+         <IncludeRules context="FindComments" />
+         <IncludeRules context="FindVariableExt" />
+       </context>
+
+      <!-- variables -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindVariableExt">
+        <IncludeRules context="FindVariable" />
+        <RegExpr attribute="Variable" context="Variable" String="&identifier;"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindVariable">
+        <WordDetect attribute="Keyword" context="Variable" String="var" />
+        <WordDetect attribute="Keyword" context="Variable" String="const" />
+      </context>
+      <context name="Variable" attribute="Variable" lineEndContext="#stay">
+        <DetectSpaces />
+        <AnyChar attribute="Symbol" context="#pop" String=",;=)" lookAhead="1"/>
+        <DetectChar attribute="Symbol" context="#pop!Type" char=":"/>
+        <StringDetect attribute="Symbol" context="#stay" String="..."/>
+
+        <RegExpr attribute="Variable" context="#stay" String="&identifier;" />
+        <RegExpr attribute="Error" context="#stay" String="[^,:;=)]+"/>
+      </context>
+
+      <context name="Type" attribute="Type" lineEndContext="#stay">
+        <DetectSpaces />
+        <RegExpr attribute="Type" context="#pop!Type Name" String="&identifier;" />
+        <RegExpr attribute="Error" context="#pop" String=".+"/>
+      </context>
+
+      <context name="Type Name" attribute="Type" lineEndContext="#stay">
+        <DetectSpaces />
+        <DetectChar attribute="Symbol" context="Template Parameters" char="&lt;" />
+        <RegExpr attribute="Type" context="#pop" String="&type_modifier;" />
+        <RegExpr context="#pop" String="." lookAhead="1"/>
+      </context>
+
+      <context name="Template Parameters" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <RegExpr attribute="Type" context="#stay" String="&identifier;" />
+        <DetectChar attribute="Symbol" context="#stay" char=","/>
+        <DetectChar attribute="Symbol" context="#pop" char="&gt;" />
+        <RegExpr attribute="Error" context="#stay" String=".+"/>
+      </context>
+
+      <!-- comments -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindComments">
+        <Detect2Chars attribute="Comment" context="Comment Line" char="/" char1="/"/>
+        <Detect2Chars attribute="Comment" context="Comment Block" char="/" char1="*" beginRegion="Comment"/>
+      </context>
+       <context name="Comment Line" attribute="Comment" lineEndContext="#pop">
+         <DetectSpaces />
+         <IncludeRules context="##Comments"/>
+       </context>
+       <context name="Comment Block" attribute="Comment" lineEndContext="#stay">
+         <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
+         <DetectSpaces />
+         <IncludeRules context="##Comments"/>
+       </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal" />
+      <itemData name="Keyword"     defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Comment"     defStyleNum="dsComment" />
+      <itemData name="Function"    defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Variable"    defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Type"        defStyleNum="dsDataType"/>
+      <itemData name="Symbol"      defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="ControlFlow" defStyleNum="dsControlFlow" spellChecking="false"/>
+      <itemData name="Decimal"     defStyleNum="dsDecVal" spellChecking="0"/>
+      <itemData name="Number"      defStyleNum="dsBaseN" spellChecking="0"/>
+      <itemData name="String"       defStyleNum="dsString"/>
+      <itemData name="String Char"  defStyleNum="dsSpecialChar" spellChecking="false"/>
+      <itemData name="Error"       defStyleNum="dsError" spellChecking="false"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="//" position="afterwhitespace"/>
+      <comment name="multiLine" start="/*" end="*/" region="Comment"/>
+    </comments>
+    <keywords casesensitive="1" />
+  </general>
+</language>
