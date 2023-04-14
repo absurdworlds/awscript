@@ -97,6 +97,7 @@
       </context>
       <context name="Variable" attribute="Variable" lineEndContext="#stay">
         <DetectSpaces />
+        <IncludeRules context="FindComments" />
         <AnyChar attribute="Symbol" context="#pop" String=",;=)" lookAhead="1"/>
         <DetectChar attribute="Symbol" context="#pop!Type" char=":"/>
         <StringDetect attribute="Symbol" context="#stay" String="..."/>
