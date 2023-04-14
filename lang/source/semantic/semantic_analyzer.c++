@@ -285,6 +285,13 @@ void semantic_analyzer::visit_expr(context& ctx, middle::binary_expression& in_e
 	visit_expr(ctx, *in_expr.rhs);
 }
 
+void semantic_analyzer::visit_expr(context& ctx, middle::chain_expression& expr)
+{
+	visit_expr(ctx, *expr.lhs);
+	for (auto& op : expr.rhs)
+		visit_expr(ctx, op.expr);
+}
+
 void semantic_analyzer::visit_expr(context& ctx, middle::call_expression& call)
 {
 	for (auto& arg : call.args)
@@ -414,7 +421,6 @@ void visit_op(context& ctx, ir::type* ty, middle::unary_expression& expr)
 			expr.op = ir::unary_operator::minus_fp;
 		return;
 	}
-
 }
 
 bool is_number(ir::type* type)
@@ -515,6 +521,24 @@ auto semantic_analyzer::infer_type(context& ctx, middle::binary_expression& expr
 	visit_op(ctx, ty, expr);
 
 	return ty;
+}
+
+auto semantic_analyzer::infer_type(context& ctx, middle::chain_expression& expr) -> ir::type*
+{
+	auto type = infer_type(ctx, *expr.lhs);
+	for (auto& op : expr.rhs) {
+		auto rtype = infer_type(ctx, op.expr);
+		if (type)
+			type = common_type(type, rtype);
+		else
+			type = rtype;
+	}
+
+	// TODO: move out of here
+	for (auto& expr : expr.rhs)
+		visit_op(ctx, type, expr.op);
+
+	return type;
 }
 
 auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) -> ir::type*
@@ -628,6 +652,21 @@ auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::bin
 	visit_op(ctx, ty, expr);
 
 	return ty;
+}
+
+auto semantic_analyzer::propagate_type(context& ctx, ir::type* in_type, middle::chain_expression& expr) -> ir::type*
+{
+	auto ltype = infer_type(ctx, *expr.lhs);
+	for (auto& rhs : expr.rhs) {
+		auto rtype = infer_type(ctx, rhs.expr);
+		ltype = common_type(ctx, in_type, *expr.lhs, rhs.expr);
+	}
+
+	// TODO: move out of here
+	for (auto& expr : expr.rhs)
+		visit_op(ctx, ltype, expr.op);
+
+	return ltype;
 }
 
 auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::call_expression& expr) -> ir::type*

@@ -79,6 +79,7 @@ public:
 	auto gen(const middle::struct_literal& expr, std::string_view name = {}) -> llvm::Value*;
 	auto gen(const middle::value_expression& expr) -> llvm::Value*;
 	auto gen(const middle::binary_expression& expr) -> llvm::Value*;
+	auto gen(const middle::chain_expression& expr) -> llvm::Value*;
 	auto gen(const middle::unary_expression& expr) -> llvm::Value*;
 	auto gen(const middle::call_expression& expr) -> llvm::Value*;
 	auto gen(const middle::field_expression& expr) -> llvm::Value*;

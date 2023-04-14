@@ -628,6 +628,33 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 	return nullptr;
 }
 
+auto backend_llvm::gen(const middle::chain_expression& expr) -> llvm::Value*
+{
+	auto* lhs = gen(expr.lhs);
+	if (expr.kind == middle::chain_kind::comparison) {
+		// TODO: I don't like this, even though it generates slighly better IR
+		// then multiple binary expressions
+		llvm::Value* rhs = nullptr;
+		for (const auto& operand : expr.rhs) {
+			auto outer_lhs = rhs ? lhs : nullptr;
+			if (rhs)
+				lhs = rhs;
+
+			rhs = gen(operand.expr);
+
+			lhs = gen_op(builder, operand.op, lhs, rhs);
+
+			if (outer_lhs)
+				lhs = gen_op(builder, ir::binary_operator::logical_and, outer_lhs, lhs);
+		}
+	} else {
+		for (const auto& operand : expr.rhs)
+			lhs = gen_op(builder, operand.op, lhs, gen(operand.expr));
+	}
+	return lhs;
+}
+
+
 auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 {
 	auto* val = gen(expr.lhs);

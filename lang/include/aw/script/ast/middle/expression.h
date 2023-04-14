@@ -39,6 +39,16 @@ struct binary_expression {
 	value_ptr<expression> rhs;
 };
 
+enum class chain_kind {
+	comparison
+};
+struct chain_operand;
+struct chain_expression {
+	chain_kind kind;
+	value_ptr<expression> lhs;
+	std::vector<chain_operand> rhs;
+};
+
 // TODO: tell apart lvalue and rvalue
 class declaration;
 class variable;
@@ -95,6 +105,7 @@ using expression_variant = std::variant<
 	cast_expression,
 	unary_expression,
 	binary_expression,
+	chain_expression,
 	call_expression,
 	field_expression,
 	if_expression,
@@ -111,6 +122,11 @@ struct expression : expression_variant
 
 	using expression_variant::expression_variant;
 	using expression_variant::operator=;
+};
+
+struct chain_operand {
+	ir::binary_operator op;
+	expression expr;
 };
 
 } // namespace aw::script::middle

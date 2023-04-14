@@ -289,6 +289,28 @@ struct convert_to_middle_visitor {
 		return expr;
 	}
 
+	static bool can_chain(const ast::binary_operator& in_op)
+	{
+		using enum ast::binary_operator;
+		return in(in_op,
+			less,
+			less_equal,
+			greater,
+			greater_equal
+		);
+	}
+
+	bool can_chain(const ast::binary_expression& in_expr)
+	{
+		if (can_chain(in_expr.op)) {
+			// For left-associative expresions, the parser always produces
+			// a tree of form (+ (+ a b) c), so we can skip checking the rhs
+			return get_if<ast::binary_expression>(in_expr.lhs.get()) != nullptr;
+		}
+
+		return false;
+	}
+
 	auto convert_expr(const ast::binary_expression& in_expr) -> middle::expression
 	{
 		if (in_expr.op == ast::binary_operator::access) {
@@ -299,9 +321,47 @@ struct convert_to_middle_visitor {
 					.name = std::string(rhs->name),
 				};
 			}
-			//TODO: error case
+			error(diag, diagnostic_id::identifier_required, location());
 		}
 
+		if (can_chain(in_expr))
+			return convert_chain_expr(in_expr);
+
+		return convert_binary_expr(in_expr);
+	}
+
+	auto convert_chain_expr(const ast::binary_expression& in_expr) -> middle::chain_expression
+	{
+		auto op = convert_operator(in_expr.op);
+
+		middle::chain_expression expr;
+		expr.kind = middle::chain_kind::comparison;
+
+		auto* lhs = &in_expr;
+
+		std::vector<const ast::binary_expression*> stack{ lhs };
+		while (true) {
+			lhs = get_if<ast::binary_expression>(lhs->lhs.get());
+			if (!lhs || !can_chain(lhs->op))
+				break;
+			stack.push_back(lhs);
+		}
+
+		auto* top = stack.back();
+		expr.lhs = wrap(convert_expr(*top->lhs));
+
+		while (!stack.empty()) {
+			stack.pop_back();
+			auto op = convert_operator(top->op);
+			expr.rhs.push_back({ op, convert_expr(*top->rhs) });
+			top = stack.back();
+		}
+
+		return expr;
+	}
+
+	auto convert_binary_expr(const ast::binary_expression& in_expr) -> middle::binary_expression
+	{
 		auto op = convert_operator(in_expr.op);
 		auto lhs = convert_expr(*in_expr.lhs);
 		auto rhs = convert_expr(*in_expr.rhs);
@@ -314,7 +374,7 @@ struct convert_to_middle_visitor {
 		}
 
 		return middle::binary_expression{
-			.op = convert_operator(in_expr.op),
+			.op = op,
 			.lhs = wrap(std::move(lhs)),
 			.rhs = wrap(std::move(rhs)),
 		};
