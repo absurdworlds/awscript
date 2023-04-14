@@ -18,11 +18,11 @@ enum class precedence {
 	assignment     = 1,  // =, any= (except relational)
 	logical_or     = 2,  // ||
 	logical_and    = 3,  // &&
-	bitwise_or     = 4,  // |
-	bitwise_xor    = 5,  // ^
-	bitwise_and    = 6,  // &
-	equality       = 7,  // ==, !=
-	relational     = 8,  // >=, <=, <, >
+	equality       = 4,  // ==, !=
+	relational     = 5,  // >=, <=, <, >
+	bitwise_or     = 6,  // |
+	bitwise_xor    = 7,  // ^
+	bitwise_and    = 8,  // &
 	shift          = 9,  // <<, >>
 	additive       = 10, // +, -
 	multiplicative = 11, // *, /, %
@@ -52,12 +52,6 @@ inline precedence token_precedence(token tok)
 		return precedence::logical_or;
 	case token_kind::amp_amp:
 		return precedence::logical_and;
-	case token_kind::pipe:
-		return precedence::bitwise_or;
-	case token_kind::caret:
-		return precedence::bitwise_xor;
-	case token_kind::amp:
-		return precedence::bitwise_and;
 	case token_kind::equal_equal:
 	case token_kind::bang_equal:
 		return precedence::equality;
@@ -66,6 +60,12 @@ inline precedence token_precedence(token tok)
 	case token_kind::greater:
 	case token_kind::greater_equal:
 		return precedence::relational;
+	case token_kind::pipe:
+		return precedence::bitwise_or;
+	case token_kind::caret:
+		return precedence::bitwise_xor;
+	case token_kind::amp:
+		return precedence::bitwise_and;
 	case token_kind::less_less:
 	case token_kind::greater_greater:
 		return precedence::shift;
