@@ -94,7 +94,7 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 	}
 
 
-	middle::module mod = convert_to_middle(ctx, in_mod);
+	middle::module mod = convert_to_middle(ctx, diag, in_mod);
 
 	ctx.push_scope();
 	for (const auto& decl_ptr : mod.decls)

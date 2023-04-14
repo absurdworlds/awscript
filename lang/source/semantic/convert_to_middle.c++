@@ -1,6 +1,8 @@
 #include "convert_to_middle.h"
 
 #include <aw/script/utility/wrap.h>
+#include <aw/script/utility/location.h>
+#include <aw/script/diag/error_t.h>
 
 #include <aw/utility/ranges/paired.h>
 
@@ -122,6 +124,7 @@ auto break_composite_op(ast::binary_operator op) -> std::optional<ir::binary_ope
 
 struct convert_to_middle_visitor {
 	context& ctx;
+	diagnostics_engine& diag;
 
 	auto convert_decl(const ast::declaration& in_decl) -> middle::declaration
 	{
@@ -299,7 +302,7 @@ struct convert_to_middle_visitor {
 					.name = std::string(rhs->name),
 				};
 			}
-			//TODO: error case
+			error(diag, diagnostic_id::identifier_required, location());
 		}
 
 		auto op = convert_operator(in_expr.op);
@@ -388,11 +391,14 @@ struct convert_to_middle_visitor {
 
 } // namespace
 
-auto convert_to_middle(context& ctx, const ast::module& in_mod) -> middle::module
+auto convert_to_middle(
+	context& ctx,
+	diagnostics_engine& diag,
+	const ast::module& in_mod) -> middle::module
 {
 	middle::module mod;
 
-	convert_to_middle_visitor visitor{ .ctx = ctx };
+	convert_to_middle_visitor visitor{ .ctx = ctx, .diag = diag };
 	for (const auto& in_decl : in_mod.decls)
 	{
 		mod.decls.push_back(wrap(visitor.convert_decl(in_decl)));

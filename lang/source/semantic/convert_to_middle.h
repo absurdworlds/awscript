@@ -7,8 +7,12 @@
 #include <aw/script/ast/middle/declaration.h>
 
 namespace aw::script {
+class diagnostics_engine;
 
-auto convert_to_middle(context& ctx, const ast::module& mod) -> middle::module;
+auto convert_to_middle(
+	context& ctx,
+	diagnostics_engine& diag,
+	const ast::module& mod) -> middle::module;
 
 } // namespace aw::script
 
