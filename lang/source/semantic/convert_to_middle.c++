@@ -292,9 +292,91 @@ struct convert_to_middle_visitor {
 		return expr;
 	}
 
+	static bool can_chain(const ast::binary_operator& in_op)
+	{
+		using enum ast::binary_operator;
+		return in(in_op,
+			less,
+			less_equal,
+			greater,
+			greater_equal
+		);
+	}
+
+	bool can_chain(const ast::binary_expression& in_expr)
+	{
+		if (can_chain(in_expr.op)) {
+			// For left-associative expresions, the parser always produces
+			// a tree of form (+ (+ a b) c), so we can skip checking the rhs
+			return get_if<ast::binary_expression>(in_expr.lhs.get()) != nullptr;
+		}
+
+		return false;
+	}
+
 	auto convert_expr(const ast::binary_expression& in_expr) -> middle::expression
 	{
+		if (can_chain(in_expr))
+			return convert_chain_expr(in_expr);
 
+		return convert_binary_expr(in_expr);
+	}
+
+	auto make_stack(const ast::binary_expression& expr)
+	{
+		std::vector<const ast::binary_expression*> stack{ &expr };
+
+		auto* lhs = stack.back();
+		while (true) {
+			lhs = get_if<ast::binary_expression>(lhs->lhs.get());
+			if (!lhs || !can_chain(lhs->op))
+				break;
+			stack.push_back(lhs);
+		}
+
+		return stack;
+	}
+
+
+	auto convert_chain_expr(const ast::binary_expression& in_expr) -> middle::binary_expression
+	{
+		auto op = convert_operator(in_expr.op);
+
+		auto stack = make_stack(in_expr);
+
+		middle::binary_expression expr;
+
+		value_ptr<middle::expression> lhs;
+
+		while (!stack.empty()) {
+			auto top = stack.back();
+			stack.pop_back();
+
+			middle::binary_expression current_expr{
+				.op = convert_operator(top->op),
+				.lhs = lhs ? std::move(lhs) : wrap(convert_expr(*top->lhs)),
+				.rhs = wrap(convert_expr(*top->rhs)),
+			};
+
+			lhs = current_expr.rhs;
+
+			if (!expr.lhs) {
+				expr = std::move(current_expr);
+			} else {
+				expr = middle::binary_expression{
+					.op = ir::binary_operator::logical_and,
+					.lhs = std::move(expr),
+					.rhs = std::move(current_expr),
+				};
+			}
+
+		}
+
+		return expr;
+	}
+
+	auto convert_binary_expr(const ast::binary_expression& in_expr) -> middle::binary_expression
+	{
 		auto op = convert_operator(in_expr.op);
 		auto lhs = convert_expr(*in_expr.lhs);
 		auto rhs = convert_expr(*in_expr.rhs);
