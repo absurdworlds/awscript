@@ -539,14 +539,13 @@ bool requires_lvalue(const ir::binary_operator op)
 	return op == ir::binary_operator::assignment;
 }
 
-auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
+auto gen_op(
+	IRBuilder<>& builder,
+	ir::binary_operator op,
+	llvm::Value* lhs,
+	llvm::Value* rhs) -> llvm::Value*
 {
-	auto* lhs = requires_lvalue(expr.op) ? gen_lvalue(expr.lhs) : gen(expr.lhs);
-	auto* rhs = gen(expr.rhs);
-	if (!lhs || !rhs)
-		return nullptr;
-
-	switch (expr.op) {
+	switch (op) {
 		using enum ir::binary_operator;
 	case minus:
 		return builder.CreateSub(lhs, rhs, "subtmp");
@@ -631,15 +630,24 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 		return builder.CreateFCmpOEQ(lhs, rhs, "netmp");
 
 	case logical_and:
-		return builder.CreateLogicalAnd(lhs, rhs, "ortmp");
+		return builder.CreateLogicalAnd(lhs, rhs, "andtmp");
 	case logical_or:
-		return builder.CreateLogicalOr(lhs, rhs, "andtmp");
+		return builder.CreateLogicalOr(lhs, rhs, "ortmp");
 
 	case assignment:
 		return builder.CreateStore(rhs, lhs);
 	}
 
 	return nullptr;
+}
+
+auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
+{
+	auto* lhs = requires_lvalue(expr.op) ? gen_lvalue(expr.lhs) : gen(expr.lhs);
+	auto* rhs = gen(expr.rhs);
+	if (!lhs || !rhs)
+		return nullptr;
+	return gen_op(builder, expr.op, lhs, rhs);
 }
 
 auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
