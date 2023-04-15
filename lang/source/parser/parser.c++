@@ -337,7 +337,7 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 
 auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 {
-	return {};
+	return error_not_implemented_yet(diag, tok);
 }
 
 auto parser::parse_function_prototype() -> std::optional<ast::function>
