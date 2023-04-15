@@ -47,6 +47,7 @@ private:
 	void visit_expr(context& ctx, middle::if_expression& in_expr);
 	void visit_expr(context& ctx, middle::value_expression& in_expr);
 	void visit_expr(context& ctx, middle::numeric_literal& in_expr) {}
+	void visit_expr(context& ctx, middle::float_literal& expr) {}
 	void visit_expr(context& ctx, middle::string_literal& in_expr) {}
 	void visit_expr(context& ctx, middle::struct_literal& in_expr) {}
 	void visit_expr(context& ctx, middle::bool_literal& in_expr) {}
