@@ -72,6 +72,7 @@ static auto create_builtin_types()
 
 	types.push_back(create_type("numeric_literal"));
 	types.push_back(create_type("string_literal"));
+	types.push_back(create_type("float_literal"));
 
 
 	return types;

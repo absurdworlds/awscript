@@ -67,6 +67,11 @@ struct numeric_literal {
 	ast::number_base base = ast::number_base::decimal;
 };
 
+struct float_literal {
+	std::string_view value;
+	ir::type* type = nullptr;
+};
+
 struct bool_literal {
 	bool value = false;
 };
@@ -99,6 +104,7 @@ using expression_variant = std::variant<
 	field_expression,
 	if_expression,
 	value_expression,
+	float_literal,
 	numeric_literal,
 	bool_literal,
 	string_literal,

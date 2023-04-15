@@ -360,9 +360,11 @@ struct convert_to_middle_visitor {
 		};
 	}
 
-	auto convert_expr(const ast::numeric_literal& in_expr) -> middle::numeric_literal
+	auto convert_expr(const ast::numeric_literal& in_expr) -> middle::expression
 	{
-		return {
+		if (in_expr.value.find('.') != in_expr.value.npos)
+			return middle::float_literal{ .value = in_expr.value };
+		return middle::numeric_literal{
 			.value = in_expr.value,
 			.base = in_expr.base,
 		};

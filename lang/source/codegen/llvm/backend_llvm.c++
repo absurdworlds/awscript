@@ -205,6 +205,9 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 	if (name == "numeric_literal")
 		return Type::getInt64Ty(context);
 
+	if (name == "float_literal")
+		return Type::getDoubleTy(context);
+
 	if (name == "string_literal")
 		return PointerType::getUnqual(context);
 
@@ -458,6 +461,17 @@ auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Constant*
 		return ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), expr.value));
 	return nullptr;
 }
+
+auto backend_llvm::gen(const middle::float_literal& expr) -> llvm::ConstantFP*
+{
+	if (expr.type) {
+		auto type = get_llvm_type(context, expr.type);
+		if (type->isFloatTy())
+			return ConstantFP::get(context, APFloat(APFloat::IEEEsingle(), expr.value));
+	}
+	return ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), expr.value));
+}
+
 
 auto backend_llvm::gen(const middle::bool_literal& expr) -> llvm::ConstantInt*
 {
