@@ -44,6 +44,11 @@ struct binary_expression {
 	std::unique_ptr<expression> rhs;
 };
 
+struct field_expression {
+	std::unique_ptr<expression> lhs;
+	std::string name;
+};
+
 // TODO: tell apart lvalue and rvalue
 struct value_expression {
 	std::string_view name;
@@ -89,6 +94,7 @@ using expression_variant = std::variant<
 	binary_expression,
 	call_expression,
 	if_expression,
+	field_expression,
 	value_expression,
 	numeric_literal,
 	string_literal,

@@ -294,16 +294,6 @@ struct convert_to_middle_visitor {
 
 	auto convert_expr(const ast::binary_expression& in_expr) -> middle::expression
 	{
-		if (in_expr.op == ast::binary_operator::access) {
-			auto rhs = get_if<ast::value_expression>(in_expr.rhs.get());
-			if (rhs) {
-				return middle::field_expression{
-					.lhs = wrap(convert_expr(*in_expr.lhs)),
-					.name = std::string(rhs->name),
-				};
-			}
-			error(diag, diagnostic_id::identifier_required, location());
-		}
 
 		auto op = convert_operator(in_expr.op);
 		auto lhs = convert_expr(*in_expr.lhs);
@@ -317,9 +307,17 @@ struct convert_to_middle_visitor {
 		}
 
 		return middle::binary_expression{
-			.op = convert_operator(in_expr.op),
+			.op = op,
 			.lhs = wrap(std::move(lhs)),
 			.rhs = wrap(std::move(rhs)),
+		};
+	}
+
+	auto convert_expr(const ast::field_expression& in_expr) -> middle::field_expression
+	{
+		return middle::field_expression{
+			.lhs = wrap(convert_expr(*in_expr.lhs)),
+			.name = std::string(in_expr.name),
 		};
 	}
 

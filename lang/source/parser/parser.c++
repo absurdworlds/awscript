@@ -613,20 +613,24 @@ auto parser::parse_postfix_expression() -> std::optional<ast::expression>
 	if (!expr)
 		return expr;
 
+	return parse_postfix_expression(std::move(*expr));
+}
+
+auto parser::parse_postfix_expression(ast::expression lhs) -> ast::expression
+{
 	if (match("as")) {
 		auto type = parse_type();
 		if (!type) {
 			error(diag, diagnostic_id::expected_a_type, tok);
-			return expr;
+			return lhs;
 		}
 
-		expr = ast::cast_expression{
+		lhs = ast::cast_expression{
 			.to_type = std::move(*type),
-			.lhs = wrap(std::move(*expr)),
+			.lhs = wrap(std::move(lhs)),
 		};
 	}
-
-	return expr;
+	return lhs;
 }
 
 auto parser::parse_unary_expression() -> std::optional<ast::expression>
@@ -646,7 +650,24 @@ auto parser::parse_unary_expression() -> std::optional<ast::expression>
 	return expr;
 }
 
-static precedence move_prec(precedence prec, int count)
+auto parser::parse_field_expression(ast::expression lhs) -> ast::expression
+{
+	std::string_view name = parse_identifier();
+	if (name.empty())
+		return {};
+
+#if 0
+	if (match(token_kind::l_paren))
+		return parse_call_expression(name);
+#endif
+
+	return parse_postfix_expression(ast::field_expression{
+		.lhs = wrap(std::move(lhs)),
+		.name = std::string(name),
+	});
+}
+
+static precedence increment_prec(precedence prec, int count)
 {
 	auto result = precedence( to_underlying(prec) + count );
 	assert(result < precedence::max);
@@ -663,6 +684,9 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 		auto op = parse_binary_operator(tok);
 		assert(op && "token_precedence implemented incorrectly!");
 
+		if (op == ast::binary_operator::access)
+			return parse_field_expression(std::move(lhs));
+
 		auto rhs = parse_postfix_expression();
 		if (!rhs) {
 			error_expected_expression(diag, tok);
@@ -676,7 +700,7 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 		   (cur_prec == next_prec && is_right_assoc)) {
 			rhs = parse_binary_expression(
 				std::move(*rhs),
-				move_prec(cur_prec, !is_right_assoc)
+				increment_prec(cur_prec, !is_right_assoc)
 			);
 		}
 
