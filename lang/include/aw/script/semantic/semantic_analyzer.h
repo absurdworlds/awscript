@@ -49,39 +49,8 @@ private:
 	void visit_expr(context& ctx, middle::numeric_literal& in_expr) {}
 	void visit_expr(context& ctx, middle::float_literal& expr) {}
 	void visit_expr(context& ctx, middle::string_literal& in_expr) {}
-	void visit_expr(context& ctx, middle::struct_literal& in_expr) {}
+	void visit_expr(context& ctx, middle::struct_literal& expr);
 	void visit_expr(context& ctx, middle::bool_literal& in_expr) {}
-
-	auto common_type(ir::type* a, ir::type* b) -> ir::type*;
-
-	auto common_type(context& ctx, middle::expression& lhs, middle::expression& rhs) -> ir::type*;
-	auto common_type(context& ctx, ir::type* type, middle::expression& lhs, middle::expression& rhs) -> ir::type*;
-
-	auto infer_type(context& ctx, middle::expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::cast_expression& expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::unary_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::binary_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::call_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::field_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::if_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::value_expression& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::numeric_literal& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::bool_literal& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::string_literal& in_expr) -> ir::type*;
-	auto infer_type(context& ctx, middle::struct_literal& in_expr) -> ir::type*;
-
-	auto propagate_type(context& ctx, ir::type* type, middle::expression& expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::cast_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::unary_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::binary_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::call_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::field_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::if_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::value_expression& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::numeric_literal& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::bool_literal& expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::string_literal& in_expr) -> ir::type*;
-	auto propagate_type(context& ctx, ir::type* type, middle::struct_literal& in_expr) -> ir::type*;
 };
 
 

@@ -2,6 +2,8 @@
 
 #include "context.h"
 #include "convert_to_middle.h"
+#include "type_inference.h"
+#include "resolve_references.h"
 
 #include <aw/script/semantic/scope.h>
 #include <aw/script/utility/wrap.h>
@@ -84,6 +86,12 @@ semantic_analyzer::semantic_analyzer(diagnostics_engine& diag)
 {
 }
 
+// Overview:
+// 1. Load imports
+// 2. Prepare the symbol table
+// 3. Resolve references
+// 4. Infer and check types
+// 5. Resolve overloaded operators and functions
 
 auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 {
@@ -98,13 +106,17 @@ auto semantic_analyzer::lower(const ast::module& in_mod) -> middle::module
 	middle::module mod = convert_to_middle(ctx, diag, in_mod);
 
 	ctx.push_scope();
-	for (const auto& decl_ptr : mod.decls)
+	for (const auto& decl : mod.decls)
 	{
-		if (auto decl = std::get_if<middle::variable>(decl_ptr.get()))
+		auto* decl_ptr = decl.get();
+		if (auto decl = std::get_if<middle::variable>(decl_ptr))
 			ctx.current_scope()->add_symbol(decl->name, decl);
-		if (auto decl = std::get_if<middle::function>(decl_ptr.get()))
+		if (auto decl = std::get_if<middle::function>(decl_ptr))
 			ctx.current_scope()->add_symbol(decl->name, decl);
+		//if (auto decl = std::get_if<middle::struct_decl>(decl_ptr)>)
 	}
+
+	resolve_references(ctx, diag, mod);
 
 	for (const auto& decl_ptr : mod.decls)
 	{
@@ -145,24 +157,25 @@ void semantic_analyzer::visit(context& ctx, middle::function& func)
 			return;
 		}
 
-		// TODO: local ctx instead of push/pop scope
-		ctx.push_scope();
-		ctx.current_scope()->add_symbol("$func", &func); // hack!
 		visit_stmt(ctx, *func.body);
-		ctx.pop_scope();
 	}
 }
 
 void semantic_analyzer::visit(context& ctx, middle::variable& var)
 {
-	ctx.current_scope()->add_symbol(var.name, &var);
-
 	if (var.value) {
+		auto hint = infer_type(ctx, diag, *var.value);
+		if (!var.type) {
+			if (hint.type->name == "numeric_literal")
+				hint.type = ctx.find_type("isize");
+			else if (hint.type->name == "float_literal")
+				hint.type = ctx.find_type("f64");
+			var.type = hint.type;
+		} else if (hint.is_ambiguous) {
+			propagate_type(ctx, diag, var.type, *var.value);
+		}
 		visit_expr(ctx, *var.value);
-		if (!var.type)
-			var.type = infer_type(ctx, *var.value);
-		else
-			propagate_type(ctx, var.type, *var.value);
+
 	}
 }
 
@@ -215,10 +228,8 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::statement_block& in_blo
 
 void semantic_analyzer::visit_stmt(context& ctx, middle::if_else_statement& stmt)
 {
-	if (stmt.if_expr) {
-		visit_expr(ctx, *stmt.if_expr);
-		propagate_type(ctx, ctx.find_type("bool"), *stmt.if_expr);
-	}
+	if (stmt.if_expr)
+		visit_stmt(ctx, *stmt.if_expr);
 	if (stmt.if_body)
 		visit_stmt(ctx, *stmt.if_body);
 	if (stmt.else_body)
@@ -227,22 +238,17 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::if_else_statement& stmt
 
 void semantic_analyzer::visit_stmt(context &ctx, middle::while_statement& stmt)
 {
-	if (stmt.loop_body) {
+	if (stmt.loop_body)
 		visit_expr(ctx, *stmt.cond_expr);
-		propagate_type(ctx, ctx.find_type("bool"), *stmt.cond_expr);
-	}
 	if (stmt.loop_body)
 		visit_stmt(ctx, *stmt.loop_body);
 }
 
 void semantic_analyzer::visit_stmt(context& ctx, middle::return_statement& stmt)
 {
-	if (stmt.value)
-	{
+	if (stmt.value) {
+		infer_type(ctx, diag, *stmt.value);
 		visit_expr(ctx, *stmt.value);
-
-		if (auto func = ctx.current_scope()->find_func("$func")) // hack!
-			propagate_type(ctx, func->return_type, *stmt.value);
 	}
 }
 
@@ -252,93 +258,14 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::empty_statement& /*stmt
 
 void semantic_analyzer::visit_stmt(context& ctx, middle::expression& expr)
 {
-	visit_expr(ctx, expr);
 	if (!expr.type)
-		expr.type = infer_type(ctx, expr);
-	propagate_type(ctx, expr.type, expr);
+		expr.type = infer_type(ctx, diag, expr);
+	visit_expr(ctx, expr);
 }
 
 /*
  * Expressions
  */
-void semantic_analyzer::visit_expr(context& ctx, middle::expression& expr)
-{
-	auto expr_visitor = [this, &ctx] (auto& expr)
-	{
-		return visit_expr(ctx, expr);
-	};
-	return std::visit(expr_visitor, expr);
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::cast_expression& in_expr)
-{
-	visit_expr(ctx, *in_expr.lhs);
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::unary_expression& in_expr)
-{
-	visit_expr(ctx, *in_expr.lhs);
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::binary_expression& in_expr)
-{
-	visit_expr(ctx, *in_expr.lhs);
-	visit_expr(ctx, *in_expr.rhs);
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::call_expression& call)
-{
-	for (auto& arg : call.args)
-	{
-		visit_expr(ctx, arg);
-	}
-	call.func = ctx.current_scope()->find_func(call.func_name);
-
-	if (call.func && !call.func->is_variadic) {
-		const auto n_params = call.func->args.size();
-		const auto n_args = call.args.size();
-		if (n_params != n_args) {
-			// TODO: distinguish "not enough" and "too many"
-			error(diag, diagnostic_id::not_enough_arguments, location(),
-				call.func_name, std::to_string(n_params), std::to_string(n_args));
-		}
-	}
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::field_expression& expr)
-{
-	visit_expr(ctx, *expr.lhs);
-
-	auto type = infer_type(ctx, *expr.lhs);
-	if (!type) {
-		// TODO: error
-		return;
-	}
-
-	auto tkind = get_if<ir::struct_type>(&type->kind);
-	if (!tkind) {
-		// TODO: error
-		return;
-	}
-
-	expr.type = tkind;
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::if_expression& in_expr)
-{
-	if (in_expr.if_expr)
-		visit_expr(ctx, *in_expr.if_expr);
-	if (in_expr.if_body)
-		visit_expr(ctx, *in_expr.if_body);
-	if (in_expr.else_body)
-		visit_expr(ctx, *in_expr.else_body);
-}
-
-void semantic_analyzer::visit_expr(context& ctx, middle::value_expression& expr)
-{
-	expr.ref = ctx.current_scope()->find_var(expr.name);
-}
-
 auto convert_to_fp(ir::binary_operator op) -> ir::binary_operator
 {
 	switch(op) {
@@ -391,321 +318,109 @@ auto convert_to_uint(ir::binary_operator op) -> ir::binary_operator
 	}
 }
 
-void visit_op(context& ctx, ir::type* ty, middle::binary_expression& expr)
+void visit_op(context& ctx, ir::type* type, ir::binary_operator& op)
 {
-	if (!ty)
+	if (!type)
 		return;
 
-	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
-		expr.op = convert_to_fp(expr.op);
+	if (auto* fp = std::get_if<ir::fp_type>(&type->kind)) {
+		op = convert_to_fp(op);
 		return;
 	}
 
-	if (auto* integer = std::get_if<ir::integer_type>(&ty->kind)) {
+	if (auto* integer = std::get_if<ir::integer_type>(&type->kind)) {
 		if (!integer->is_signed)
-			expr.op = convert_to_uint(expr.op);
+			op = convert_to_uint(op);
 		return;
 	}
 }
 
-void visit_op(context& ctx, ir::type* ty, middle::unary_expression& expr)
+void visit_op(context& ctx, ir::type* ty, ir::unary_operator& op)
 {
 	if (auto* fp = std::get_if<ir::fp_type>(&ty->kind)) {
-		if (expr.op == ir::unary_operator::minus)
-			expr.op = ir::unary_operator::minus_fp;
+		if (op == ir::unary_operator::minus)
+			op = ir::unary_operator::minus_fp;
 		return;
 	}
-
 }
 
-bool is_number(ir::type* type)
+void semantic_analyzer::visit_expr(context& ctx, middle::expression& expr)
 {
-	return std::holds_alternative<ir::integer_type>(type->kind) ||
-	       std::holds_alternative<ir::fp_type>(type->kind);
-}
-
-/*
- * Type inference
- */
-auto semantic_analyzer::common_type(ir::type* a, ir::type* b) -> ir::type*
-{
-	if (!a || !b)
-		return nullptr;
-
-	if (a != b) {
-		if (a->name == "u8*" && b->name == "string_literal")
-			return a;
-		if (a->name == "string_literal" && b->name == "u8*")
-			return b;
-		if (is_number(a) && b->name == "numeric_literal")
-			return a;
-		if (a->name == "numeric_literal" && is_number(b))
-			return b;
-		return error(diag, diagnostic_id::type_mismathch, location(), a->name, b->name);
-	}
-
-	return a;
-}
-
-auto semantic_analyzer::common_type(context& ctx, middle::expression& lhs, middle::expression& rhs) -> ir::type*
-{
-	auto* lhs_type = infer_type(ctx, lhs);
-	auto* rhs_type = infer_type(ctx, rhs);
-
-	if (!lhs_type && rhs_type)
-		lhs_type = propagate_type(ctx, rhs_type, lhs);
-	else if (lhs_type && !rhs_type)
-		rhs_type = propagate_type(ctx, lhs_type, rhs);
-
-	return common_type(lhs_type, rhs_type);
-}
-
-auto semantic_analyzer::common_type(context& ctx, ir::type* type, middle::expression& lhs, middle::expression& rhs) -> ir::type*
-{
-	auto* lhs_type = infer_type(ctx, lhs);
-	auto* rhs_type = infer_type(ctx, rhs);
-
-	if (!lhs_type || !rhs_type) {
-		if (rhs_type)
-			lhs_type = propagate_type(ctx, rhs_type, lhs);
-		else if (lhs_type)
-			rhs_type = propagate_type(ctx, lhs_type, rhs);
-	} else {
-		lhs_type = propagate_type(ctx, type, lhs);
-		rhs_type = propagate_type(ctx, type, rhs);
-	}
-
-	return common_type(lhs_type, rhs_type);
-}
-
-
-auto semantic_analyzer::infer_type(context& ctx, middle::expression& expr) -> ir::type*
-{
-	auto expr_visitor = [this, &ctx] (auto& expr) -> ir::type*
+	auto expr_visitor = [this, &ctx] (auto& expr)
 	{
-		return infer_type(ctx, expr);
+		return visit_expr(ctx, expr);
 	};
 
-	expr.type = std::visit(expr_visitor, expr);
+	if (auto bin_expr = get_if<middle::binary_expression>(&expr)) {
+		visit_op(ctx, expr.type, bin_expr->op);
+	} else if (auto un_expr = get_if<middle::unary_expression>(&expr)) {
+		visit_op(ctx, expr.type, un_expr->op);
+	}
 
-	return expr.type;
+	std::visit(expr_visitor, expr);
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::cast_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::cast_expression& in_expr)
 {
-	auto from_type = infer_type(ctx, *expr.lhs);
-	if (!from_type)
-		propagate_type(ctx, expr.to_type, *expr.lhs);
-	return expr.to_type;
+	visit_expr(ctx, *in_expr.lhs);
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::unary_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::unary_expression& in_expr)
 {
-	auto ty = infer_type(ctx, *expr.lhs);
-
-	visit_op(ctx, ty, expr);
-
-	return ty;
+	visit_expr(ctx, *in_expr.lhs);
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::binary_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::binary_expression& in_expr)
 {
-	auto ty = common_type(ctx, *expr.lhs, *expr.rhs);
-
-	// TODO: move out of here
-	visit_op(ctx, ty, expr);
-
-	return ty;
+	visit_expr(ctx, *in_expr.lhs);
+	visit_expr(ctx, *in_expr.rhs);
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::call_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::call_expression& call)
 {
-	if (expr.func)
-	{
-		auto& params = expr.func->args;
+	for (auto& arg : call.args)
+		visit_expr(ctx, arg);
 
-		for (const auto& [expr, param] : aw::paired(expr.args, params))
-			propagate_type(ctx, param->type, expr);
-
-		for (size_t i = params.size(), e = expr.args.size(); i<e; ++i) {
-			auto& arg = expr.args[i];
-			auto type = infer_type(ctx, arg);
-			arg.type = propagate_type(ctx, type, arg);
-			type = arg.type;
+	if (call.func && !call.func->is_variadic) {
+		const auto n_params = call.func->args.size();
+		const auto n_args = call.args.size();
+		if (n_params != n_args) {
+			// TODO: distinguish "not enough" and "too many"
+			error(diag, diagnostic_id::not_enough_arguments, location(),
+				call.func_name, std::to_string(n_params), std::to_string(n_args));
 		}
-
-		return expr.func->return_type;
 	}
-	return nullptr;
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::field_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::field_expression& expr)
 {
-	if (expr.type) {
-		if (auto field = expr.type->fields.find(expr.name))
-			return field->type;
+	visit_expr(ctx, *expr.lhs);
 
-		error(diag, diagnostic_id::no_such_field, location(), expr.type->decl->name, expr.name);
+	ir::type* type = infer_type(ctx, diag, *expr.lhs);
+	if (!type) {
+		// TODO: error
+		return;
 	}
-	return nullptr;
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::if_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::if_expression& in_expr)
 {
-	if (!expr.if_body || !expr.else_body)
-		return ctx.find_type("void");
-
-	return common_type(ctx, *expr.if_body, *expr.else_body);
+	if (in_expr.if_expr)
+		visit_expr(ctx, *in_expr.if_expr);
+	if (in_expr.if_body)
+		visit_expr(ctx, *in_expr.if_body);
+	if (in_expr.else_body)
+		visit_expr(ctx, *in_expr.else_body);
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::value_expression& expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::value_expression& expr)
 {
-	if (auto var = expr.ref)
-	{
-		return var->type;
-	}
-	return nullptr;
-}
-auto semantic_analyzer::infer_type(context& ctx, middle::numeric_literal& expr) -> ir::type*
-{
-	if (expr.type)
-		return expr.type;
-	return ctx.find_type("numeric_literal");
 }
 
-auto semantic_analyzer::infer_type(context& ctx, middle::bool_literal& in_expr) -> ir::type*
+void semantic_analyzer::visit_expr(context& ctx, middle::struct_literal& expr)
 {
-	return ctx.find_type("bool");
-}
-
-auto semantic_analyzer::infer_type(context& ctx, middle::string_literal& expr) -> ir::type*
-{
-	return ctx.find_type("string_literal");
-}
-
-auto semantic_analyzer::infer_type(context& ctx, middle::struct_literal& expr) -> ir::type*
-{
-	return nullptr;
-}
-
-
-/*
- * Type propagation
- */
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::expression& expr) -> ir::type*
-{
-	auto expr_visitor = [this, type, &ctx] (auto& expr) -> ir::type*
-	{
-		return propagate_type(ctx, type, expr);
-	};
-
-	expr.type = std::visit(expr_visitor, expr);
-
-	return expr.type;
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::cast_expression& expr) -> ir::type*
-{
-	auto from_type = infer_type(ctx, *expr.lhs);
-	if (!from_type)
-		propagate_type(ctx, expr.to_type, *expr.lhs);
-	return common_type(type, expr.to_type);
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::unary_expression& expr) -> ir::type*
-{
-	auto ty = propagate_type(ctx, type, *expr.lhs);
-
-	visit_op(ctx, ty, expr);
-
-	return ty;
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::binary_expression& expr) -> ir::type*
-{
-	auto ty = common_type(ctx, type, *expr.lhs, *expr.rhs);
-
-	// TODO: move out of here
-	visit_op(ctx, ty, expr);
-
-	return ty;
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::call_expression& expr) -> ir::type*
-{
-	return infer_type(ctx, expr);
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::if_expression& expr) -> ir::type*
-{
-	propagate_type(ctx, ctx.find_type("bool"), *expr.if_expr);
-
-	if (!expr.else_body)
-	{
-		propagate_type(ctx, type, *expr.if_body);
-		return ctx.find_type("void");
-	}
-
-	return common_type(ctx, type, *expr.if_body, *expr.else_body);
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::field_expression& expr) -> ir::type*
-{
-	return infer_type(ctx, expr);
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::value_expression& expr) -> ir::type*
-{
-	// TODO: if the referred-to variable has no type, it should be back-propagated
-	return common_type(type, infer_type(ctx, expr));
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::numeric_literal& expr) -> ir::type*
-{
-	if (!expr.type)
-		expr.type = type;
-	else
-		expr.type = common_type(expr.type, type);
-
-	return expr.type;
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::bool_literal& expr) -> ir::type*
-{
-	return common_type(type, ctx.find_type("bool"));
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::string_literal& expr) -> ir::type*
-{
-	return common_type(type, ctx.find_type("string_literal"));
-}
-
-auto semantic_analyzer::propagate_type(context& ctx, ir::type* type, middle::struct_literal& expr) -> ir::type*
-{
-	assert(type);
-
-	expr.type = get_if<ir::struct_type>(&type->kind);
-	if (!expr.type) {
-		error(diag, diagnostic_id::is_not_a_struct_type, location(), type->name);
-		return nullptr;
-	}
-
-	auto struct_fields = expr.type->fields;
-
 	for (auto& field : expr.fields)
-	{
 		visit_expr(ctx, *field.value);
-
-		auto struct_field = struct_fields.find(field.name);
-		if (!struct_field) {
-			error(diag, diagnostic_id::no_such_field, location(), type->name, field.name);
-			continue;
-		}
-
-		propagate_type(ctx, struct_field->type, *field.value);
-	}
-
-	return type;
 }
 
 

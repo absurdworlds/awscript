@@ -23,11 +23,12 @@ DIAG(error, expected_semicolon_after_do_while, "Expected ‘;’ after do-while 
 DIAG(error, uninitialized_constant, "Constant must be initialized.")
 
 DIAG(error, is_not_declared, "‘%0’ is not declared in this scope.")
+DIAG(error, undefined_function, "Undefined function: ‘%0’.")
 DIAG(error, undefined_variable, "Undefined variable: ‘%0’.")
 DIAG(error, redefined_variable, "Redefined variable: ‘%0’.")
+DIAG(error, is_not_a_struct_type, "Left-hand side ‘.’ operator is not a struct type.")
 DIAG(error, identifier_required, "Right-hand side of the ‘.’ operator must be an identifier.")
 DIAG(error, initializer_requires_a_type, "Variable ‘%0’ must have an explicit type.")
-DIAG(error, is_not_a_struct_type, "‘%0’ is not a struct type.")
 DIAG(error, no_such_field, "Struct ‘%0’ does not have a field named ‘%1’.")
 DIAG(error, symbol_already_defined, "Symbol already defined: ‘%0’.")
 DIAG(error, variadic_parameter, "Variadic parameter must be at the end of the parameter list.")

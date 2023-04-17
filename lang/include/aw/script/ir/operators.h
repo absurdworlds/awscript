@@ -8,6 +8,7 @@ enum class unary_operator {
 	minus_fp,
 	plus,
 	negation,
+	logical_not = negation
 };
 
 enum class binary_operator {
