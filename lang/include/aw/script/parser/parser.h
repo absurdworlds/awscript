@@ -98,6 +98,9 @@ private:
 	auto parse_postfix_expression(ast::expression lhs) -> ast::expression;
 	auto parse_unary_expression() -> std::optional<ast::expression>;
 	auto parse_field_expression(ast::expression lhs) -> ast::expression;
+	auto parse_cast_expression(ast::expression lhs) -> ast::expression;
+	auto parse_array_subscript(ast::expression lhs) -> ast::expression;
+	auto parse_call_expression(std::string_view name) -> std::optional<ast::expression>;
 	auto parse_binary_expression(ast::expression lhs, precedence min_prec) -> ast::expression;
 
 	auto parse_primary_expression() -> std::optional<ast::expression>;
@@ -106,7 +109,6 @@ private:
 	auto parse_identifier_expression() -> std::optional<ast::expression>;
 	auto parse_string_literal_expression() -> std::optional<ast::expression>;
 	auto parse_numeric_literal_expression() -> std::optional<ast::expression>;
-	auto parse_call_expression(std::string_view name) -> std::optional<ast::expression>;
 
 	auto parse_unary_operator(token tok) -> std::optional<ast::unary_operator>;
 	auto parse_binary_operator(token tok) -> std::optional<ast::binary_operator>;

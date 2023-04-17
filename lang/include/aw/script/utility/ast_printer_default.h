@@ -39,6 +39,7 @@ private:
 	void print_expr(const ast::if_expression& expr);
 	void print_expr(const ast::binary_expression& expr);
 	void print_expr(const ast::call_expression& expr);
+	void print_expr(const ast::subscript_expression& expr);
 	void print_expr(const ast::value_expression& expr);
 	void print_expr(const ast::numeric_literal& expr);
 	void print_expr(const ast::string_literal& expr);

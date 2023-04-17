@@ -62,6 +62,11 @@ struct call_expression {
 	argument_list args;
 };
 
+struct subscript_expression {
+	std::unique_ptr<expression> lhs;
+	argument_list args;
+};
+
 struct numeric_literal {
 	std::string_view value;
 	number_base base = number_base::decimal;
@@ -93,6 +98,7 @@ using expression_variant = std::variant<
 	unary_expression,
 	binary_expression,
 	call_expression,
+	subscript_expression,
 	if_expression,
 	field_expression,
 	value_expression,

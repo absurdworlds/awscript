@@ -616,20 +616,63 @@ auto parser::parse_postfix_expression() -> std::optional<ast::expression>
 	return parse_postfix_expression(std::move(*expr));
 }
 
+auto parser::parse_cast_expression(ast::expression lhs) -> ast::expression
+{
+	advance("as");
+
+	auto type = parse_type();
+	if (!type) {
+		error(diag, diagnostic_id::expected_a_type, tok);
+		return lhs;
+	}
+
+	return ast::cast_expression{
+		.to_type = std::move(*type),
+		.lhs = wrap(std::move(lhs)),
+	};
+}
+
+auto parser::parse_array_subscript(ast::expression lhs) -> ast::expression
+{
+	advance(token_kind::l_square);
+
+	ast::subscript_expression expr;
+
+	expr.lhs = wrap(std::move(lhs));
+
+	if (!match(token_kind::r_square)) {
+		while (true) {
+			auto arg = parse_expression();
+			if (!arg) {
+				error_expected_expression(diag, tok);
+				break;
+			}
+
+			expr.args.push_back(std::move(*arg));
+
+			if (match(token_kind::r_square))
+				break;
+
+			if (!match(token_kind::comma))
+				error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+		}
+	}
+
+	return expr;
+}
+
 auto parser::parse_postfix_expression(ast::expression lhs) -> ast::expression
 {
-	if (match("as")) {
-		auto type = parse_type();
-		if (!type) {
-			error(diag, diagnostic_id::expected_a_type, tok);
-			return lhs;
-		}
-
-		lhs = ast::cast_expression{
-			.to_type = std::move(*type),
-			.lhs = wrap(std::move(lhs)),
-		};
+	while (true) {
+		if (tok == token_kind::l_square)
+			lhs = parse_array_subscript(std::move(lhs));
+		else
+			break;
 	}
+
+	if (tok == "as"sv)
+		lhs = parse_cast_expression(std::move(lhs));
+
 	return lhs;
 }
 
@@ -790,8 +833,6 @@ auto parser::parse_identifier_expression() -> std::optional<ast::expression>
 
 	if (match(token_kind::l_paren))
 		return parse_call_expression(name);
-
-	// TODO: postfix operators ?
 
 	ast::value_expression expr{ .name = name };
 

@@ -239,7 +239,7 @@ void ast_printer_default::print_expr(const ast::expression& expr)
 
 void ast_printer_default::print_expr(const ast::paren_expression& expr)
 {
-	start("", inline_scope);
+	start("paren", inline_scope);
 
 	print_expr(expr.inner);
 
@@ -403,6 +403,19 @@ void ast_printer_default::print_expr(const ast::call_expression& expr)
 	end();
 }
 
+void ast_printer_default::print_expr(const ast::subscript_expression& expr)
+{
+	start("subscript", inline_scope);
+	print_expr(expr.lhs);
+	{
+		start({}, inline_scope);
+		for (const auto& arg : expr.args)
+			print_expr(arg);
+		end();
+	}
+	end();
+}
+
 void ast_printer_default::print_expr(const ast::value_expression& expr)
 {
 	print_inline(expr.name);
@@ -433,10 +446,9 @@ void ast_printer_default::print_expr(const ast::string_literal& expr)
 
 void ast_printer_default::print_expr(const ast::struct_literal& init)
 {
-	start("", inline_scope);
+	start("init", inline_scope);
 	for (const auto& field : init.fields) {
-		start("", inline_scope);
-		print_inline(field.name);
+		start(field.name, inline_scope);
 		print_expr(field.value);
 		end();
 	}
