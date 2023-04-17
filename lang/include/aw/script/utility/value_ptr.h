@@ -26,6 +26,12 @@ struct value_ptr : std::unique_ptr<T> {
 	{
 	}
 
+	template<typename U>
+	value_ptr(U&& value)
+		: base(new T(std::move(value)))
+	{
+	}
+
 	value_ptr(const value_ptr& other)
 		: base(other ? new T(*other) : nullptr)
 	{

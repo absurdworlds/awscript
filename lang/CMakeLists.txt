@@ -41,6 +41,8 @@ aw_add_library(awscript-lang STATIC
 		source/parser/errors.h
 		source/semantic/context.h
 		source/semantic/convert_to_middle.h
+		source/semantic/resolve_references.h
+		source/semantic/type_inference.h
 		source/codegen/llvm/backend_llvm.h
 		source/codegen/llvm/optimizer_llvm.h
 		source/codegen/llvm/llvm_helpers.h
@@ -55,6 +57,8 @@ aw_add_library(awscript-lang STATIC
 		source/semantic/scope.c++
 		source/semantic/semantic_analyzer.c++
 		source/semantic/convert_to_middle.c++
+		source/semantic/resolve_references.c++
+		source/semantic/type_inference.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
 		source/codegen/llvm/optimizer_llvm.c++

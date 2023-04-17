@@ -203,6 +203,8 @@ struct convert_to_middle_visitor {
 		middle::statement_block block;
 		for (const auto& stmt : in_block)
 		{
+			if (std::holds_alternative<ast::empty_statement>(stmt))
+				continue;
 			block.push_back(convert_stmt(stmt));
 		}
 		return block;
@@ -213,10 +215,7 @@ struct convert_to_middle_visitor {
 	{
 		middle::if_else_statement stmt;
 		if (in_stmt.if_expr)
-		{
 			stmt.if_expr = wrap(convert_expr(*in_stmt.if_expr));
-			stmt.if_expr->type = ctx.find_type("bool");
-		}
 		if (in_stmt.if_body)
 			stmt.if_body = wrap(convert_stmt(*in_stmt.if_body));
 		if (in_stmt.else_body)
@@ -227,10 +226,8 @@ struct convert_to_middle_visitor {
 	auto convert_stmt(const ast::while_statement& in_stmt) -> middle::while_statement
 	{
 		middle::while_statement stmt;
-		if (in_stmt.cond_expr) {
+		if (in_stmt.cond_expr)
 			stmt.cond_expr = wrap(convert_expr(*in_stmt.cond_expr));
-			stmt.cond_expr->type = ctx.find_type("bool");
-		}
 		if (in_stmt.loop_body)
 			stmt.loop_body = wrap(convert_stmt(*in_stmt.loop_body));
 		return stmt;
@@ -285,9 +282,6 @@ struct convert_to_middle_visitor {
 			.op = convert_operator(in_expr.op),
 			.lhs = wrap(convert_expr(*in_expr.lhs)),
 		});
-
-		if (in_expr.op == ast::unary_operator::logical_negation)
-			expr.type = ctx.find_type("bool");
 
 		return expr;
 	}
