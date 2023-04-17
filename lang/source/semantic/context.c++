@@ -1,9 +1,11 @@
 #include "context.h"
 
 #include "aw/script/utility/wrap.h"
+#include "aw/script/utility/type_name.h"
 
 namespace aw::script {
 
+// TODO: use composite keys instead of strings?
 auto context::create_type(const ast::type &type) -> ir::type*
 {
 	if (auto _ = get_if<ast::unknown_type>(&type)) {
@@ -19,10 +21,27 @@ auto context::create_type(const ast::type &type) -> ir::type*
 		return add_type(ir::type{ ty->name });
 	}
 
+	if (auto arr = get_if<ast::array_type>(&type)) {
+		auto name = type_name(*arr);
+
+		if (auto existing_ty = find_type(name))
+			return existing_ty;
+
+		auto elem = find_type(arr->elem);
+
+		// TODO: convert unsized to array_slice
+		return add_type(ir::type{
+			.name = name,
+			.kind = ir::array_type{
+				.base_type = elem,
+				.size = arr->size,
+			}
+		});
+	}
+
 	if (auto ptr = get_if<ast::pointer_type>(&type)) {
 		auto name = ptr->pointee + "*";
 
-		// TODO: use composite keys instead of strings?
 		if (auto existing_ty = find_type(name))
 			return existing_ty;
 

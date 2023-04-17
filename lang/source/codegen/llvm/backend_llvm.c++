@@ -179,6 +179,12 @@ auto get_llvm_type(llvm::LLVMContext& context, ir::type* type) -> llvm::Type*
 		return PointerType::get(base_type, 0);
 	}
 
+	if (auto arr = get_if<ir::array_type>(&type->kind))
+	{
+		auto base_type = get_llvm_type(context, arr->base_type);
+		return llvm::ArrayType::get(base_type, arr->size.value_or(0));
+	}
+
 	if (auto stru = get_if<ir::struct_type>(&type->kind))
 	{
 		return llvm::StructType::getTypeByName(context, stru->decl->name);

@@ -12,6 +12,7 @@
 #include <aw/algorithm/in.h>
 #include <aw/types/support/enum.h>
 
+#include <charconv>
 
 #include "errors.h"
 
@@ -106,7 +107,15 @@ bool parser::match(string_view identifier)
 	return true;
 }
 
-// Opposite of 'match': expects that should NOT be a specific token
+//! Expects the next token is of a specified kind
+bool parser::expect(token_kind expected)
+{
+	if (!match(expected))
+		return error_unexpected_token(diag, tok, expected);
+	return true;
+}
+
+//! Opposite of 'expect': expects that should NOT be a specific token
 bool parser::unmatch(string_view identifier, diagnostic_id msg)
 {
 	if (tok == identifier) {
@@ -150,6 +159,23 @@ std::string_view parser::parse_identifier()
 	return name;
 }
 
+std::optional<size_t> parser::parse_usize()
+{
+	if (tok != token_kind::numeric_constant)
+		return error(diag, diagnostic_id::expected_a_number, tok);
+
+	if (tok.data.find('.') != tok.data.npos)
+		return error(diag, diagnostic_id::non_integer_array_size, tok);
+
+	size_t number = 0;
+
+	// TODO: bases
+	auto result = std::from_chars(tok.data.begin(), tok.data.end(), number, 10);
+	advance();
+
+	return number;
+}
+
 bool parser::parse_type_specifier(ast::type& type, ast::type default_type)
 {
 	if (!match(token_kind::colon)) {
@@ -164,6 +190,15 @@ bool parser::parse_type_specifier(ast::type& type, ast::type default_type)
 	return true;
 }
 
+auto parser::parse_array_size() -> std::optional<size_t>
+{
+	if (match(token_kind::r_square))
+		return {};
+	auto result = parse_usize();
+	expect(token_kind::r_square);
+	return result;
+}
+
 auto parser::parse_type() -> std::optional<ast::type>
 {
 	auto name = parse_identifier();
@@ -174,7 +209,13 @@ auto parser::parse_type() -> std::optional<ast::type>
 		return ast::pointer_type{
 			.pointee = std::string(name)
 		};
+	}
 
+	if (match(token_kind::l_square)) {
+		return ast::array_type{
+			.elem = std::string(name),
+			.size = parse_array_size(),
+		};
 	}
 
 	return ast::regular_type{

@@ -4,6 +4,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <optional>
 
 namespace aw::script::ast {
 
@@ -23,11 +24,18 @@ struct pointer_type {
 	type_name pointee;
 };
 
+struct array_type {
+	type_name elem;
+	std::optional<size_t> size;
+};
+
+
 using type = std::variant<
 	unknown_type,   // unknown type, to be inferred later
 	regular_type,   // anything that doesn't fall into other categories
 	reference_type, // T&
-	pointer_type    // T*
+	pointer_type,   // T*
+	array_type      // T[] and T[N]
 >;
 
 } // namespace aw::script::ast

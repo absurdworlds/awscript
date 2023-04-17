@@ -54,6 +54,7 @@ private:
 	token skip_illegal_tokens();
 	bool match(token_kind expected);
 	bool match(string_view identifier);
+	bool expect(token_kind expected);
 	bool unmatch(string_view identifier, diagnostic_id msg);
 
 	bool check_eof(token_kind expect);
@@ -62,7 +63,10 @@ private:
 	bool match_id(string_view identifier);
 
 	std::string_view parse_identifier();
+	std::optional<size_t> parse_usize();
+
 	bool parse_type_specifier(ast::type& type, ast::type default_type);
+	auto parse_array_size() -> std::optional<size_t>;
 	auto parse_type() -> std::optional<ast::type>;
 
 	auto parse_declaration() -> std::optional<ast::declaration>;

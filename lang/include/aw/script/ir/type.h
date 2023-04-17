@@ -6,6 +6,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <optional>
 
 namespace aw::script::middle {
 struct struct_decl;
@@ -40,6 +41,11 @@ struct fp_type {
 struct pointer_type {
 	type* base_type = nullptr;
 	bool is_mutable = false;
+};
+
+struct array_type {
+	type* base_type = nullptr;
+	std::optional<size_t> size;
 };
 
 struct reference_type {
@@ -78,6 +84,7 @@ using type_kind = std::variant<
 	simple_type,
 	integer_type,
 	fp_type,
+	array_type,
 	pointer_type,
 	reference_type,
 	alias_type,
