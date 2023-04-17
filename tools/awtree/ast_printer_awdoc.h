@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ast_printer.h"
+#include <aw/script/ast/ast_printer.h>
 
 namespace aw::script {
 class ast_printer_awdoc : public ast_printer

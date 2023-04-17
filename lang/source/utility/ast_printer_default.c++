@@ -1,4 +1,4 @@
-#include "ast_printer_default.h"
+#include "aw/script/utility/ast_printer_default.h"
 
 // TODO: for now it prints into iostream
 // abstract it out later
@@ -8,6 +8,11 @@ namespace aw::script {
 ast_printer_default::ast_printer_default()
 {
 
+}
+
+ast_printer_default::~ast_printer_default()
+{
+	std::cout.flush();
 }
 
 void ast_printer_default::print_declaration(const ast::declaration& decl)

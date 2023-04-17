@@ -7,6 +7,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/lexer/source_manager.h
 		include/aw/script/lexer/token.h
 		include/aw/script/lexer/tokens.h
+		include/aw/script/utility/ast_printer_default.h
 		include/aw/script/utility/print_token.h
 		include/aw/script/utility/wrap.h
 		include/aw/script/utility/hard_alias.h
@@ -65,6 +66,7 @@ aw_add_library(awscript-lang STATIC
 		source/codegen/llvm/gen_variable.c++
 		source/codegen/llvm/gen_cast.c++
 		source/driver/main.c++
+		source/utility/ast_printer_default.c++
 	)
 
 target_link_libraries(awscript-lang

@@ -1,5 +1,5 @@
 #include "ast_printer_awdoc.h"
-#include "ast_printer_default.h"
+#include <aw/script/utility/ast_printer_default.h>
 
 #include <aw/script/driver/main.h>
 
@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
 	using namespace aw::script;
 
-	if (argv[1] == 0)
+	if (argv[1] == nullptr)
 		return 1;
 
 	std::cout << argv[1] << std::endl;

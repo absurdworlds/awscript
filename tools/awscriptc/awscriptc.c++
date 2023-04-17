@@ -34,8 +34,14 @@ int main(int argc, char** argv)
 			if (value.empty())
 				value = parser.get_param();
 			options.output_file = value;
+		} else if (in(name, "dump-ast")) {
+			options.dump_ast = true;
+		} else if (in(name, "dump-sem-tree")) {
+			options.dump_sem = true;
 		} else if (in(name, "dump-ir")) {
 			options.dump_ir = true;
+		} else if (in(name, "n", "dry-run")) {
+			options.mode = aw::script::driver::mode::dry_run;
 		} else if (in(name, "c")) {
 			options.mode = aw::script::driver::mode::make_obj;
 		} else if (in(name, "O")) {

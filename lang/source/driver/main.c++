@@ -6,6 +6,7 @@
 #include <aw/script/diag/diagnostics_engine.h>
 #include <aw/script/semantic/semantic_analyzer.h>
 #include <aw/script/codegen/backend.h>
+#include <aw/script/utility/ast_printer_default.h>
 
 #include <aw/utility/string/join.h>
 #include <aw/io/file.h>
@@ -57,6 +58,15 @@ int run_compiler(const options& options, callbacks* callbacks)
 				break;
 			callbacks->process_declaration(*decl);
 			mod.decls.push_back(std::move(*decl));
+		}
+	}
+
+	if (options.dump_ast) {
+		ast_printer_default printer;
+		for (const auto& [_,in_mod] : decl_source_map)
+		{
+			for (const auto& decl : in_mod.decls)
+				printer.print_declaration(decl);
 		}
 	}
 

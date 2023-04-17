@@ -156,7 +156,7 @@ bool backend_llvm::write_object_file(string_view out_path)
 
 void backend_llvm::dump_ir()
 {
-	cur_module->print(errs(), nullptr);
+	cur_module->print(outs(), nullptr);
 }
 
 auto backend_llvm::gen(const middle::declaration& decl) -> llvm::Value*

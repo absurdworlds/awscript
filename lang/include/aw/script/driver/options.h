@@ -29,6 +29,7 @@ struct options {
 	std::string output_file;
 	optimization_level opt_level = optimization_level::O0;
 	bool dump_ast = false;
+	bool dump_sem = false;
 	bool dump_ir = false;
 };
 

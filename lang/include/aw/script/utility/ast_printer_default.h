@@ -1,10 +1,6 @@
 #pragma once
 
-#include "ast_printer.h"
-
-#include <aw/script/ast/declaration.h>
-#include <aw/script/ast/statement.h>
-#include <aw/script/ast/expression.h>
+#include <aw/script/ast/ast_printer.h>
 
 #include <vector>
 
@@ -13,6 +9,7 @@ class ast_printer_default : public ast_printer
 {
 public:
 	ast_printer_default();
+	~ast_printer_default();
 
 	void print_declaration(const ast::declaration& decl) override;
 
