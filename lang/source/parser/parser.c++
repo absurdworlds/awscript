@@ -310,10 +310,7 @@ auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 		if (match(token_kind::r_brace))
 			break;
 
-		if (!match(token_kind::comma)) {
-			error_unexpected_token(diag, tok, token_kind::comma);
-			return {};
-		}
+		expect(token_kind::comma);
 	}
 
 	return init;
@@ -365,8 +362,7 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 		if (tok == token_kind::r_brace)
 			break;
 
-		if (!match(token_kind::semicolon))
-			return error_unexpected_token(diag, tok, token_kind::semicolon);
+		expect(token_kind::semicolon);
 	}
 
 
@@ -386,13 +382,11 @@ auto parser::parse_function_prototype() -> std::optional<ast::function>
 	ast::function func;
 	func.name = parse_identifier();
 
-	if (!match(token_kind::l_paren))
-		error_unexpected_token(diag, tok, token_kind::l_paren);
+	expect(token_kind::l_paren);
 
 	parse_function_arguments(func);
 
-	if (!match(token_kind::r_paren))
-		error_unexpected_token(diag, tok, token_kind::r_paren);
+	expect(token_kind::r_paren);
 
 	parse_function_return_type(func);
 
@@ -450,8 +444,7 @@ bool parser::parse_function_arguments(ast::function& func)
 		if (tok == token_kind::r_paren)
 			break;
 
-		if (!match(token_kind::comma))
-			error_unexpected_token(diag, tok, token_kind::comma);
+		expect(token_kind::comma);
 	}
 
 	return true;
@@ -694,8 +687,7 @@ auto parser::parse_array_subscript(ast::expression lhs) -> ast::expression
 			if (match(token_kind::r_square))
 				break;
 
-			if (!match(token_kind::comma))
-				error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+			expect(token_kind::comma);
 		}
 	}
 
@@ -822,8 +814,7 @@ auto parser::parse_paren_expression() -> std::optional<ast::expression>
 
 	auto expr = parse_expression();
 
-	if (!match(token_kind::r_paren))
-		error_unexpected_token(diag, tok, token_kind::r_paren);
+	expect(token_kind::r_paren);
 
 	return ast::paren_expression{
 		.inner = wrap(std::move(expr))
@@ -991,8 +982,7 @@ auto parser::parse_call_expression(std::string_view name) -> std::optional<ast::
 			if (match(token_kind::r_paren))
 				break;
 
-			if (!match(token_kind::comma))
-				error_unexpected_token(diag, tok, token_kind::comma); // expected ,
+			expect(token_kind::comma);
 		}
 	}
 
