@@ -55,6 +55,7 @@ private:
 	bool match(token_kind expected);
 	bool match(string_view identifier);
 	bool expect(token_kind expected);
+	bool expect(string_view identifier);
 	bool unmatch(string_view identifier, diagnostic_id msg);
 
 	bool check_eof(token_kind expect);
