@@ -11,6 +11,7 @@
 #include <aw/script/diag/error_t.h>
 
 #include <aw/utility/ranges/paired.h>
+#include <aw/utility/ranges/ipairs.h>
 
 namespace aw::script {
 auto create_type(std::string_view name) -> std::unique_ptr<ir::type>
@@ -161,21 +162,37 @@ void semantic_analyzer::visit(context& ctx, middle::function& func)
 	}
 }
 
+void infer_array_size(middle::variable& var)
+{
+	auto arr = get_if<ir::array_type>(&var.type->kind);
+	if (!arr)
+		return;
+	if (arr->size.has_value())
+		return;
+	if (auto init = get_if<middle::list_literal>(var.value.get()))
+	{
+		arr->size = init->fields.size();
+	}
+}
+
 void semantic_analyzer::visit(context& ctx, middle::variable& var)
 {
 	if (var.value) {
 		auto hint = infer_type(ctx, diag, *var.value);
 		if (!var.type) {
 			if (hint.type->name == "numeric_literal")
-				hint.type = ctx.find_type("isize");
+				var.type = ctx.find_type("isize");
 			else if (hint.type->name == "float_literal")
-				hint.type = ctx.find_type("f64");
-			var.type = hint.type;
-		} else if (hint.is_ambiguous) {
-			propagate_type(ctx, diag, var.type, *var.value);
+				var.type = ctx.find_type("f64");
+			else
+				var.type = hint.type;
 		}
-		visit_expr(ctx, *var.value);
 
+		if (hint.is_ambiguous)
+			propagate_type(ctx, diag, var.type, *var.value);
+
+		visit_expr(ctx, *var.value);
+		infer_array_size(var);
 	}
 }
 
@@ -186,13 +203,14 @@ void semantic_analyzer::visit(context& ctx, middle::struct_decl& decl)
 	};
 
 	ctx.push_scope();
-	for (auto& field : decl.members) {
+	for (auto [i,field] : ipairs(decl.members)) {
 		visit(ctx, *field);
-		type.fields[field->name] = ir::struct_type::field{
+		type.fields[i] = ir::struct_type::field{
 			.name = field->name,
 			.type = field->type,
 			.init = field->value.get(),
 		};
+		type.field_map[field->name] = i;
 	}
 	ctx.pop_scope();
 
@@ -430,6 +448,18 @@ void semantic_analyzer::visit_expr(context& ctx, middle::struct_literal& expr)
 {
 	for (auto& field : expr.fields)
 		visit_expr(ctx, *field.value);
+}
+
+void semantic_analyzer::visit_expr(context& ctx, middle::numbered_list_literal& expr)
+{
+	for (auto& field : expr.fields)
+		visit_expr(ctx, *field.value);
+}
+
+void semantic_analyzer::visit_expr(context& ctx, middle::list_literal& expr)
+{
+	for (auto& field : expr.fields)
+		visit_expr(ctx, field);
 }
 
 

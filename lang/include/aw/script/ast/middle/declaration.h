@@ -35,7 +35,7 @@ struct function {
 struct struct_decl {
 	std::string name;
 
-	using member_list = hard_alias<std::vector<std::unique_ptr<variable>>>;
+	using member_list = std::vector<value_ptr<variable>>;
 	member_list members;
 };
 

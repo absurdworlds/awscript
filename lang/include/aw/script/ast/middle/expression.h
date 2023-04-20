@@ -85,14 +85,27 @@ struct string_literal {
 	std::string value;
 };
 
+struct list_literal {
+	ir::type* type = nullptr;
+	std::vector<expression> fields;
+};
+
+struct numbered_list_literal {
+	ir::type* type = nullptr;
+	struct field {
+		size_t index;
+		value_ptr<expression> value;
+	};
+	std::vector<field> fields;
+};
+
 struct struct_literal {
 	ir::struct_type* type = nullptr;
 	struct field {
 		std::string name;
 		value_ptr<expression> value;
 	};
-	using field_vec = std::vector<field>;
-	field_vec fields;
+	std::vector<field> fields;
 };
 
 struct if_expression {
@@ -114,6 +127,8 @@ using expression_variant = std::variant<
 	numeric_literal,
 	bool_literal,
 	string_literal,
+	list_literal,
+	numbered_list_literal,
 	struct_literal
 >;
 

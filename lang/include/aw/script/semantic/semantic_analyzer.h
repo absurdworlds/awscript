@@ -51,6 +51,8 @@ private:
 	void visit_expr(context& ctx, middle::float_literal& expr) {}
 	void visit_expr(context& ctx, middle::string_literal& in_expr) {}
 	void visit_expr(context& ctx, middle::struct_literal& expr);
+	void visit_expr(context& ctx, middle::list_literal& expr);
+	void visit_expr(context& ctx, middle::numbered_list_literal& expr);
 	void visit_expr(context& ctx, middle::bool_literal& in_expr) {}
 };
 

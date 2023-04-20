@@ -333,6 +333,8 @@ auto backend_llvm::gen_local(const middle::variable& var) -> llvm::Value*
 		// Elide the copy
 		if (auto lit = get_if<middle::struct_literal>(var.value.get()))
 			return gen(*lit, var.name);
+		if (auto lit = get_if<middle::list_literal>(var.value.get()))
+			return gen(*lit, var.name);
 	}
 
 	auto* alloca = builder.CreateAlloca(get_llvm_type(context, var.type), nullptr, var.name);
@@ -842,6 +844,67 @@ auto backend_llvm::gen(const middle::string_literal& expr) -> llvm::Value*
 
 	return it->second;
 }
+
+
+auto backend_llvm::gen(const middle::list_literal& expr, std::string_view name) -> llvm::Value*
+{
+	auto llvm_type = get_llvm_type(context, expr.type);
+	if (name.empty())
+		name = expr.type->name;
+
+	auto* obj = builder.CreateAlloca(llvm_type, nullptr, name);
+
+	if (auto* type = get_if<ir::struct_type>(&expr.type->kind)) {
+		auto& decl = type->decl;
+		if (name.empty())
+			name = decl->name;
+
+		for (const auto& [i, init] : ipairs(expr.fields)) {
+			auto value = gen(init);
+
+			auto gep = builder.CreateGEP(
+				llvm_type, obj,
+				{ builder.getInt32(0), builder.getInt32(i) },
+				name + "." + type->fields[i].name);
+			builder.CreateStore(value, gep);
+		}
+	} else if (auto* type = get_if<ir::array_type>(&expr.type->kind)) {
+		for (const auto& [i,init] : ipairs(expr.fields)) {
+			auto value = gen(init);
+
+			auto gep = builder.CreateGEP(
+				llvm_type, obj,
+				{ builder.getInt32(0), builder.getInt32(i) },
+				name + "." + std::to_string(i));
+			builder.CreateStore(value, gep);
+		}
+	}
+
+	return obj;
+}
+
+auto backend_llvm::gen(const middle::numbered_list_literal& expr, std::string_view name) -> llvm::Value*
+{
+	auto llvm_type = get_llvm_type(context, expr.type);
+	if (name.empty())
+		name = expr.type->name;
+
+	auto* obj = builder.CreateAlloca(llvm_type, nullptr, name);
+
+	for (const auto& init : expr.fields) {
+		auto value = gen(init.value);
+
+		auto gep = builder.CreateGEP(
+			llvm_type, obj,
+			{ builder.getInt32(0), builder.getInt32(init.index) },
+			name + "." + std::to_string(init.index));
+		builder.CreateStore(value, gep);
+	}
+
+	return obj;
+
+}
+
 
 // TODO: support constant structs
 auto backend_llvm::gen(const middle::struct_literal& expr, std::string_view name) -> llvm::Value*

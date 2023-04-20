@@ -6,6 +6,8 @@
 
 #include <aw/utility/ranges/paired.h>
 
+#include <charconv>
+
 namespace aw::script {
 
 namespace {
@@ -299,7 +301,7 @@ struct convert_to_middle_visitor {
 		);
 	}
 
-	bool can_chain(const ast::binary_expression& in_expr)
+	static bool can_chain(const ast::binary_expression& in_expr)
 	{
 		if (can_chain(in_expr.op)) {
 			// For left-associative expresions, the parser always produces
@@ -336,8 +338,6 @@ struct convert_to_middle_visitor {
 
 	auto convert_chain_expr(const ast::binary_expression& in_expr) -> middle::binary_expression
 	{
-		auto op = convert_operator(in_expr.op);
-
 		auto stack = make_stack(in_expr);
 
 		middle::binary_expression expr;
@@ -345,7 +345,7 @@ struct convert_to_middle_visitor {
 		value_ptr<middle::expression> lhs;
 
 		while (!stack.empty()) {
-			auto top = stack.back();
+			auto* top = stack.back();
 			stack.pop_back();
 
 			middle::binary_expression current_expr{
@@ -464,16 +464,77 @@ struct convert_to_middle_visitor {
 		return { .value = in_expr.value };
 	}
 
-	auto convert_expr(const ast::struct_literal& in_init) -> middle::struct_literal
+	size_t convert_to_index(std::string_view str)
 	{
-		middle::struct_literal init;
+		size_t number = 0;
+		auto result = std::from_chars(str.begin(), str.end(), number, 10);
+		assert(result.ec == std::errc{});
+		return number;
+	}
+
+	auto convert_indexed_literal(const ast::struct_literal& in_init)
+	{
+		middle::numbered_list_literal result;
+		bool is_mixed = false;
 		for (const auto& field : in_init.fields) {
-			init.fields.push_back({
+			if (field.kind != ast::struct_literal::numbered) {
+				is_mixed = true;
+				continue;
+			}
+			result.fields.push_back({
+				.index = convert_to_index(field.name),
+				.value = wrap(convert_expr(*field.value)),
+			});
+		}
+		if (is_mixed)
+			error(diag, diagnostic_id::mixed_initializer, location());
+		return result;
+	}
+
+	auto convert_named_literal(const ast::struct_literal& in_init)
+	{
+		middle::struct_literal result;
+		bool is_mixed = false;
+		for (const auto& field : in_init.fields) {
+			if (field.kind != ast::struct_literal::named) {
+				is_mixed = true;
+				continue;
+			}
+			result.fields.push_back({
 				.name = std::string(field.name),
 				.value = wrap(convert_expr(*field.value)),
 			});
 		}
-		return init;
+		if (is_mixed)
+			error(diag, diagnostic_id::mixed_initializer, location());
+		return result;
+	}
+
+	auto convert_array_literal(const ast::struct_literal& in_init)
+	{
+		middle::list_literal result;
+		bool is_mixed = false;
+		for (const auto& field : in_init.fields) {
+			if (field.kind != ast::struct_literal::positional)
+				is_mixed = true;
+			result.fields.push_back(convert_expr(*field.value));
+		}
+		if (is_mixed)
+			error(diag, diagnostic_id::mixed_initializer, location());
+		return result;
+	}
+
+	auto convert_expr(const ast::struct_literal& in_init) -> middle::expression
+	{
+		if (!in_init.fields.empty()) {
+			auto kind = in_init.fields.front().kind;
+			if (kind == ast::struct_literal::numbered)
+				return convert_indexed_literal(in_init);
+			else if (kind == ast::struct_literal::named)
+				return convert_named_literal(in_init);
+		}
+
+		return convert_array_literal(in_init);
 	}
 
 };
