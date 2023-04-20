@@ -21,6 +21,8 @@ auto convert_operator(ast::unary_operator op) -> ir::unary_operator
 	case logical_negation:
 	case binary_negation:
 		return unop::negation;
+	case reference:
+		return unop::reference;
 	}
 	assert(!"Corrupt value!");
 };
@@ -457,7 +459,7 @@ struct convert_to_middle_visitor {
 		};
 	}
 
-	auto convert_expr(const ast::string_literal& in_expr) -> middle::string_literal
+	static auto convert_expr(const ast::string_literal& in_expr) -> middle::string_literal
 	{
 		return { .value = in_expr.value };
 	}

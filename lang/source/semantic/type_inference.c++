@@ -95,10 +95,18 @@ struct type_inference_visitor
 
 	auto infer_type(unary_expression& expr) -> type_hint
 	{
-		auto type = infer_type(*expr.lhs);
+		auto hint = infer_type(*expr.lhs);
 		if (expr.op == ir::unary_operator::logical_not)
 			return ctx.find_type("bool");
-		return type;
+		if (expr.op == ir::unary_operator::reference)
+			return ctx.add_type(ir::type{
+				.name = hint.type->name + "&",
+				.kind = ir::reference_type{
+					.base_type = hint.type,
+					.is_mutable = false,
+				},
+			});
+		return hint;
 	}
 
 	auto infer_type(binary_expression& expr) -> type_hint

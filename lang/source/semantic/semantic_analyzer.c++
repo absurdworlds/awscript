@@ -238,8 +238,10 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::if_else_statement& stmt
 
 void semantic_analyzer::visit_stmt(context &ctx, middle::while_statement& stmt)
 {
-	if (stmt.loop_body)
+	if (stmt.cond_expr) {
+		infer_type(ctx, diag, *stmt.cond_expr);
 		visit_expr(ctx, *stmt.cond_expr);
+	}
 	if (stmt.loop_body)
 		visit_stmt(ctx, *stmt.loop_body);
 }

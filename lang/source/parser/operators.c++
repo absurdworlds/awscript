@@ -7,15 +7,18 @@ namespace aw::script {
 
 auto static token_to_unary_operator(token tok) -> std::optional<ast::unary_operator>
 {
+	using unop = ast::unary_operator;
 	switch (tok.kind) {
 	case token_kind::minus:
-		return ast::unary_operator::minus;
+		return unop::minus;
 	case token_kind::plus:
-		return ast::unary_operator::plus;
+		return unop::plus;
 	case token_kind::bang:
-		return ast::unary_operator::logical_negation;
+		return unop::logical_negation;
 	case token_kind::tilde:
-		return ast::unary_operator::binary_negation;
+		return unop::binary_negation;
+	case token_kind::amp:
+		return unop::reference;
 	default:
 		return std::nullopt;
 	}

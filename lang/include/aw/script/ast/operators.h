@@ -7,6 +7,7 @@ enum class unary_operator {
 	plus,
 	logical_negation,
 	binary_negation,
+	reference,
 };
 
 enum class binary_operator {
