@@ -55,6 +55,11 @@ struct call_expression {
 	argument_list args;
 };
 
+struct subscript_expression {
+	value_ptr<expression> lhs;
+	argument_list args;
+};
+
 struct field_expression {
 	ir::struct_type* type = nullptr;
 	value_ptr<expression> lhs;
@@ -102,6 +107,7 @@ using expression_variant = std::variant<
 	binary_expression,
 	call_expression,
 	field_expression,
+	subscript_expression,
 	if_expression,
 	value_expression,
 	float_literal,

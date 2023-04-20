@@ -408,10 +408,15 @@ struct convert_to_middle_visitor {
 		return call;
 	}
 
-	auto convert_expr(const ast::subscript_expression& in_expr) -> middle::expression
+	auto convert_expr(const ast::subscript_expression& in_expr) -> middle::subscript_expression
 	{
-		// TODO
-		return convert_expr(*in_expr.lhs);
+		middle::subscript_expression expr;
+		expr.lhs = wrap(convert_expr(*in_expr.lhs));
+		for (const auto& arg : in_expr.args)
+		{
+			expr.args.push_back(convert_expr(arg));
+		}
+		return expr;
 	}
 
 	auto convert_expr(const ast::if_expression& in_expr) -> middle::if_expression
