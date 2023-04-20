@@ -153,7 +153,7 @@ struct type_inference_visitor
 		}
 
 		auto* type = expr.type;
-		if (auto* field = type->fields.find(expr.name))
+		if (auto* field = type->find_field(expr.name))
 			return field->type;
 
 		error(diag, diagnostic_id::no_such_field, location(), type->decl->name, expr.name);
@@ -215,6 +215,16 @@ struct type_inference_visitor
 	auto infer_type(string_literal& expr) -> type_hint
 	{
 		return ctx.find_type("string_literal");
+	}
+
+	auto infer_type(list_literal& expr) -> type_hint
+	{
+		return nullptr;
+	}
+
+	auto infer_type(numbered_list_literal& expr) -> type_hint
+	{
+		return nullptr;
 	}
 
 	auto infer_type(struct_literal& expr) -> type_hint
@@ -302,6 +312,46 @@ struct type_inference_visitor
 		return (expr.type = type);
 	}
 
+	auto propagate_type(ir::type* type, list_literal& expr) -> ir::type*
+	{
+		assert(type);
+		if (expr.type) // TODO: check if same
+			return nullptr;
+
+		expr.type = type;
+		if (auto arr_type = get_if<ir::array_type>(&type->kind)) {
+			for (auto& field : expr.fields)
+				propagate_type(arr_type->base_type, field);
+		} else if (auto struct_type = get_if<ir::struct_type>(&type->kind)) {
+			auto pairs = paired(struct_type->fields, expr.fields);
+			for (auto [struct_field, field] : pairs)
+				propagate_type(struct_field.type, field);
+		}
+
+		return expr.type;
+	}
+
+	auto propagate_type(ir::type* type, numbered_list_literal& expr) -> ir::type*
+	{
+		assert(type);
+		if (expr.type) // TODO: check if same
+			return nullptr;
+
+		auto arr_type = get_if<ir::array_type>(&type->kind);
+		if (!arr_type) {
+			error(diag, diagnostic_id::is_not_an_array_type, location(), type->name);
+			return nullptr;
+		}
+
+		expr.type = type;
+
+		for (auto& field : expr.fields) {
+			propagate_type(arr_type->base_type, *field.value);
+		}
+
+		return expr.type;
+	}
+
 	auto propagate_type(ir::type* type, struct_literal& expr) -> ir::type*
 	{
 		assert(type);
@@ -314,14 +364,14 @@ struct type_inference_visitor
 			return nullptr;
 		}
 
-		auto struct_fields = expr.type->fields;
+		auto& struct_type = *expr.type;
 
 		for (auto& field : expr.fields) {
 			ir::type* type = infer_type(*field.value);
 			if (type)
 				continue;
 
-			auto* struct_field = struct_fields.find(field.name);
+			auto* struct_field = struct_type.find_field(field.name);
 			if (!struct_field) {
 				error(diag, diagnostic_id::no_such_field, location(), type->name, field.name);
 				continue;

@@ -3,6 +3,7 @@
 
 #include <aw/script/utility/map.h>
 
+#include <map>
 #include <string>
 #include <variant>
 #include <vector>
@@ -76,7 +77,15 @@ struct struct_type {
 		middle::expression const* init = nullptr;
 	};
 
-	map<std::string, field> fields;
+	std::vector<field> fields;
+	std::map<std::string, size_t, std::less<>> field_map;
+	field* find_field(std::string_view name)
+	{
+		auto it = field_map.find(name);
+		if (it != field_map.end())
+			return &fields[it->second];
+		return nullptr;
+	}
 };
 
 using type_kind = std::variant<

@@ -177,6 +177,18 @@ struct resolver {
 			error(diag, diagnostic_id::undefined_variable, location(), expr.name);
 	}
 
+	void visit_expr(list_literal& expr)
+	{
+		for (auto& field : expr.fields)
+			visit_expr(field);
+	}
+
+	void visit_expr(numbered_list_literal& expr)
+	{
+		for (auto& field : expr.fields)
+			visit_expr(*field.value);
+	}
+
 	void visit_expr(struct_literal& expr)
 	{
 		for (auto& field : expr.fields)
