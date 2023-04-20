@@ -77,7 +77,14 @@ struct string_literal {
 };
 
 struct struct_literal {
+	enum kind {
+		positional,
+		named,
+		numbered,
+	};
+
 	struct field {
+		struct_literal::kind kind = positional;
 		std::string_view name;
 		std::unique_ptr<expression> value;
 	};

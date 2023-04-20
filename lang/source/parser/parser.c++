@@ -277,6 +277,29 @@ auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast
 	return var;
 }
 
+auto parser::parse_initializer_field() -> std::optional<ast::struct_literal::field>
+{
+	using field = ast::struct_literal::field;
+
+	field result;
+	if (match(token_kind::dot)) {
+		if (!in(tok, token_kind::identifier, token_kind::number))
+			return error(diag, diagnostic_id::expected_identifier, tok);
+
+		result.name = tok.data;
+		result.kind = tok == token_kind::identifier ?
+			ast::struct_literal::named :
+			ast::struct_literal::numbered;
+
+		expect(token_kind::equal);
+	}
+
+	result.value = wrap(parse_expression());
+	if (!result.value)
+		return {};
+	return result;
+}
+
 auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 {
 	ast::struct_literal init;
@@ -284,28 +307,11 @@ auto parser::parse_struct_initializer() -> std::optional<ast::expression>
 		if (check_eof(token_kind::r_brace))
 			break;
 
-		if (!match(token_kind::dot)) {
-			error_unexpected_token(diag, tok, token_kind::dot);
-			return {};
-		}
+		auto field = parse_initializer_field();
+		if (!field)
+			continue;
 
-		auto name = parse_identifier();
-		if (name.empty())
-			return {};
-
-		if (!match(token_kind::equal)) {
-			error_unexpected_token(diag, tok, token_kind::equal);
-			return {};
-		}
-
-		auto expr = parse_expression();
-		if (!expr)
-			return {};
-
-		init.fields.push_back({
-			.name = name,
-			.value = wrap(std::move(*expr)),
-		});
+		init.fields.push_back(std::move(*field));
 
 		if (match(token_kind::r_brace))
 			break;
@@ -365,9 +371,7 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 		expect(token_kind::semicolon);
 	}
 
-
-	if (!match(token_kind::r_brace))
-		return error_unexpected_token(diag, tok, token_kind::r_brace);
+	expect(token_kind::r_brace);
 
 	return st;
 }
