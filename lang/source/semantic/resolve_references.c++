@@ -147,6 +147,14 @@ struct resolver {
 			error(diag, diagnostic_id::undefined_function, location(), call.func_name);
 	}
 
+	void visit_expr(subscript_expression& expr)
+	{
+		visit_expr(*expr.lhs);
+		for (auto& arg : expr.args)
+			visit_expr(arg);
+
+	}
+
 	void visit_expr(field_expression& expr)
 	{
 		visit_expr(*expr.lhs);

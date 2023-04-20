@@ -44,6 +44,7 @@ private:
 	void visit_expr(context& ctx, middle::binary_expression& in_expr);
 	void visit_expr(context& ctx, middle::call_expression& in_expr);
 	void visit_expr(context& ctx, middle::field_expression& in_expr);
+	void visit_expr(context& ctx, middle::subscript_expression& expr);
 	void visit_expr(context& ctx, middle::if_expression& in_expr);
 	void visit_expr(context& ctx, middle::value_expression& in_expr);
 	void visit_expr(context& ctx, middle::numeric_literal& in_expr) {}

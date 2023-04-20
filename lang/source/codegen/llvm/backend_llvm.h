@@ -83,6 +83,7 @@ public:
 	auto gen(const middle::unary_expression& expr) -> llvm::Value*;
 	auto gen(const middle::call_expression& expr) -> llvm::Value*;
 	auto gen(const middle::field_expression& expr) -> llvm::Value*;
+	auto gen(const middle::subscript_expression& expr) -> llvm::Value*;
 	auto gen(const middle::if_expression& expr) -> llvm::Value*;
 
 	template<typename T>

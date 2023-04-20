@@ -152,6 +152,22 @@ struct type_inference_visitor
 		return nullptr;
 	}
 
+	auto infer_type(subscript_expression& expr) -> type_hint
+	{
+		for (auto& arg : expr.args) {
+			auto hint = infer_type(arg);
+			if (hint.is_ambiguous)
+				propagate_type(ctx.find_type("isize"), arg);
+		}
+
+		auto hint = infer_type(*expr.lhs);
+		if (hint) {
+			if (auto arr_type = get_if<ir::array_type>(&hint.type->kind))
+				return arr_type->base_type;
+		}
+		return nullptr;
+	}
+
 	auto infer_type(if_expression& expr) -> type_hint
 	{
 		auto type = infer_type(*expr.if_expr);
@@ -239,6 +255,11 @@ struct type_inference_visitor
 	}
 
 	auto propagate_type(ir::type* type, call_expression& expr) -> ir::type*
+	{
+		return nullptr;
+	}
+
+	auto propagate_type(ir::type* type, subscript_expression& expr) -> ir::type*
 	{
 		return nullptr;
 	}

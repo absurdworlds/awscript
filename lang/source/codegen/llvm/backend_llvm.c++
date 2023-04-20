@@ -732,6 +732,29 @@ auto backend_llvm::gen(const middle::field_expression& expr) -> llvm::Value*
 		lhs->getName() + "." + expr.name);
 }
 
+auto backend_llvm::gen(const middle::subscript_expression& expr) -> llvm::Value*
+{
+	auto lhs = gen_lvalue(expr.lhs);
+	if (!lhs)
+		return nullptr;
+
+	auto arr_type = get_if<ir::array_type>(&expr.lhs->type->kind);
+	if (!arr_type)
+		return nullptr;
+
+	std::vector<llvm::Value*> args(expr.args.size()+1);
+	args[0] = builder.getInt64(0);
+	for (const auto& [i,arg] : ipairs(expr.args))
+		args[i+1] = gen(arg);
+
+	auto type = get_llvm_type(context, expr.lhs->type);
+	return builder.CreateGEP(
+		type,
+		lhs,
+		args,
+		lhs->getName());
+}
+
 auto backend_llvm::gen(const middle::if_expression& expr) -> llvm::Value*
 {
 	auto* cond_v = gen_if_condition(expr.if_expr);

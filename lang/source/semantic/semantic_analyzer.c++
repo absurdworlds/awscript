@@ -417,6 +417,13 @@ void semantic_analyzer::visit_expr(context& ctx, middle::value_expression& expr)
 {
 }
 
+void semantic_analyzer::visit_expr(context& ctx, middle::subscript_expression& expr)
+{
+	visit_expr(ctx, *expr.lhs);
+	for (auto& arg : expr.args)
+		visit_expr(ctx, arg);
+}
+
 void semantic_analyzer::visit_expr(context& ctx, middle::struct_literal& expr)
 {
 	for (auto& field : expr.fields)
