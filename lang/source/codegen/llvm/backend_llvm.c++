@@ -514,6 +514,11 @@ auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 	if (!value)
 		return value;
 
+	// Temporary plug to not auto-deference stuff that's supposed
+	// to be a reference
+	if (std::holds_alternative<ir::reference_type>(expr.type->kind))
+		return value;
+
 	auto* value_type = value->getType();
 	auto* expr_type = get_llvm_type(context, expr.type);
 	if (value_type->isPointerTy() && !expr_type->isPointerTy()) {
@@ -658,7 +663,8 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 
 auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 {
-	auto* val = gen(expr.lhs);
+	auto* val = (expr.op == ir::unary_operator::reference) ?
+		gen_lvalue(expr.lhs) : gen(expr.lhs);
 	if (!val)
 		return nullptr;
 	switch (expr.op) {
@@ -670,6 +676,8 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 		return val;
 	case ir::unary_operator::negation:
 		return builder.CreateNot(val, "not");
+	case ir::unary_operator::reference:
+		return val;
 	};
 
 	return nullptr;
