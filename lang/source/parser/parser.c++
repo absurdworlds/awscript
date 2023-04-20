@@ -115,6 +115,13 @@ bool parser::expect(token_kind expected)
 	return true;
 }
 
+bool parser::expect(string_view identifier)
+{
+	if (!match(identifier))
+		return error_unexpected_token(diag, tok, identifier);
+	return true;
+}
+
 //! Opposite of 'expect': expects that should NOT be a specific token
 bool parser::unmatch(string_view identifier, diagnostic_id msg)
 {
@@ -841,8 +848,7 @@ auto parser::parse_if_expression() -> std::optional<ast::expression>
 
 	expr.if_body = wrap(parse_expression());
 
-	if (!match("else"))
-		error_unexpected_token(diag, tok, "else"sv);
+	expect("else"sv);
 
 	expr.else_body = wrap(parse_expression());
 
