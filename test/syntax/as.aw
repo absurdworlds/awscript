@@ -1,5 +1,6 @@
-
+foreign import: C {
 function printf(var str: u8*, var...args);
+}
 
 struct test {
 	x: int;

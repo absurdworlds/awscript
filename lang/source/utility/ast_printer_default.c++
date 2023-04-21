@@ -130,6 +130,23 @@ void ast_printer_default::print_decl(const ast::struct_decl& st)
 	end();
 }
 
+void ast_printer_default::print_decl(const ast::foreign_block& block)
+{
+	start("foreign", mixed_scope);
+	print_inline(block.kind == block.import ? "import" : "export");
+	print_inline(block.lang);
+	{
+		start_line();
+		start("decls");
+		for (const auto& decl : block.decls) {
+			print_declaration(decl);
+		}
+		end();
+	}
+
+	end();
+}
+
 void ast_printer_default::print(const ast::statement& stmt)
 {
 	std::visit([this] (auto&& node) { print_stmt(node); }, stmt);

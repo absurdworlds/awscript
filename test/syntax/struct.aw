@@ -1,6 +1,7 @@
 // expect: 1.0, 2.0, 3.0
-
+foreign import: C {
 function printf(str: u8*, var...args);
+}
 
 struct vec3 {
 	x: f64;

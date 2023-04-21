@@ -59,15 +59,27 @@ struct struct_decl {
 };
 
 struct declaration;
+using decl_list = noncopyable<std::vector<declaration>>;
+
+struct foreign_block {
+	std::string_view lang;
+
+	enum type {
+		import
+	} kind;
+
+	decl_list decls;
+};
 
 struct module {
-	std::vector<declaration> decls;
+	decl_list decls;
 };
 
 using declaration_variant = std::variant<
 	variable,
 	function,
-	struct_decl
+	struct_decl,
+	foreign_block
 >;
 
 struct declaration : public declaration_variant {

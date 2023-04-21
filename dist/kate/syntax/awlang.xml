@@ -24,6 +24,7 @@
         <WordDetect attribute="Keyword" context="Function" String="function" />
         <WordDetect attribute="Keyword" context="Struct"   String="struct" />
         <WordDetect attribute="Keyword" context="Type"     String="as" />
+        <WordDetect attribute="Keyword" context="Foreign"  String="foreign" />
 
         <keyword attribute="ControlFlow" String="controlflow" />
 
@@ -124,6 +125,23 @@
         <RegExpr attribute="Type" context="#stay" String="&identifier;" />
         <DetectChar attribute="Symbol" context="#stay" char=","/>
         <DetectChar attribute="Symbol" context="#pop" char="&gt;" />
+        <RegExpr attribute="Error" context="#stay" String=".+"/>
+      </context>
+
+      <!-- foreign block -->
+      <context name="Foreign" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <IncludeRules context="FindComments" />
+        <WordDetect attribute="Keyword" context="#stay" String="import" />
+        <WordDetect attribute="Keyword" context="#stay" String="export" />
+        <DetectChar attribute="Symbol" context="#pop!Foreign Language" char=":"/>
+        <RegExpr attribute="Error" context="#stay" String=".+"/>
+      </context>
+
+      <context name="Foreign Language" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <IncludeRules context="FindComments" />
+        <RegExpr attribute="Type" context="#pop" String="&identifier;" />
         <RegExpr attribute="Error" context="#stay" String=".+"/>
       </context>
 

@@ -5,18 +5,22 @@ namespace aw {
 
 // I didn't know what to call this class,
 // but it is needed due to clang's shenanigans
+
 template<typename T>
-struct hard_alias : T {
-	hard_alias() = default;
+struct noncopyable : T {
+	noncopyable() = default;
 
-	~hard_alias() = default;
+	~noncopyable() = default;
 
-	hard_alias(const hard_alias&) = delete;
-	hard_alias(hard_alias&&) noexcept = default;
+	noncopyable(const noncopyable&) = delete;
+	noncopyable(noncopyable&&) noexcept = default;
 
-	hard_alias& operator=(const hard_alias&) = default;
-	hard_alias& operator=(hard_alias&&) noexcept = default;
+	noncopyable& operator=(const noncopyable&) = delete;
+	noncopyable& operator=(noncopyable&&) noexcept = default;
 };
+
+template<typename T>
+using hard_alias = noncopyable<T>;
 
 } // namespace aw
 
