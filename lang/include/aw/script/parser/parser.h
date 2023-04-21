@@ -80,6 +80,9 @@ private:
 	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
+	auto parse_foreign_declaration() -> std::optional<ast::declaration>;
+	auto parse_foreign_block(ast::foreign_block::type kind) -> std::optional<ast::declaration>;
+
 	auto parse_function_declaration() -> std::optional<ast::function>;
 	auto parse_function_prototype() -> std::optional<ast::function>;
 	bool parse_variadic_parameter(ast::function& func);

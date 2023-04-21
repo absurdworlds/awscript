@@ -1,5 +1,6 @@
-
+foreign import: C {
 function printf(str: u8*, var...args);
+}
 
 function main()
 {

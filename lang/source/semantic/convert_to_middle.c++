@@ -130,6 +130,22 @@ struct convert_to_middle_visitor {
 	context& ctx;
 	diagnostics_engine& diag;
 
+	void convert_decl(const ast::declaration& in_decl, middle::module& mod)
+	{
+		auto wrapper = [this] (const auto& decl) -> middle::declaration
+		{
+			return convert_decl(decl);
+		};
+
+		if (auto foreign = get_if<ast::foreign_block>(&in_decl)) {
+			for (const auto& decl : foreign->decls) {
+				convert_decl(decl, mod);
+			}
+		} else {
+			mod.decls.push_back(wrap(convert_decl(in_decl)));
+		}
+	}
+
 	auto convert_decl(const ast::declaration& in_decl) -> middle::declaration
 	{
 		auto wrapper = [this] (const auto& decl) -> middle::declaration
@@ -147,6 +163,12 @@ struct convert_to_middle_visitor {
 		for (const auto& var : in_struct.members)
 			st.members.push_back(wrap(convert_decl(var)));
 		return st;
+	}
+
+	auto convert_decl(const ast::foreign_block& in_struct) -> middle::declaration
+	{
+		assert(!"Unreachable");
+		return {};
 	}
 
 	/*
@@ -551,7 +573,7 @@ auto convert_to_middle(
 	convert_to_middle_visitor visitor{ .ctx = ctx, .diag = diag };
 	for (const auto& in_decl : in_mod.decls)
 	{
-		mod.decls.push_back(wrap(visitor.convert_decl(in_decl)));
+		visitor.convert_decl(in_decl, mod);
 	}
 
 	return mod;

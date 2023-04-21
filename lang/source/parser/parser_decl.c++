@@ -49,6 +49,9 @@ std::optional<ast::declaration> parser::parse_declaration()
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
+	if (match_id("foreign"sv))
+		return parse_foreign_declaration();
+
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
@@ -272,4 +275,49 @@ auto parser::parse_function_body() -> std::optional<ast::statement>
 #endif
 	return {};
 }
+
+
+
+auto parser::parse_foreign_declaration() -> std::optional<ast::declaration>
+{
+	if (match_id("import"sv))
+		return parse_foreign_block(ast::foreign_block::import);
+	if (match_id("export"sv))
+		return error_not_implemented_yet(diag, tok);
+	if (match_id("module"sv))
+		return error_not_implemented_yet(diag, tok);
+
+	return error_unexpected_token(diag, tok, token_kind::identifier);
+}
+
+auto parser::parse_foreign_block(ast::foreign_block::type kind) -> std::optional<ast::declaration>
+{
+	ast::foreign_block block;
+	block.kind = kind;
+
+	expect(token_kind::colon);
+
+	block.lang = parse_identifier();
+
+	if (!expect(token_kind::l_brace)) {
+		// Foreign blocks without a body are not allowed,
+		// but we treat them as empty blocks when recovering
+		if (match(token_kind::semicolon))
+			return block;
+	}
+
+	while (true) {
+		auto decl = parse_top_level();
+		if (!decl)
+			break;
+		block.decls.push_back(std::move(*decl));
+		if (tok == token_kind::r_brace)
+			break;
+	}
+
+	expect(token_kind::r_brace);
+
+	return block;
+}
+
 } // namespace aw::script

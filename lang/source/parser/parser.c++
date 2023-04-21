@@ -741,5 +741,4 @@ auto parser::parse_call_expression(std::string_view name) -> std::optional<ast::
 
 	return expr;
 }
-
 } // namespace aw::script
