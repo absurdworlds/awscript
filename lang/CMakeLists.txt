@@ -54,6 +54,7 @@ aw_add_library(awscript-lang STATIC
 		source/diag/diagnostics_engine.c++
 		source/ast/statement.c++
 		source/parser/parser.c++
+		source/parser/parser_decl.c++
 		source/parser/operators.c++
 		source/semantic/context.c++
 		source/semantic/scope.c++
