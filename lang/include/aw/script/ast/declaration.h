@@ -71,7 +71,12 @@ struct foreign_block {
 	decl_list decls;
 };
 
+struct module_header {
+	std::string_view name;
+};
+
 struct module {
+	std::string_view name;
 	decl_list decls;
 };
 
@@ -79,7 +84,8 @@ using declaration_variant = std::variant<
 	variable,
 	function,
 	struct_decl,
-	foreign_block
+	foreign_block,
+	module_header
 >;
 
 struct declaration : public declaration_variant {

@@ -130,6 +130,13 @@ void ast_printer_default::print_decl(const ast::struct_decl& st)
 	end();
 }
 
+void ast_printer_default::print_decl(const ast::module_header& mod)
+{
+	start("module", inline_scope);
+	print_inline(mod.name);
+	end();
+}
+
 void ast_printer_default::print_decl(const ast::foreign_block& block)
 {
 	start("foreign", mixed_scope);

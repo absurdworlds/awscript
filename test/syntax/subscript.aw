@@ -1,3 +1,5 @@
+module subscript;
+
 foreign import: C {
 function printf(str: u8*, var...args);
 function puts(str: u8*);

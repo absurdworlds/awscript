@@ -80,6 +80,9 @@ private:
 	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
+	auto parse_module_declaration() -> std::optional<ast::declaration>;
+	auto parse_submodule_declaration() -> std::optional<ast::declaration>;
+
 	auto parse_foreign_declaration() -> std::optional<ast::declaration>;
 	auto parse_foreign_block(ast::foreign_block::type kind) -> std::optional<ast::declaration>;
 

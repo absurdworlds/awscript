@@ -25,6 +25,7 @@
         <WordDetect attribute="Keyword" context="Struct"   String="struct" />
         <WordDetect attribute="Keyword" context="Type"     String="as" />
         <WordDetect attribute="Keyword" context="Foreign"  String="foreign" />
+        <WordDetect attribute="Keyword" context="Module"   String="module" />
 
         <keyword attribute="ControlFlow" String="controlflow" />
 
@@ -145,6 +146,14 @@
         <RegExpr attribute="Error" context="#stay" String=".+"/>
       </context>
 
+      <!-- module -->
+      <context name="Module" attribute="Module" lineEndContext="#stay">
+        <DetectSpaces />
+        <IncludeRules context="FindComments" />
+        <AnyChar attribute="Symbol" context="#pop" String=";" lookAhead="1"/>
+        <RegExpr attribute="Namespace" context="#stay" String="&identifier;" />
+      </context>
+
       <!-- comments -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindComments">
         <Detect2Chars attribute="Comment" context="Comment Line" char="/" char1="/"/>
@@ -166,6 +175,7 @@
       <itemData name="Comment"     defStyleNum="dsComment" />
       <itemData name="Function"    defStyleNum="dsFunction" spellChecking="false"/>
       <itemData name="Variable"    defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Namespace"   defStyleNum="dsImport" spellChecking="false"/>
       <itemData name="Type"        defStyleNum="dsDataType"/>
       <itemData name="Symbol"      defStyleNum="dsOperator" spellChecking="false"/>
       <itemData name="ControlFlow" defStyleNum="dsControlFlow" spellChecking="false"/>

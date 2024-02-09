@@ -49,6 +49,9 @@ std::optional<ast::declaration> parser::parse_declaration()
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
+	if (match_id("module"sv))
+		return parse_module_declaration();
+
 	if (match_id("foreign"sv))
 		return parse_foreign_declaration();
 
@@ -174,6 +177,22 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 {
 	return error_not_implemented_yet(diag, tok);
+}
+
+auto parser::parse_module_declaration() -> std::optional<ast::declaration>
+{
+	auto name = parse_identifier();
+	if (name.empty())
+		return {};
+
+	if (match(token_kind::l_brace))
+		return error_not_implemented_yet(diag, tok);
+
+	ast::module_header mod {
+		.name = name
+	};
+
+	return mod;
 }
 
 auto parser::parse_function_prototype() -> std::optional<ast::function>
