@@ -76,6 +76,7 @@ struct module_header {
 };
 
 struct module {
+	std::string path;
 	std::string_view name;
 	decl_list decls;
 };

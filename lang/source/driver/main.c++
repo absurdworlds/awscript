@@ -39,7 +39,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 	diagnostics_engine diag(srcman);
 
-	std::map<std::string, ast::module> decl_source_map;
+	std::vector<ast::module> in_modules;
 
 	for (const auto& input : options.input_files)
 	{
@@ -50,7 +50,9 @@ int run_compiler(const options& options, callbacks* callbacks)
 			.diag = diag
 		});
 
-		auto& mod = decl_source_map[input];
+		auto& mod = in_modules.emplace_back(ast::module{
+			.path = input,
+		});
 
 		while(true) {
 			auto decl = parser.parse_top_level();
@@ -63,7 +65,7 @@ int run_compiler(const options& options, callbacks* callbacks)
 
 	if (options.dump_ast) {
 		ast_printer_default printer;
-		for (const auto& [_,in_mod] : decl_source_map)
+		for (const auto& in_mod : in_modules)
 		{
 			for (const auto& decl : in_mod.decls)
 				printer.print_declaration(decl);
@@ -77,9 +79,9 @@ int run_compiler(const options& options, callbacks* callbacks)
 	semantic_analyzer analyzer(diag);
 
 	std::vector<middle::module> modules;
-	for (auto& [file,in_mod] : decl_source_map)
+	for (auto& in_mod : in_modules)
 	{
-		auto input_path = std::filesystem::path(file);
+		auto input_path = std::filesystem::path(in_mod.path);
 
 		auto mod = analyzer.lower(in_mod);
 		mod.name = input_path.stem();
