@@ -18,6 +18,7 @@ private:
 	void print_var(const ast::variable& var);
 	void print_decl(const ast::variable& var);
 	void print_decl(const ast::struct_decl& var);
+	void print_decl(const ast::import_decl& decl);
 	void print_decl(const ast::module_header& var);
 	void print_decl(const ast::foreign_block& var);
 

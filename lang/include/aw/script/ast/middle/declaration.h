@@ -41,10 +41,20 @@ struct struct_decl {
 
 struct declaration;
 
+enum class module_id;
+
+struct module_import {
+	module_id id;
+	bool import_all = false;
+	std::vector<std::string> symbols;
+};
+
 // TODO: proper modules
 struct module {
 	std::string name;
 	std::string dir_path;
+	// Imported modules
+	std::vector<module_import> imports;
 	// Items declared in the module
 	std::vector<std::unique_ptr<declaration>> decls;
 	// Types instantiated in the module

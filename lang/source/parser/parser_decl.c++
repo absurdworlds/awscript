@@ -52,6 +52,9 @@ std::optional<ast::declaration> parser::parse_declaration()
 	if (match_id("module"sv))
 		return parse_module_declaration();
 
+	if (match_id("import"sv))
+		return parse_import_declaration();
+
 	if (match_id("foreign"sv))
 		return parse_foreign_declaration();
 
@@ -193,6 +196,11 @@ auto parser::parse_module_declaration() -> std::optional<ast::declaration>
 	};
 
 	return mod;
+}
+
+auto parser::parse_import_declaration() -> std::optional<ast::declaration>
+{
+	return error_not_implemented_yet(diag, tok);
 }
 
 auto parser::parse_function_prototype() -> std::optional<ast::function>

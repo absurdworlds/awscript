@@ -24,6 +24,11 @@
 
 namespace aw::script::ast {
 
+struct identifier {
+	std::vector<std::string_view> path;
+	std::string_view name;
+};
+
 struct variable {
 	std::string name;
 	ast::type type;
@@ -81,12 +86,20 @@ struct module {
 	decl_list decls;
 };
 
+struct import_decl {
+	// Module that is imported
+	identifier mod_id;
+	// List of declarations to import
+	std::vector<identifier> decl_ids;
+};
+
 using declaration_variant = std::variant<
 	variable,
 	function,
 	struct_decl,
 	foreign_block,
-	module_header
+	module_header,
+	import_decl
 >;
 
 struct declaration : public declaration_variant {

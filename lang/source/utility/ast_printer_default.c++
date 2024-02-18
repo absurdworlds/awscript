@@ -130,6 +130,13 @@ void ast_printer_default::print_decl(const ast::struct_decl& st)
 	end();
 }
 
+void ast_printer_default::print_decl(const ast::import_decl& decl)
+{
+	start("import", inline_scope);
+	print_inline(decl.mod_id.name); // TODO
+	end();
+}
+
 void ast_printer_default::print_decl(const ast::module_header& mod)
 {
 	start("module", inline_scope);
