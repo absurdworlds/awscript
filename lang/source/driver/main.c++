@@ -28,10 +28,10 @@ int run_compiler(const options& options, callbacks* callbacks)
 	if (!callbacks)
 		callbacks = &null_callbacks;
 
-
 	if (options.input_files.empty())
 	{
-		// TODO: error
+		// TODO: use diagnostics_engine?
+		std::cerr << "No input files given.\n";
 		return EXIT_FAILURE;
 	}
 

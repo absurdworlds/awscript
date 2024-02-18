@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 		if (!arg)
 			break;
 
-		if (arg->type == arg->argument){
+		if (arg->type == arg->argument) {
 			options.input_files.push_back(arg->value);
 			continue;
 		}
@@ -28,8 +28,11 @@ int main(int argc, char** argv)
 		auto name = arg->name;
 		auto value = arg->value;
 
-		if (name.empty())
-			return 1;
+		if (name.empty()) {
+			std::cerr << "Invalid parameters.";
+			return EXIT_FAILURE;
+		}
+
 		if (in(name, "o", "output")) {
 			if (value.empty())
 				value = parser.get_param();
