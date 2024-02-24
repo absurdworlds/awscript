@@ -323,6 +323,8 @@ std::string_view spell_operator(ast::unary_operator op)
 		return "!";
 	case ast::unary_operator::binary_negation:
 		return "~";
+	case ast::unary_operator::reference:
+		return "&";
 	}
 	return "<invalid-unary-op>";
 }
