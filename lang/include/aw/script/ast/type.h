@@ -1,6 +1,8 @@
 #ifndef aw_script_ast_type_h
 #define aw_script_ast_type_h
 
+#include "aw/script/ast/identifier.h"
+
 #include <string>
 #include <variant>
 #include <vector>

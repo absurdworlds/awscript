@@ -24,11 +24,6 @@
 
 namespace aw::script::ast {
 
-struct identifier {
-	std::vector<std::string_view> path;
-	std::string_view name;
-};
-
 struct variable {
 	std::string name;
 	ast::type type;
