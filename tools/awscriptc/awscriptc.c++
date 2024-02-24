@@ -43,6 +43,8 @@ int main(int argc, char** argv)
 			options.dump_sem = true;
 		} else if (in(name, "dump-ir")) {
 			options.dump_ir = true;
+		} else if (in(name, "g", "gen-debug")) {
+			options.gen_debug_info = true;
 		} else if (in(name, "n", "dry-run")) {
 			options.mode = aw::script::driver::mode::dry_run;
 		} else if (in(name, "c")) {
