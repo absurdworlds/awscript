@@ -81,11 +81,15 @@ void ast_printer_default::print_decl(const ast::function& decl)
 {
 	start("func", mixed_scope);
 
-	print_type(decl.return_type);
 	print_inline(decl.name);
+	{
+		start("fn-return", inline_scope);
+		print_type(decl.return_type);
+		end();
+	}
 	start_line();
 	{
-		start("fn-args");
+		start("fn-params");
 		for (const auto& param : decl.params)
 		{
 			print_decl(param);
@@ -93,10 +97,9 @@ void ast_printer_default::print_decl(const ast::function& decl)
 		}
 		end();
 	}
-	{
+	if (decl.body) {
 		start("fn-body");
-		if (decl.body)
-			print(*decl.body);
+		print(*decl.body);
 		end();
 	}
 	end();
@@ -416,7 +419,7 @@ void ast_printer_default::print_expr(const ast::call_expression& expr)
 	start("call", inline_scope);
 	print_inline(expr.func);
 	{
-		start({}, inline_scope);
+		start("args", inline_scope);
 		for (const auto& arg : expr.args)
 			print_expr(arg);
 		end();
