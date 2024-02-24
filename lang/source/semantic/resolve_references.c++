@@ -22,7 +22,7 @@ struct resolver {
 
 	void visit_decl(function& func)
 	{
-		ctx.current_scope()->add_symbol(func.name, &func); // hack!
+		ctx.current_scope()->add_symbol(func.name, &func);
 
 		// TODO: local ctx instead of push/pop scope
 		ctx.push_scope();
@@ -195,10 +195,10 @@ struct resolver {
 			visit_expr(*field.value);
 	}
 
-	void visit_expr(bool_literal& expr) {}
-	void visit_expr(numeric_literal& expr) {}
-	void visit_expr(float_literal& expr) {}
-	void visit_expr(string_literal& expr) {}
+	void visit_expr(bool_literal& /*expr*/) {}
+	void visit_expr(numeric_literal& /*expr*/) {}
+	void visit_expr(float_literal& /*expr*/) {}
+	void visit_expr(string_literal& /*expr*/) {}
 };
 
 void resolve_references(context& ctx, diagnostics_engine& diag, module& mod)

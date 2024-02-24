@@ -26,7 +26,7 @@ enum class diagnostic_id {
 class diagnostic {
 public:
 	diagnostic(location loc, diagnostic_id id)
-		: id(id), loc(loc)
+		: loc(loc), id(id)
 	{
 	}
 

@@ -1,12 +1,13 @@
 #include "aw/script/driver/main.h"
 
-#include <aw/script/lexer/lexer.h>
-#include <aw/script/lexer/source_manager.h>
-#include <aw/script/parser/parser.h>
-#include <aw/script/diag/diagnostics_engine.h>
-#include <aw/script/semantic/semantic_analyzer.h>
-#include <aw/script/codegen/backend.h>
-#include <aw/script/utility/ast_printer_default.h>
+#include "aw/script/codegen/backend.h"
+#include "aw/script/diag/diagnostics_engine.h"
+#include "aw/script/lexer/lexer.h"
+#include "aw/script/lexer/source_manager.h"
+#include "aw/script/parser/parser.h"
+#include "aw/script/semantic/module_tree.h"
+#include "aw/script/semantic/semantic_analyzer.h"
+#include "aw/script/utility/ast_printer_default.h"
 
 #include <aw/utility/string/join.h>
 #include <aw/io/file.h>

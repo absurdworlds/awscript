@@ -13,7 +13,7 @@ auto context::create_type(const ast::type &type) -> ir::type*
 		return nullptr;
 	}
 
-	if (auto ty = get_if<ast::regular_type>(&type)) {
+	if (auto* ty = get_if<ast::regular_type>(&type)) {
 		auto existing_ty = find_type(ty->name);
 		if (existing_ty)
 			return existing_ty;
@@ -21,7 +21,7 @@ auto context::create_type(const ast::type &type) -> ir::type*
 		return add_type(ir::type{ ty->name });
 	}
 
-	if (auto arr = get_if<ast::array_type>(&type)) {
+	if (auto* arr = get_if<ast::array_type>(&type)) {
 		auto name = type_name(*arr);
 
 		if (auto existing_ty = find_type(name))
