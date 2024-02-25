@@ -98,7 +98,7 @@ private:
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_module_declaration(decl_context context) -> std::optional<ast::declaration>;
-	auto parse_inline_module_declaration(decl_context context, std::string_view name)
+	auto parse_inline_module_declaration(decl_context context, std::optional<string_view> name)
 		-> std::optional<ast::declaration>;
 	auto parse_submodule_declaration() -> std::optional<ast::declaration>;
 
@@ -133,7 +133,7 @@ private:
 	auto parse_field_expression(ast::expression lhs) -> ast::expression;
 	auto parse_cast_expression(ast::expression lhs) -> ast::expression;
 	auto parse_array_subscript(ast::expression lhs) -> ast::expression;
-	auto parse_call_expression(std::string_view name) -> std::optional<ast::expression>;
+	auto parse_call_expression(ast::identifier name) -> std::optional<ast::expression>;
 	auto parse_binary_expression(ast::expression lhs, precedence min_prec) -> ast::expression;
 
 	auto parse_primary_expression() -> std::optional<ast::expression>;

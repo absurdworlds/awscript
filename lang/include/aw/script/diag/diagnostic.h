@@ -12,6 +12,7 @@
 
 #include <aw/script/utility/location.h>
 #include <aw/script/utility/print_token.h>
+#include <aw/script/ast/identifier.h>
 namespace aw::script {
 class diagnostics_engine;
 
@@ -58,6 +59,11 @@ inline diagnostic& operator<<(diagnostic& diag, std::string_view str)
 inline diagnostic& operator<<(diagnostic& diag, token_kind type)
 {
 	return diag.arg(spell_token(type));
+}
+
+inline diagnostic& operator<<(diagnostic& diag, const ast::identifier& id)
+{
+	return diag.arg(to_string(id));
 }
 } // namespace aw::script
 #endif//aw_script_diagnostic_h

@@ -107,12 +107,11 @@ auto parser::parse_declaration_list(decl_type type) -> ast::decl_list
 auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast::variable>
 {
 	ast::variable var{ .access = access };
-	var.name = parse_identifier();
-	if (var.name.empty())
-		return {};
+	if (const auto name = parse_identifier())
+		var.name = *name;
 
 	if (!parse_type_specifier(var.type, ast::unknown_type{}))
-		return {};
+		return var;
 
 	if (match(token_kind::equal))
 		var.value = parse_variable_initializer();
@@ -187,9 +186,8 @@ auto parser::parse_function_declaration() -> std::optional<ast::function>
 auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 {
 	ast::struct_decl st;
-	st.name = parse_identifier();
-	if (st.name.empty())
-		return {};
+	if (const auto name = parse_identifier())
+		st.name = *name;
 
 	if (!match(token_kind::l_brace))
 		return error_unexpected_token(diag, tok, token_kind::l_brace);
@@ -226,45 +224,48 @@ auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 
 auto parser::parse_module_declaration(decl_context context) -> std::optional<ast::declaration>
 {
-	auto name = parse_identifier();
-	if (name.empty())
-		return error(diag, diagnostic_id::expected_identifier, tok);
+	const auto name = parse_identifier();
 
 	if (match(token_kind::l_brace))
-		return parse_inline_module_declaration(name);
+		return parse_inline_module_declaration(context, name);
 
-	if (context != decl_context::top_level)
-		return error(diag, diagnostic_id::not_allowed_here, tok);
+	if (context.type != decl_type::top_level)
+		return error(diag, diagnostic_id::not_allowed_here, context.start_token);
 
-	ast::module_header mod {
-		.name = name
+	if (!name)
+		return {};
+
+	return ast::module_header {
+		.name = *name
 	};
-
-	return mod;
 }
 
-auto parser::parse_inline_module_declaration(string_view name) -> std::optional<ast::declaration>
+auto parser::parse_inline_module_declaration(decl_context context, std::optional<string_view> name)
+	-> std::optional<ast::declaration>
 {
 	ast::module mod {
 		.path = "<inline>",
-		.name = name,
-		.decls = parse_declaration_list(decl_context::block),
+		.name = name.value_or(""sv),
+		.decls = parse_declaration_list(decl_type::nested_module),
 	};
 
 	expect(token_kind::r_brace);
 
-	return error_not_implemented_yet(diag, tok);
+	return error_not_implemented_yet(diag, context.start_token);
 }
 
 auto parser::parse_import_declaration() -> std::optional<ast::declaration>
 {
+	ast::import_decl imp;
+
 	return error_not_implemented_yet(diag, tok);
 }
 
 auto parser::parse_function_prototype() -> std::optional<ast::function>
 {
 	ast::function func;
-	func.name = parse_identifier();
+	if (const auto name = parse_identifier())
+		func.name = *name;
 
 	expect(token_kind::l_paren);
 
@@ -336,7 +337,8 @@ bool parser::parse_function_arguments(ast::function& func)
 
 bool parser::parse_function_return_type(ast::function& func)
 {
-	return parse_type_specifier(func.return_type, ast::regular_type{ .name = "void" });
+	ast::identifier id { .name = "void" };
+	return parse_type_specifier(func.return_type, ast::regular_type{ .name = id });
 }
 
 auto parser::parse_function_body() -> std::optional<ast::statement>
@@ -380,7 +382,8 @@ auto parser::parse_foreign_block(ast::foreign_block::type kind) -> std::optional
 
 	expect(token_kind::colon);
 
-	block.lang = parse_identifier();
+	if (const auto name = parse_identifier())
+		block.lang = *name;
 
 	if (!expect(token_kind::l_brace)) {
 		// Foreign blocks without a body are not allowed,

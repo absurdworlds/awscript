@@ -10,7 +10,7 @@
 
 namespace aw::script::ast {
 
-using type_name = std::string;
+using type_name = identifier;
 
 struct unknown_type {};
 

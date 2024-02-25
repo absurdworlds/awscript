@@ -51,13 +51,13 @@ struct field_expression {
 
 // TODO: tell apart lvalue and rvalue
 struct value_expression {
-	std::string_view name;
+	ast::identifier name;
 };
 
 using argument_list = noncopyable<std::vector<expression>>;
 
 struct call_expression {
-	std::string_view func;
+	ast::identifier func;
 	argument_list args;
 };
 

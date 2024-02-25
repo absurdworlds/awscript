@@ -30,6 +30,11 @@ static error_t error_undefined_variable(diagnostics_engine& diag, string_view na
 	return error(diag, diagnostic_id::undefined_variable, location(), name);
 }
 
+static error_t error_undefined_variable(diagnostics_engine& diag, const ast::identifier& name)
+{
+	return error(diag, diagnostic_id::undefined_variable, location(), name);
+}
+
 static error_t error_not_implemented_yet(diagnostics_engine& diag)
 {
 	return error(diag, diagnostic_id::not_implemented_yet, location());
@@ -504,11 +509,14 @@ auto backend_llvm::gen(const middle::bool_literal& expr) -> llvm::ConstantInt*
 
 auto backend_llvm::gen(const middle::value_expression& expr) -> llvm::Value*
 {
-	auto it = symtab.find(expr.name);
+	// TODO: use expr.ref instead of expr.name
+	// TODO: assign numeric IDs instead of pointers
+	assert(expr.name.path.empty());
+	auto it = symtab.find(expr.name.name);
 	if (it != symtab.end())
 		return it->second;
 
-	it = globals.find(expr.name);
+	it = globals.find(expr.name.name);
 	if (it != globals.end())
 		return it->second;
 
@@ -701,16 +709,14 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 	return nullptr;
 }
 
-
 auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 {
-	Function* callee = cur_module->getFunction(expr.func_name);
-	if (!callee) {
-		if (!expr.func)
-			return error_is_not_declared(diag, expr.func_name);
+	if (!expr.func)
+		return error_is_not_declared(diag, expr.func->name);
 
+	Function* callee = cur_module->getFunction(expr.func->name);
+	if (!callee)
 		callee = create_function(context, cur_module.get(), *expr.func);
-	}
 
 	assert(callee->isVarArg() || callee->arg_size() == expr.args.size());
 
