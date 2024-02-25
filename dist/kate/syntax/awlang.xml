@@ -37,7 +37,6 @@
         <RegExpr attribute="Variable" context="#stay" String="&identifier;" />
       </context>
 
-
       <context attribute="Normal Text" lineEndContext="#stay" name="FindNumbers">
         <RegExpr attribute="Number" String="\b0(?:x[0-9a-fA-F_]+|o[0-7_]+|b[01_]+)\b" context="#stay"/>
         <RegExpr attribute="Decimal" String="\b[0-9][0-9_]*(?:(?:\.[0-9][0-9_]*)?(?:[eE][\+\-]?[0-9_]+)?)\b" context="#stay"/>
@@ -151,7 +150,13 @@
         <DetectSpaces />
         <IncludeRules context="FindComments" />
         <AnyChar attribute="Symbol" context="#pop" String=";" lookAhead="1"/>
+        <DetectChar attribute="Symbol" context="#pop!Nested Module" char="{"/>
         <RegExpr attribute="Namespace" context="#stay" String="&identifier;" />
+      </context>
+
+      <context name="Nested Module" attribute="Normal Text" lineEndContext="#stay">
+        <IncludeRules context="File" /> <!-- TODO -->
+        <DetectChar attribute="Symbol" context="#pop" char="}" />
       </context>
 
       <!-- comments -->
