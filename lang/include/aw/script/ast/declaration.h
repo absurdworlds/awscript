@@ -51,7 +51,7 @@ struct function {
 	bool is_variadic() const { return params.variadic.has_value(); }
 };
 
-using var_list = hard_alias<std::vector<variable>>;
+using var_list = noncopyable<std::vector<variable>>;
 struct struct_decl {
 	std::string_view name;
 

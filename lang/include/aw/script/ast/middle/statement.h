@@ -56,7 +56,7 @@ struct decl_statement {
 	std::unique_ptr<declaration> decl;
 };
 
-using statement_block = hard_alias<statement_list>;
+using statement_block = noncopyable<statement_list>;
 
 using statement_variant = std::variant<
 	empty_statement,

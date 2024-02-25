@@ -56,7 +56,7 @@ struct while_statement {
 	std::unique_ptr<statement>  loop_body;
 };
 
-using statement_block = hard_alias<statement_list>;
+using statement_block = noncopyable<statement_list>;
 
 using statement_variant = std::variant<
 	empty_statement,
