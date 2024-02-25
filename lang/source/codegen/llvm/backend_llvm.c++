@@ -3,6 +3,7 @@
 #include "llvm_helpers.h"
 #include "optimizer_llvm.h"
 
+#include "aw/script/ast/linkage.h"
 #include <aw/script/diag/error_t.h>
 
 #include <aw/utility/ranges/paired.h>
@@ -233,6 +234,21 @@ struct arg_info {
 		arg.setName(name);
 	}
 };
+
+auto convert_linkage(ast::linkage type) -> llvm::Function::LinkageTypes
+{
+	using enum ast::linkage;
+	switch (type) {
+	case internal:
+		return Function::PrivateLinkage;
+	case imported:
+		return Function::AvailableExternallyLinkage;
+	case exported:
+		return Function::ExternalLinkage;
+	}
+
+	return Function::InternalLinkage;
+}
 
 auto create_function(
 	llvm::LLVMContext& context,
