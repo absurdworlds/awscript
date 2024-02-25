@@ -63,21 +63,31 @@ private:
 	/// Matches an identifier. Expects that the token kind was already checked.
 	bool match_id(string_view identifier);
 
-	std::string_view parse_identifier();
+	auto parse_identifier() -> std::optional<std::string_view>;
+	auto parse_qualified_identifier() -> std::optional<ast::identifier>;
 	std::optional<size_t> parse_usize();
 
 	bool parse_type_specifier(ast::type& type, ast::type default_type);
 	auto parse_array_size() -> std::optional<size_t>;
 	auto parse_type() -> std::optional<ast::type>;
 
-	enum class decl_context {
+	// Type of a decl_context
+	enum class decl_type {
 		top_level,
 		foreign,
-		block,
+		nested_module,
 	};
 
+	// Declaration parse context,
+	// Holds information necessary for giving correct diagnostics
+	struct decl_context {
+		decl_type type;
+		token start_token;
+	};
+
+	auto parse_declaration(decl_type type) -> std::optional<ast::declaration>;
 	auto parse_declaration(decl_context context) -> std::optional<ast::declaration>;
-	auto parse_declaration_list(decl_context context) -> ast::decl_list;
+	auto parse_declaration_list(decl_type type) -> ast::decl_list;
 
 	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
 	auto parse_initializer_field() -> std::optional<ast::struct_literal::field>;
@@ -88,7 +98,8 @@ private:
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_module_declaration(decl_context context) -> std::optional<ast::declaration>;
-	auto parse_inline_module_declaration(std::string_view name) -> std::optional<ast::declaration>;
+	auto parse_inline_module_declaration(decl_context context, std::string_view name)
+		-> std::optional<ast::declaration>;
 	auto parse_submodule_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_import_declaration() -> std::optional<ast::declaration>;

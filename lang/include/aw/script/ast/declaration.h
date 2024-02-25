@@ -9,6 +9,7 @@
 #ifndef aw_script_ast_decl_h
 #define aw_script_ast_decl_h
 
+#include "aw/script/lexer/token.h"
 #include <aw/script/ast/mutability.h>
 #include <aw/script/ast/statement.h>
 #include <aw/script/ast/type.h>
@@ -100,6 +101,7 @@ using declaration_variant = std::variant<
 struct declaration : public declaration_variant {
 	using declaration_variant::declaration_variant;
 	using declaration_variant::operator=;
+	token start_token;
 };
 
 } // namespace aw::script::ast
