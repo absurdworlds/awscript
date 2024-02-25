@@ -23,7 +23,7 @@ std::optional<ast::declaration> parser::parse_top_level()
 	if (tok != token_kind::identifier)
 		return error(diag, diagnostic_id::expected_declaration, tok);
 
-	std::optional<ast::declaration> decl = parse_declaration();
+	std::optional<ast::declaration> decl = parse_declaration(decl_context::top_level);
 
 	/* TODO: do not forget about global variables*/
 	while (match(token_kind::semicolon));
@@ -31,9 +31,29 @@ std::optional<ast::declaration> parser::parse_top_level()
 	return decl;
 }
 
-std::optional<ast::declaration> parser::parse_declaration()
+auto parser::parse_declaration(decl_context context) -> std::optional<ast::declaration>
 {
 	// awscript employs context-sensitive keywords
+
+	auto parse_if = [this] (bool cond, std::optional<ast::declaration> val)
+		-> std::optional<ast::declaration>
+	{
+		if (cond)
+			return val;
+		// TODO: store location in decls so that errors point to the correct place
+		return error(diag, diagnostic_id::not_allowed_here, tok);
+	};
+
+	using enum decl_context;
+	if (match_id("module"sv))
+		return parse_if(context == top_level, parse_module_declaration(context));
+
+	if (match_id("import"sv))
+		return parse_if(context != foreign, parse_import_declaration());
+
+	if (match_id("foreign"sv))
+		return parse_if(context != foreign, parse_foreign_declaration());
+
 	if (match_id("var"sv))
 		return parse_variable_declaration(ast::access::variable);
 
@@ -49,18 +69,28 @@ std::optional<ast::declaration> parser::parse_declaration()
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
-	if (match_id("module"sv))
-		return parse_module_declaration();
-
-	if (match_id("import"sv))
-		return parse_import_declaration();
-
-	if (match_id("foreign"sv))
-		return parse_foreign_declaration();
-
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
+auto parser::parse_declaration_list(decl_context context) -> ast::decl_list
+{
+	ast::decl_list decls;
+
+	while(true) {
+		auto decl = parse_declaration(context);
+		if (!decl)
+			break;
+
+		while (match(token_kind::semicolon));
+
+		decls.push_back(std::move(*decl));
+
+		if (tok == token_kind::r_brace)
+			break;
+	}
+
+	return decls;
+}
 
 auto parser::parse_variable_declaration(ast::access access) -> std::optional<ast::variable>
 {
@@ -182,20 +212,36 @@ auto parser::parse_class_declaration() -> std::optional<ast::declaration>
 	return error_not_implemented_yet(diag, tok);
 }
 
-auto parser::parse_module_declaration() -> std::optional<ast::declaration>
+auto parser::parse_module_declaration(decl_context context) -> std::optional<ast::declaration>
 {
 	auto name = parse_identifier();
 	if (name.empty())
-		return {};
+		return error(diag, diagnostic_id::expected_identifier, tok);
 
 	if (match(token_kind::l_brace))
-		return error_not_implemented_yet(diag, tok);
+		return parse_inline_module_declaration(name);
+
+	if (context != decl_context::top_level)
+		return error(diag, diagnostic_id::not_allowed_here, tok);
 
 	ast::module_header mod {
 		.name = name
 	};
 
 	return mod;
+}
+
+auto parser::parse_inline_module_declaration(string_view name) -> std::optional<ast::declaration>
+{
+	ast::module mod {
+		.path = "<inline>",
+		.name = name,
+		.decls = parse_declaration_list(decl_context::block),
+	};
+
+	expect(token_kind::r_brace);
+
+	return error_not_implemented_yet(diag, tok);
 }
 
 auto parser::parse_import_declaration() -> std::optional<ast::declaration>
@@ -333,14 +379,7 @@ auto parser::parse_foreign_block(ast::foreign_block::type kind) -> std::optional
 			return block;
 	}
 
-	while (true) {
-		auto decl = parse_top_level();
-		if (!decl)
-			break;
-		block.decls.push_back(std::move(*decl));
-		if (tok == token_kind::r_brace)
-			break;
-	}
+	block.decls = parse_declaration_list(decl_context::foreign);
 
 	expect(token_kind::r_brace);
 

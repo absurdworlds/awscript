@@ -70,7 +70,14 @@ private:
 	auto parse_array_size() -> std::optional<size_t>;
 	auto parse_type() -> std::optional<ast::type>;
 
-	auto parse_declaration() -> std::optional<ast::declaration>;
+	enum class decl_context {
+		top_level,
+		foreign,
+		block,
+	};
+
+	auto parse_declaration(decl_context context) -> std::optional<ast::declaration>;
+	auto parse_declaration_list(decl_context context) -> ast::decl_list;
 
 	auto parse_variable_declaration(ast::access access) -> std::optional<ast::variable>;
 	auto parse_initializer_field() -> std::optional<ast::struct_literal::field>;
@@ -80,7 +87,8 @@ private:
 	auto parse_struct_declaration() -> std::optional<ast::declaration>;
 	auto parse_class_declaration() -> std::optional<ast::declaration>;
 
-	auto parse_module_declaration() -> std::optional<ast::declaration>;
+	auto parse_module_declaration(decl_context context) -> std::optional<ast::declaration>;
+	auto parse_inline_module_declaration(std::string_view name) -> std::optional<ast::declaration>;
 	auto parse_submodule_declaration() -> std::optional<ast::declaration>;
 
 	auto parse_import_declaration() -> std::optional<ast::declaration>;

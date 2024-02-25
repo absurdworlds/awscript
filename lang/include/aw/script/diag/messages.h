@@ -41,5 +41,6 @@ DIAG(error, type_mismathch, "Type mismatch: ‘%0’ vs ‘%1’.")
 DIAG(error, unknown_type, "Unknown type: ‘%0’.")
 DIAG(error, module_redeclaration, "Module can be declared only once.")
 DIAG(error, module_bad_loc, "Module declaration must precede all other declarations.")
+DIAG(error, not_allowed_here, "Top-level declaration is not allowed here.")
 
 #undef DIAG

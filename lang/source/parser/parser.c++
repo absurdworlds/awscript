@@ -230,7 +230,6 @@ auto parser::parse_type() -> std::optional<ast::type>
 	};
 }
 
-
 /********************** Statements **********************/
 auto parser::parse_statement_block() -> std::optional<ast::statement>
 {
