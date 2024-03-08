@@ -480,14 +480,16 @@ auto backend_llvm::gen(const middle::empty_statement& stmt) -> llvm::Value*
 
 auto backend_llvm::gen(const middle::numeric_literal& expr) -> llvm::Constant*
 {
-	auto type = get_llvm_type(context, expr.type);
-	auto radix = unsigned(expr.base); // TODO: to_underlying
-	if (auto integer = dyn_cast<IntegerType>(type))
-		return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, radix));
-	if (type->isFloatTy())
-		return ConstantFP::get(context, APFloat(APFloat::IEEEsingle(), expr.value));
-	if (type->isDoubleTy())
-		return ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), expr.value));
+	if (expr.type) {
+		auto type = get_llvm_type(context, expr.type);
+		auto radix = unsigned(expr.base); // TODO: to_underlying
+		if (auto integer = dyn_cast<IntegerType>(type))
+			return ConstantInt::get(context, APInt(integer->getBitWidth(), expr.value, radix));
+		if (type->isFloatTy())
+			return ConstantFP::get(context, APFloat(APFloat::IEEEsingle(), expr.value));
+		if (type->isDoubleTy())
+			return ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), expr.value));
+	}
 	return nullptr;
 }
 
@@ -711,10 +713,11 @@ auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 
 auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 {
+	const auto& func_name = expr.func->name;
 	if (!expr.func)
-		return error_is_not_declared(diag, expr.func->name);
+		return error_is_not_declared(diag, func_name);
 
-	Function* callee = cur_module->getFunction(expr.func->name);
+	Function* callee = cur_module->getFunction(func_name);
 	if (!callee)
 		callee = create_function(context, cur_module.get(), *expr.func);
 
@@ -731,7 +734,7 @@ auto backend_llvm::gen(const middle::call_expression& expr) -> llvm::Value*
 
 	return callee->getReturnType()->isVoidTy() ?
 		builder.CreateCall(callee, argv):
-		builder.CreateCall(callee, argv, "calltmp");
+		builder.CreateCall(callee, argv, Twine(func_name, "_tmp"));
 }
 
 
