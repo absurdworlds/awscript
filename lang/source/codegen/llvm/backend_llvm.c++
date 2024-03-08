@@ -320,10 +320,17 @@ auto backend_llvm::gen(const middle::function& decl) -> llvm::Value*
 
 	if (Value* res = gen(decl.body)) {
 		if (!llvm::isa<ReturnInst>(res)) {
-			if (func->getReturnType()->isVoidTy())
-				builder.CreateRetVoid();
-			else
+			if (func->getReturnType()->isVoidTy()) {
+				// TODO: is_program_entry_point
+				// TODO: investigate adding implicit return at the "middle" level
+				if (decl.name == "main") {
+					builder.CreateRet(ConstantInt::get(context, APInt(8, 0)));
+				} else {
+					builder.CreateRetVoid();
+				}
+			} else {
 				builder.CreateRet(res);
+			}
 		}
 
 		llvm::verifyFunction(*func);
