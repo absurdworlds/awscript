@@ -80,12 +80,21 @@
         <RegExpr attribute="Error" context="#stay" String="[^(]+"/>
       </context>
 
-       <context name="Function Parameters" attribute="Normal Text" lineEndContext="#stay">
-         <DetectChar attribute="Symbol" context="#pop" char=")"/>
+      <context name="Function Parameters" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar attribute="Symbol" context="#pop!Function Return Type" char=")"/>
 
-         <IncludeRules context="FindComments" />
-         <IncludeRules context="FindVariableExt" />
-       </context>
+        <IncludeRules context="FindComments" />
+        <IncludeRules context="FindVariableExt" />
+      </context>
+
+      <context name="Function Return Type" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <IncludeRules context="FindComments" />
+        <DetectChar attribute="Symbol" context="#pop!Type" char=":"/>
+
+        <RegExpr context="#pop" String="." lookAhead="1"/>
+      </context>
+
 
       <!-- variables -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindVariableExt">
