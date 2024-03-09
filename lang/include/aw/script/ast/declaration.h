@@ -86,7 +86,7 @@ struct import_decl {
 	// Module that is imported
 	identifier mod_id;
 	// List of declarations to import
-	std::vector<identifier> decl_ids;
+	std::vector<unqual_id> decl_ids;
 };
 
 using declaration_variant = std::variant<

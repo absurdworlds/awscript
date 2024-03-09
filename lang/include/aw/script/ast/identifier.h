@@ -7,14 +7,25 @@
 
 namespace aw::script::ast {
 
+using unqual_id = std::string;
+
 struct identifier {
 	std::vector<std::string> path;
-	std::string name;
+	unqual_id name;
+
+	bool is_qualified() const { return !path.empty(); }
 };
 
 inline bool operator==(const identifier& id, const std::string_view& sv)
 {
-	return id.path.empty() && id.name == sv;
+	return !id.is_qualified() && id.name == sv;
+}
+
+inline bool operator<(const identifier& lhs, const identifier& rhs)
+{
+	if (lhs.path == rhs.path)
+		return lhs.name < rhs.name;
+	return lhs.path < rhs.path;
 }
 
 inline auto to_string(const identifier& id) -> std::string

@@ -35,6 +35,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/symtab/symbol_name.h
 		include/aw/script/ir/type.h
 		include/aw/script/semantic/scope.h
+		include/aw/script/semantic/resolve_dependencies.h
 		include/aw/script/semantic/semantic_analyzer.h
 		include/aw/script/ir/operators.h
 		include/aw/script/codegen/backend.h
@@ -59,10 +60,11 @@ aw_add_library(awscript-lang STATIC
 		source/parser/parser_decl.c++
 		source/parser/operators.c++
 		source/semantic/context.c++
-		source/semantic/scope.c++
-		source/semantic/semantic_analyzer.c++
 		source/semantic/convert_to_middle.c++
+		source/semantic/scope.c++
+		source/semantic/resolve_dependencies.c++
 		source/semantic/resolve_references.c++
+		source/semantic/semantic_analyzer.c++
 		source/semantic/type_inference.c++
 		source/codegen/backend.c++
 		source/codegen/llvm/backend_llvm.c++
