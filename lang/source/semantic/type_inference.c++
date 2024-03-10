@@ -1,6 +1,6 @@
 #include "type_inference.h"
 
-#include <aw/script/ast/middle/declaration.h>
+#include "aw/script/ast/middle/module.h"
 #include <aw/script/diag/error_t.h>
 #include <aw/script/utility/location.h>
 

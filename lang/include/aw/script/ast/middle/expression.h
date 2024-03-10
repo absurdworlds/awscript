@@ -22,7 +22,7 @@
 
 namespace aw::script::middle {
 
-class expression;
+struct expression;
 
 struct cast_expression {
 	ir::type* to_type;
@@ -41,7 +41,7 @@ struct binary_expression {
 };
 
 // TODO: tell apart lvalue and rvalue
-class declaration;
+struct declaration;
 class variable;
 struct value_expression {
 	ast::identifier name;

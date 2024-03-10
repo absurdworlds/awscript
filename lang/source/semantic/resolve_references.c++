@@ -1,7 +1,7 @@
 #include "resolve_references.h"
 
-#include <aw/script/diag/error_t.h>
-
+#include "aw/script/ast/middle/module.h"
+#include "aw/script/diag/error_t.h"
 
 namespace aw::script {
 using namespace middle;
