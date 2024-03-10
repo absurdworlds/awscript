@@ -2,7 +2,7 @@
 #include <aw/test/test.h>
 
 #include <aw/script/ast/declaration.h>
-#include <aw/script/semantic/resolve_dependencies.h>
+#include <aw/script/semantic/dependency_resolver.h>
 #include <aw/script/lexer/source_manager.h>
 #include <aw/script/utility/wrap.h>
 
