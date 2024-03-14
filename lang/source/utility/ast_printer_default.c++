@@ -425,6 +425,7 @@ void ast_printer_default::print_expr(const ast::call_expression& expr)
 {
 	start("call", inline_scope);
 	print_identifier(expr.func);
+	if (!expr.args.empty())
 	{
 		start("args", inline_scope);
 		for (const auto& arg : expr.args)
