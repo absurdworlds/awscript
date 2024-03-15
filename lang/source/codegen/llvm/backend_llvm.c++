@@ -847,7 +847,7 @@ auto mangle_string(std::string_view str) -> std::string
 	{
 		if (i > max_str_len)
 			break;
-		if (isAlnum(c)) {
+		if (isalnum(c)) {
 			mstr += c;
 			++i;
 		}
