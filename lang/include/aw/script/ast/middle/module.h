@@ -12,7 +12,7 @@ enum class module_id;
 struct module_import {
 	module_id id;
 	bool import_all = false;
-	std::vector<std::string> symbols;
+	std::vector<ast::unqual_id> symbols;
 };
 
 // TODO: proper modules

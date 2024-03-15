@@ -47,6 +47,7 @@ aw_add_library(awscript-lang STATIC
 		source/parser/errors.h
 		source/semantic/context.h
 		source/semantic/convert_to_middle.h
+		source/semantic/dependency_scanner.h
 		source/semantic/resolve_references.h
 		source/semantic/type_inference.h
 		source/codegen/llvm/backend_llvm.h

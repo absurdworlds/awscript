@@ -3,17 +3,15 @@
 
 #include <aw/script/diag/diagnostics_engine.h>
 #include <aw/script/ast/declaration.h>
-#include <map>
-#include <set>
 
 namespace aw::script {
-
-struct dependency_map {
-	std::map<ast::unqual_id, dependency_map> modules;
-	std::set<ast::unqual_id> ids;
+struct module_depenency {
+	ast::identifier module_id;
+	bool import_all = false;
+	std::vector<ast::unqual_id> imported_ids;
 };
-
-auto resolve_dependencies(diagnostics_engine& diag, const ast::module& mod) -> dependency_map;
+auto get_module_dependencies(diagnostics_engine& diag, const ast::module& mod)
+	-> std::vector<module_depenency>;
 
 } // namespace aw::script
 

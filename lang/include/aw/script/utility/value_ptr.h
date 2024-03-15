@@ -4,7 +4,6 @@
 #include <memory>
 
 namespace aw::script {
-
 template<typename T>
 struct value_ptr : std::unique_ptr<T> {
 	using base = std::unique_ptr<T>;

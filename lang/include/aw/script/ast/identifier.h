@@ -21,6 +21,11 @@ inline bool operator==(const identifier& id, const std::string_view& sv)
 	return !id.is_qualified() && id.name == sv;
 }
 
+inline bool operator==(const identifier& lhs, const identifier& rhs)
+{
+	return lhs.path == rhs.path &&
+	       lhs.name == rhs.name;
+}
 inline bool operator<(const identifier& lhs, const identifier& rhs)
 {
 	if (lhs.path == rhs.path)
