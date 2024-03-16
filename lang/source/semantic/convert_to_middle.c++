@@ -388,7 +388,7 @@ struct convert_to_middle_visitor {
 				.rhs = wrap(convert_expr(*top->rhs)),
 			};
 
-			lhs = current_expr.rhs;
+			lhs = clone(current_expr.rhs);
 
 			if (!expr.lhs) {
 				expr = std::move(current_expr);

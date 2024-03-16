@@ -53,7 +53,14 @@ struct value_ptr : std::unique_ptr<T> {
 			self.reset(new T(*other));
 		return *this;
 	}
+
+	friend auto clone(const value_ptr<T>& ptr) -> value_ptr<T>
+	{
+		return ptr;
+	}
 };
+
+
 
 } // namespace aw::script
 
