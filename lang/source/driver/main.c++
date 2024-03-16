@@ -9,6 +9,7 @@
 #include "aw/script/semantic/semantic_analyzer.h"
 #include "aw/script/utility/ast_printer_default.h"
 
+#include <aw/types/array_view.h>
 #include <aw/utility/string/join.h>
 #include <aw/io/file.h>
 #include <aw/config.h>
@@ -20,9 +21,51 @@
 
 namespace aw::script::driver {
 
+auto parse_file(
+	source_manager& srcman,
+	diagnostics_engine& diag,
+	std::string_view input)
+	-> ast::module
+{
+	lexer lexer(srcman.get_buffer(srcman.add_file(input)));
+
+	aw::script::parser parser({
+		.lexer = lexer,
+		.diag = diag
+	});
+
+	ast::module mod{
+		.path = std::string(input),
+	};
+
+	while(true) {
+		auto decl = parser.parse_top_level();
+		if (!decl)
+			break;
+		mod.decls.push_back(std::move(*decl));
+	}
+
+	return mod;
+}
+
+auto parse_files(
+	source_manager& srcman,
+	diagnostics_engine& diag,
+	array_view<std::string> file_list)
+	-> std::vector<ast::module>
+{
+	std::vector<ast::module> modules;
+
+	for (const auto& input : file_list)
+	{
+		modules.push_back(parse_file(srcman, diag, input));
+	}
+
+	return modules;
+}
+
 int run_compiler(const options& options)
 {
-
 	if (options.input_files.empty())
 	{
 		// TODO: use diagnostics_engine?
@@ -34,29 +77,7 @@ int run_compiler(const options& options)
 
 	diagnostics_engine diag(srcman);
 
-	std::vector<ast::module> in_modules;
-
-	for (const auto& input : options.input_files)
-	{
-		lexer lexer(srcman.get_buffer(srcman.add_file(input)));
-
-		aw::script::parser parser({
-			.lexer = lexer,
-			.diag = diag
-		});
-
-		auto& mod = in_modules.emplace_back(ast::module{
-			.path = input,
-		});
-
-		while(true) {
-			auto decl = parser.parse_top_level();
-			if (!decl)
-				break;
-			callbacks->process_declaration(*decl);
-			mod.decls.push_back(std::move(*decl));
-		}
-	}
+	std::vector<ast::module> in_modules = parse_files(srcman, diag, options.input_files);
 
 	if (options.dump_ast) {
 		ast_printer_default printer;
