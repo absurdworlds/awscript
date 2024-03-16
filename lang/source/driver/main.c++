@@ -20,14 +20,8 @@
 
 namespace aw::script::driver {
 
-static callbacks null_callbacks;
-
-int run_compiler(const options& options, callbacks* callbacks)
+int run_compiler(const options& options)
 {
-	// If callbacks are not specified, use empty callbacks
-	// so that we don't have to make a bunch of null checks
-	if (!callbacks)
-		callbacks = &null_callbacks;
 
 	if (options.input_files.empty())
 	{

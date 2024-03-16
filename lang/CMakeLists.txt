@@ -43,7 +43,6 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h
 		include/aw/script/driver/options.h
-		include/aw/script/driver/callbacks.h
 		source/parser/errors.h
 		source/semantic/context.h
 		source/semantic/convert_to_middle.h
