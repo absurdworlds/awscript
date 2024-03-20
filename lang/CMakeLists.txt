@@ -79,7 +79,8 @@ aw_add_library(awscript-lang STATIC
 target_link_libraries(awscript-lang
 	PUBLIC
 		aw::io
-		aw::string)
+		aw::string
+		aw::platform)
 
 set (AWSCRIPT_USE_LLVM ON)
 if (AWSCRIPT_USE_LLVM)

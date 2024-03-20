@@ -9,15 +9,16 @@
 #include "aw/script/semantic/semantic_analyzer.h"
 #include "aw/script/utility/ast_printer_default.h"
 
-#include <aw/types/array_view.h>
-#include <aw/utility/string/join.h>
-#include <aw/io/file.h>
 #include <aw/config.h>
+#include <aw/io/file.h>
+#include <aw/types/array_view.h>
+#include <aw/platform/process.h>
+#include <aw/utility/string/join.h>
 
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <map>
-#include <cstdlib>
 
 namespace aw::script::driver {
 
@@ -150,19 +151,27 @@ int run_compiler(const options& options)
 	{
 		// This is a big TODO, I need to figure out how to find the linker,
 		// and how to know what to pass to it
-#if 0
-		std::string linker_invocation = "ld -m elf_x86_64 -pie -dynamic-linker /usr/lib/ld-linux-x86-64.so.2 -lc";
-		linker_invocation += "-o ";
-		linker_invocation += output.stem();
-		linker_invocation += " /usr/lib/Scrt1.o ";
-		linker_invocation += output;
-#endif
-
 #if AW_PLATFORM != AW_PLATFORM_WIN32
-		std::string linker_invocation = "g++ -o";
-		linker_invocation += output_file;
-		linker_invocation += ' ';
-		linker_invocation += aw::string::join(objects, " ");
+	#if !defined(AW_USE_LD)
+		std::string linker = "g++";
+		std::vector<std::string> linker_args = {
+			"-o", output_file,
+		};
+	#else
+		std::string linker = "ld";
+		std::vector<std::string> linker_args = {
+			"-m", "elf_x86_64",
+			"-pie",
+			"-dynamic-linker", "/usr/lib/ld-linux-x86-64.so.2",
+			"-lc"
+			"-o ", output_file,
+			" /usr/lib/Scrt1.o"
+		};
+	#endif
+
+		linker_args.insert(begin(linker_args), begin(objects), end(objects));
+
+		platform::spawn(linker, linker_args);
 #else
 		std::string linker_invocation = "link.exe";
 		linker_invocation += " /machine:x64 /subsystem:console ";
@@ -174,10 +183,10 @@ int run_compiler(const options& options)
 		linker_invocation += " msvcrtd.lib kernel32.lib legacy_stdio_definitions.lib";
 		//linker_invocation += " msvcrt.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib ";
 		//linker_invocation += " shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ";
-#endif
 
-		// TODO: at the very least, replace system() with a proper invocation
+		// TODO: implement spawn() for win32
 		system(linker_invocation.c_str());
+#endif
 
 		for (const auto& object : objects)
 		{
