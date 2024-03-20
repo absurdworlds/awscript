@@ -64,6 +64,16 @@ auto parse_files(
 	return modules;
 }
 
+void dump_ast(array_view<ast::module> modules)
+{
+	ast_printer_default printer;
+	for (const auto& mod : modules)
+	{
+		for (const auto& decl : mod.decls)
+			printer.print_declaration(decl);
+	}
+}
+
 int run_compiler(const options& options)
 {
 	if (options.input_files.empty())
@@ -79,14 +89,8 @@ int run_compiler(const options& options)
 
 	std::vector<ast::module> in_modules = parse_files(srcman, diag, options.input_files);
 
-	if (options.dump_ast) {
-		ast_printer_default printer;
-		for (const auto& in_mod : in_modules)
-		{
-			for (const auto& decl : in_mod.decls)
-				printer.print_declaration(decl);
-		}
-	}
+	if (options.dump_ast)
+		dump_ast(in_modules);
 
 	if (diag.has_error())
 		return EXIT_FAILURE;
