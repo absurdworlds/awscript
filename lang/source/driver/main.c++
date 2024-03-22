@@ -1,3 +1,5 @@
+#include "linker.h"
+
 #include "aw/script/driver/main.h"
 
 #include "aw/script/codegen/backend.h"
@@ -9,10 +11,8 @@
 #include "aw/script/semantic/semantic_analyzer.h"
 #include "aw/script/utility/ast_printer_default.h"
 
-#include <aw/config.h>
 #include <aw/io/file.h>
 #include <aw/types/array_view.h>
-#include <aw/platform/process.h>
 #include <aw/utility/string/join.h>
 
 #include <cstdlib>
@@ -149,44 +149,11 @@ int run_compiler(const options& options)
 
 	if (options.mode == mode::link)
 	{
-		// This is a big TODO, I need to figure out how to find the linker,
-		// and how to know what to pass to it
-#if AW_PLATFORM != AW_PLATFORM_WIN32
-	#if !defined(AW_USE_LD)
-		std::string linker = "g++";
-		std::vector<std::string> linker_args = {
-			"-o", output_file,
-		};
-	#else
-		std::string linker = "ld";
-		std::vector<std::string> linker_args = {
-			"-m", "elf_x86_64",
-			"-pie",
-			"-dynamic-linker", "/usr/lib/ld-linux-x86-64.so.2",
-			"-lc"
-			"-o ", output_file,
-			" /usr/lib/Scrt1.o"
-		};
-	#endif
-
-		linker_args.insert(begin(linker_args), begin(objects), end(objects));
-
-		platform::spawn(linker, linker_args);
-#else
-		std::string linker_invocation = "link.exe";
-		linker_invocation += " /machine:x64 /subsystem:console ";
-		linker_invocation += " /manifest /manifest:embed ";
-		linker_invocation += " /debug /OUT:";
-		linker_invocation += output_file;
-		linker_invocation += ' ';
-		linker_invocation += aw::string::join(objects, " ");
-		linker_invocation += " msvcrtd.lib kernel32.lib legacy_stdio_definitions.lib";
-		//linker_invocation += " msvcrt.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib ";
-		//linker_invocation += " shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ";
-
-		// TODO: implement spawn() for win32
-		system(linker_invocation.c_str());
-#endif
+		run_linker({
+			.linker = default_linker(),
+			.output_file = output_file,
+			.objects = objects,
+		});
 
 		for (const auto& object : objects)
 		{

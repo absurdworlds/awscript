@@ -43,6 +43,7 @@ aw_add_library(awscript-lang STATIC
 		include/aw/script/codegen/optimization_level.h
 		include/aw/script/driver/main.h
 		include/aw/script/driver/options.h
+		source/driver/linker.h
 		source/parser/errors.h
 		source/semantic/context.h
 		source/semantic/convert_to_middle.h
@@ -56,6 +57,8 @@ aw_add_library(awscript-lang STATIC
 		source/lexer/lexer.c++
 		source/diag/messages.c++
 		source/diag/diagnostics_engine.c++
+		source/driver/linker.c++
+		source/driver/main.c++
 		source/ast/statement.c++
 		source/parser/parser.c++
 		source/parser/parser_decl.c++
@@ -72,7 +75,6 @@ aw_add_library(awscript-lang STATIC
 		source/codegen/llvm/optimizer_llvm.c++
 		source/codegen/llvm/gen_variable.c++
 		source/codegen/llvm/gen_cast.c++
-		source/driver/main.c++
 		source/utility/ast_printer_default.c++
 	)
 

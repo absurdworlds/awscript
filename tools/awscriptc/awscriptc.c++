@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 			options.gen_debug_info = true;
 		} else if (in(name, "n", "dry-run")) {
 			options.mode = aw::script::driver::mode::dry_run;
-		} else if (in(name, "c")) {
+		} else if (in(name, "c", "no-link")) {
 			options.mode = aw::script::driver::mode::make_obj;
 		} else if (in(name, "O")) {
 			if (value.empty())
