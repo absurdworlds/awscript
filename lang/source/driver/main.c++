@@ -19,7 +19,6 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <map>
 #include <chrono>
 
 namespace aw::script::driver {
@@ -104,16 +103,6 @@ auto parse_files(
 	return modules;
 }
 
-void compile_modules(backend& backend, const std::vector<middle::module>& modules)
-{
-	stopwatch _("backend");
-
-	for (const auto& mod : modules)
-	{
-		backend.create_module(mod);
-		backend.optimize_module();
-	}
-}
 
 void dump_ast(array_view<ast::module> modules)
 {
@@ -122,6 +111,42 @@ void dump_ast(array_view<ast::module> modules)
 	{
 		for (const auto& decl : mod.decls)
 			printer.print_declaration(decl);
+	}
+}
+
+// Temporary
+auto create_module_tree(
+	diagnostics_engine& diag,
+	const std::vector<ast::module>& in_modules)
+	-> module_tree
+{
+	stopwatch _("semantic_analyzer");
+
+	module_tree mtree;
+
+	semantic_analyzer analyzer(diag);
+
+	for (auto& in_mod : in_modules)
+	{
+		auto input_path = std::filesystem::path(in_mod.path);
+
+		auto mod = analyzer.lower(mtree, in_mod);
+		mod.name = input_path.stem();
+		mod.dir_path = input_path.parent_path();
+		mtree.add_module(std::move(mod));
+	}
+
+	return mtree;
+}
+
+void compile_modules(backend& backend, const module_tree& mtree)
+{
+	stopwatch _("backend");
+
+	for (const auto& [mod,_] : mtree.modules)
+	{
+		backend.create_module(mod);
+		backend.optimize_module();
 	}
 }
 
@@ -155,19 +180,12 @@ int run_compiler(const options& options)
 	if (diag.has_error())
 		return EXIT_FAILURE;
 
-	// Temporary
-	semantic_analyzer analyzer(diag);
+	in_modules = resolve_deps_timed(diag, std::move(in_modules));
 
-	std::vector<middle::module> modules;
-	for (auto& in_mod : in_modules)
-	{
-		auto input_path = std::filesystem::path(in_mod.path);
+	if (diag.has_error())
+		return EXIT_FAILURE;
 
-		auto mod = analyzer.lower(in_mod);
-		mod.name = input_path.stem();
-		mod.dir_path = input_path.parent_path();
-		modules.push_back(std::move(mod));
-	}
+	module_tree mtree = create_module_tree(diag, in_modules);
 
 	if (diag.has_error())
 		return EXIT_FAILURE;
@@ -179,7 +197,7 @@ int run_compiler(const options& options)
 	backend->set_target();
 	backend->set_optimization_level(options.opt_level);
 
-	compile_modules(*backend, modules);
+	compile_modules(*backend, mtree);
 
 	if (options.mode == mode::dry_run)
 		return EXIT_SUCCESS;

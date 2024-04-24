@@ -8,8 +8,6 @@
 
 #include <aw/utility/ranges/paired.h>
 
-#include <iostream>
-
 namespace aw::script {
 using namespace middle;
 

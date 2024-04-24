@@ -9,19 +9,17 @@ namespace aw::script {
 
 class scope;
 class context;
+class module_tree;
 
 // TODO: split into "ast_lowering" and "type_check"
 class semantic_analyzer {
 public:
 	semantic_analyzer(diagnostics_engine& diag);
 
-	auto lower(const ast::module& in_mod) -> middle::module;
+	auto lower(const module_tree& mtree, const ast::module& in_mod) -> middle::module;
 
 
 private:
-	// TODO: should be stored in the builtin_module, not here
-	std::vector<std::unique_ptr<ir::type>> builtin_types;
-
 	diagnostics_engine& diag;
 
 	void visit(context& ctx, middle::declaration& decl);
