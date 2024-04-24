@@ -37,6 +37,8 @@ int main(int argc, char** argv)
 			if (value.empty())
 				value = parser.get_param();
 			options.output_file = value;
+		} else if (in(name, "P", "profile")) {
+			options.profile_compiler = true;
 		} else if (in(name, "dump-ast")) {
 			options.dump_ast = true;
 		} else if (in(name, "dump-sem-tree")) {

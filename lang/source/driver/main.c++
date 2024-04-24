@@ -14,13 +14,50 @@
 #include <aw/io/file.h>
 #include <aw/types/array_view.h>
 #include <aw/utility/string/join.h>
+#include <aw/utility/on_scope_exit.h>
 
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <chrono>
 
 namespace aw::script::driver {
+using clock = std::chrono::steady_clock;
+struct timing {
+	clock::time_point start;
+	clock::time_point end;
+};
+
+std::map<std::string_view, timing> timings;
+
+struct stopwatch {
+	using clock = std::chrono::steady_clock;
+
+	stopwatch(std::string_view name)
+		: name(name)
+		, start(clock::now())
+	{
+	}
+
+	~stopwatch()
+	{
+		timings[name] = {
+			.start = start,
+			.end = clock::now(),
+		};
+	}
+
+	std::string_view name;
+	clock::time_point start;
+};
+
+void print_duration(std::string_view title, timing t)
+{
+	using duration = std::chrono::duration<double, std::micro>;
+	std::cout << title << ": ";
+	std::cout << duration(t.end - t.start).count() << "us\n";
+}
 
 auto parse_file(
 	source_manager& srcman,
@@ -55,6 +92,8 @@ auto parse_files(
 	array_view<std::string> file_list)
 	-> std::vector<ast::module>
 {
+	stopwatch _("parse_files");
+
 	std::vector<ast::module> modules;
 
 	for (const auto& input : file_list)
@@ -63,6 +102,17 @@ auto parse_files(
 	}
 
 	return modules;
+}
+
+void compile_modules(backend& backend, const std::vector<middle::module>& modules)
+{
+	stopwatch _("backend");
+
+	for (const auto& mod : modules)
+	{
+		backend.create_module(mod);
+		backend.optimize_module();
+	}
 }
 
 void dump_ast(array_view<ast::module> modules)
@@ -77,6 +127,15 @@ void dump_ast(array_view<ast::module> modules)
 
 int run_compiler(const options& options)
 {
+	auto print_timings_guard = call_on_exit([&options] {
+		if (!options.profile_compiler)
+			return;
+		for (const auto& [title, timing] : timings)
+		{
+			print_duration(title, timing);
+		}
+	});
+
 	if (options.input_files.empty())
 	{
 		// TODO: use diagnostics_engine?
@@ -113,9 +172,6 @@ int run_compiler(const options& options)
 	if (diag.has_error())
 		return EXIT_FAILURE;
 
-	if (options.mode == mode::dry_run)
-		return EXIT_SUCCESS;
-
 	auto backend = aw::script::backend::create("LLVM", diag);
 	if (!backend)
 		return EXIT_FAILURE;
@@ -123,21 +179,22 @@ int run_compiler(const options& options)
 	backend->set_target();
 	backend->set_optimization_level(options.opt_level);
 
+	compile_modules(*backend, modules);
+
+	if (options.mode == mode::dry_run)
+		return EXIT_SUCCESS;
+
+	//TODO: write objects to a temporaty directory when mode == mode::link
+	//if (options.mode == mode::make_obj)
 	std::vector<std::string> objects;
-	for (const auto& mod : modules)
+	for (const auto& [mod,_] : mtree.modules)
 	{
 		auto dir_path = std::filesystem::path(mod.dir_path);
-		backend->create_module(mod);
-		backend->optimize_module();
-		//TODO: write objects to a temporaty directory when mode == mode::link
-		//if (options.mode == mode::make_obj)
-		{
-			auto output = (dir_path/mod.name).replace_extension(".o").generic_string();
-			backend->write_object_file(output);
-			objects.push_back(output);
-			if (options.dump_ir)
-				backend->dump_ir();
-		}
+		auto output = (dir_path/mod.name).replace_extension(".o").generic_string();
+		backend->write_object_file(output);
+		objects.push_back(output);
+		if (options.dump_ir)
+			backend->dump_ir();
 	}
 
 	std::string output_file = options.output_file;

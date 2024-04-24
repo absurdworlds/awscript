@@ -32,6 +32,7 @@ struct options {
 	bool dump_ast = false;
 	bool dump_sem = false;
 	bool dump_ir = false;
+	bool profile_compiler = false;
 };
 
 } // namespace aw::script::driver
