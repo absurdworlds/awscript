@@ -1,14 +1,7 @@
-/*
- * Copyright (C) 2022-2023 Hudd <haddayn@gmail.com>
- *
- * License LGPLv3 or later:
- * GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl-3.0.html>
- * This is free software: you are free to change and redistribute it.
- * There is NO WARRANTY, to the extent permitted by law.
- */
 #include <aw/script/parser/parser.h>
 #include <aw/script/utility/wrap.h>
 
+#include "keywords.h"
 #include "errors.h"
 
 using namespace std::string_view_literals;
@@ -74,7 +67,7 @@ auto parser::parse_declaration(decl_context context) -> std::optional<ast::decla
 	if (match_id("const"sv))
 		return parse_variable_declaration(ast::access::constant);
 
-	if (match_id("function"sv))
+	if (match_id(keywords::function))
 		return parse_function_declaration();
 
 	if (match_id("struct"sv))

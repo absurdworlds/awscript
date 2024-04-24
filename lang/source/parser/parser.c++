@@ -14,6 +14,7 @@
 
 #include <charconv>
 
+#include "keywords.h"
 #include "errors.h"
 
 using namespace std::string_view_literals;
@@ -297,7 +298,7 @@ auto parser::parse_statement_inner() -> std::optional<ast::statement>
 		return parse_statement_block();
 
 	case token_kind::identifier:
-		if (tok == "function"sv)
+		if (tok == keywords::function)
 			return parse_nested_function();
 		if (tok == "const"sv)
 			return parse_local_variable(ast::access::constant);
@@ -388,7 +389,7 @@ auto parser::parse_return_statement() -> std::optional<ast::statement>
 
 auto parser::parse_nested_function() -> std::optional<ast::decl_statement>
 {
-	advance("function");
+	advance(keywords::function);
 
 	auto func = parse_function_declaration();
 	if (func)

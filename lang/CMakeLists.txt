@@ -61,6 +61,7 @@ aw_add_library(awscript-lang STATIC
 		source/driver/linker.c++
 		source/driver/main.c++
 		source/ast/statement.c++
+		source/parser/keywords.h
 		source/parser/parser.c++
 		source/parser/parser_decl.c++
 		source/parser/operators.c++
