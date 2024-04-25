@@ -10,6 +10,8 @@ namespace aw {
 // and fails with errors
 template<typename T>
 struct noncopyable : T {
+	using T::T;
+
 	noncopyable() = default;
 
 	~noncopyable() = default;
