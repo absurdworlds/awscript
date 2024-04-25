@@ -545,7 +545,7 @@ auto backend_llvm::gen(const value_ptr<middle::expression>& expr) -> llvm::Value
 
 auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 {
-	auto value = std::visit([this] (auto&& expr) -> llvm::Value* { return gen(expr); }, expr);
+	auto value = gen_expr(expr);
 	if (!value)
 		return value;
 
@@ -569,10 +569,15 @@ auto backend_llvm::gen_lvalue(const std::unique_ptr<middle::expression>& expr) -
 	return expr ? gen_lvalue(*expr) : nullptr;
 }
 
+auto backend_llvm::gen_expr(const middle::expression& expr) -> llvm::Value*
+{
+	const auto visitor = [this] (auto&& expr) -> llvm::Value* { return gen(expr); };
+	return std::visit(visitor, expr);;
+}
 
 auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 {
-	auto value = std::visit([this] (auto&& expr) -> llvm::Value* { return gen(expr); }, expr);
+	auto value = gen_expr(expr);
 	if (!value)
 		return value;
 
@@ -757,21 +762,34 @@ auto get_element_index(const middle::struct_decl& decl, std::string_view name) -
 	return index;
 }
 
+auto is_lvalue(llvm::Value* value) -> llvm::Value*
+{
+	auto* type = value->getType();
+	return type->isPointerTy() ? value : nullptr;
+}
+
 auto backend_llvm::gen(const middle::field_expression& expr) -> llvm::Value*
 {
-	auto lhs = gen_lvalue(expr.lhs);
+	assert( expr.lhs );
+	auto lhs = gen_expr(*expr.lhs);
 	if (!lhs)
 		return nullptr;
 
 	auto decl = expr.type->decl;
-	auto type = llvm::StructType::getTypeByName(context, decl->name);
+	const uint32_t index = get_element_index(*decl, expr.name);
 
-	int index = get_element_index(*decl, expr.name);
+	if (is_lvalue(lhs)) {
+		auto type = llvm::StructType::getTypeByName(context, decl->name);
 
-	return builder.CreateGEP(
-		type, lhs,
-		{ builder.getInt32(0), builder.getInt32(index) },
-		lhs->getName() + "." + expr.name);
+		return builder.CreateGEP(
+			type, lhs,
+			{ builder.getInt32(0), builder.getInt32(index) },
+			lhs->getName() + "." + expr.name);
+	} else {
+		return builder.CreateExtractValue(
+			lhs, { index }, lhs->getName() + "." + expr.name);
+
+	}
 }
 
 auto backend_llvm::gen(const middle::subscript_expression& expr) -> llvm::Value*
