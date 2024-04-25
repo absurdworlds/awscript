@@ -9,6 +9,7 @@ using namespace middle;
 struct resolver {
 	context& ctx;
 	diagnostics_engine& diag;
+	const module_tree& mtree;
 
 	/*
 	 * Declarations
@@ -142,8 +143,22 @@ struct resolver {
 		for (auto& arg : call.args)
 			visit_expr(arg);
 
-		assert(call.func_name.path.empty()); // TODO
-		call.func = ctx.current_scope()->find_func(call.func_name.name);
+		if (call.func_name.path.empty()) {
+			call.func = ctx.current_scope()->find_func(call.func_name.name);
+		} else {
+			// TODO
+			auto mod = mtree.find_module(call.func_name.base());
+			if (mod) {
+				for (const auto& decl : mod->decls) {
+					if (auto* func = std::get_if<middle::function>(decl.get())) {
+						if (func->name == call.func_name.name) {
+							call.func = func;
+						}
+					}
+				}
+			}
+		}
+
 		if (!call.func)
 			error(diag, diagnostic_id::undefined_function, location(), call.func_name);
 	}
@@ -203,9 +218,13 @@ struct resolver {
 	void visit_expr(string_literal& /*expr*/) {}
 };
 
-void resolve_references(context& ctx, diagnostics_engine& diag, module& mod)
+void resolve_references(const module_tree& mtree, context& ctx, diagnostics_engine& diag, module& mod)
 {
-	resolver visitor{ .ctx = ctx, .diag = diag };
+	resolver visitor{
+		.ctx = ctx,
+		.diag = diag,
+		.mtree = mtree,
+	};
 	for (auto& decl : mod.decls)
 		visitor.visit_decl(*decl);
 }

@@ -5,6 +5,7 @@
 
 #include "aw/script/semantic/module_tree.h"
 #include "aw/script/semantic/semantic_analyzer.h"
+#include "aw/script/semantic/dependency_resolver.h"
 
 #include <aw/script/semantic/scope.h>
 #include <aw/script/utility/wrap.h>
@@ -36,6 +37,21 @@ auto semantic_analyzer::lower(const module_tree& mtree, const ast::module& in_mo
 		ctx.default_scope.add_type(type->name, type.get());
 	}
 
+	// TODO
+	std::vector<std::string> temp_tnames;
+	auto deps = get_module_dependencies(diag, in_mod);
+	for (auto& dep : deps)
+	{
+		auto mod = mtree.find_module(dep.module_id);
+		if (!mod)
+			continue;
+		for (const auto& type : mod->types) {
+			// TODO
+			temp_tnames.push_back(mod->name + "::" + type->name);
+			ctx.default_scope.add_type(temp_tnames.back(), type.get());
+		}
+	}
+
 	middle::module mod = convert_to_middle(ctx, diag, in_mod);
 
 	for (const auto& decl : mod.decls)
@@ -48,7 +64,8 @@ auto semantic_analyzer::lower(const module_tree& mtree, const ast::module& in_mo
 		//if (auto decl = std::get_if<middle::struct_decl>(decl_ptr)>)
 	}
 
-	resolve_references(ctx, diag, mod);
+	resolve_references(mtree, ctx, diag, mod);
+
 
 	for (const auto& decl_ptr : mod.decls)
 	{

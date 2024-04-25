@@ -14,6 +14,15 @@ struct identifier {
 	unqual_id name;
 
 	bool is_qualified() const { return !path.empty(); }
+	ast::identifier base() const
+	{
+		ast::identifier ret {
+			.path = path,
+			.name = path.back(),
+		};
+		ret.path.pop_back();
+		return ret;
+	}
 };
 
 inline bool operator==(const identifier& id, const std::string_view& sv)

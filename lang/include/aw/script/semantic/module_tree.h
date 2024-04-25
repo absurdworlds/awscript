@@ -14,16 +14,21 @@ public:
 	void add_module(middle::module mod)
 	{
 		// TODO
+		map.emplace(ast::identifier{ .name = mod.name }, modules.size());
 		modules.push_back({ std::move(mod) });
 	}
 
-	struct node {
-		middle::module mod;
-		std::map<std::string, node> submodules;
-	};
+	auto find_module(const ast::identifier& id) const -> const middle::module*
+	{
+		auto it = map.find(id);
+		if (it == map.end())
+			return nullptr;
+		return &modules[it->second];
+	}
 
 	middle::module preamble;
-	std::vector<node> modules;
+	std::map<ast::identifier, size_t> map;
+	std::vector<middle::module> modules;
 };
 
 } // namespace aw::script

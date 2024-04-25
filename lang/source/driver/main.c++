@@ -7,6 +7,7 @@
 #include "aw/script/lexer/lexer.h"
 #include "aw/script/lexer/source_manager.h"
 #include "aw/script/parser/parser.h"
+#include "aw/script/semantic/dependency_resolver.h"
 #include "aw/script/semantic/module_tree.h"
 #include "aw/script/semantic/semantic_analyzer.h"
 #include "aw/script/utility/ast_printer_default.h"
@@ -104,6 +105,59 @@ auto parse_files(
 }
 
 
+struct dependency_resolver {
+	size_t n = 0;
+	std::map<ast::identifier, size_t> map;
+	std::vector<ast::module> deps;
+};
+
+
+void resolve_dependencies(
+	dependency_resolver& r,
+	source_manager& srcman,
+	diagnostics_engine& diag,
+	const ast::module& module)
+{
+	auto deps = get_module_dependencies(diag, module);
+
+	for (auto dep : deps) {
+		if (r.map.find(dep.module_id) != r.map.end())
+			continue;
+		auto path = std::filesystem::path(module.path).parent_path().generic_string();
+		if (!path.empty())
+			path += "/";
+		path += aw::string::join(dep.module_id.path, "/");
+		if (!path.empty())
+			path += "/";
+		path += dep.module_id.name;
+		path += ".aw";
+		auto mod = parse_file(srcman, diag, path);
+
+		resolve_dependencies(r, srcman, diag, mod);
+
+		r.deps.push_back(std::move(mod));
+	}
+}
+
+auto resolve_dependencies(
+	source_manager& srcman,
+	diagnostics_engine& diag,
+	std::vector<ast::module> modules)
+	-> std::vector<ast::module>
+{
+	stopwatch _("resolve_deps");
+	dependency_resolver r;
+	for (const auto& module : modules) {
+		r.map.emplace(ast::identifier{ .name = std::string(module.name) }, r.n++);
+	}
+	for (auto& module : modules)
+	{
+		resolve_dependencies(r, srcman, diag, module);
+		r.deps.push_back(std::move(module));
+	}
+	return std::move(r.deps);
+}
+
 void dump_ast(array_view<ast::module> modules)
 {
 	ast_printer_default printer;
@@ -148,7 +202,7 @@ auto compile_modules(backend& backend, const module_tree& mtree, const options& 
 	backend.set_optimization_level(options.opt_level);
 
 	std::vector<std::string> objects;
-	for (const auto& [mod,_] : mtree.modules)
+	for (const auto& mod : mtree.modules)
 	{
 		backend.create_module(mod);
 		backend.optimize_module();
@@ -198,7 +252,7 @@ int run_compiler(const options& options)
 	if (diag.has_error())
 		return EXIT_FAILURE;
 
-	in_modules = resolve_deps_timed(diag, std::move(in_modules));
+	in_modules = resolve_dependencies(srcman, diag, std::move(in_modules));
 
 	if (diag.has_error())
 		return EXIT_FAILURE;
