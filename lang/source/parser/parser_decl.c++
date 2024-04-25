@@ -126,6 +126,8 @@ auto parser::parse_initializer_field() -> std::optional<ast::struct_literal::fie
 			ast::struct_literal::named :
 			ast::struct_literal::numbered;
 
+		advance();
+
 		expect(token_kind::equal);
 	}
 
@@ -288,6 +290,9 @@ bool parser::parse_variadic_parameter(ast::function& func)
 
 auto parser::parse_variable_start() -> std::optional<ast::access>
 {
+	if (tok == token_kind::ellipsis)
+		return ast::access::constant;
+
 	if (tok != token_kind::identifier)
 		return {};
 	if (match_id("var"sv))

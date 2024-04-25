@@ -201,6 +201,7 @@ std::optional<size_t> parser::parse_usize()
 
 	// TODO: bases
 	auto result = std::from_chars(tok.data.begin(), tok.data.end(), number, 10);
+	assert(result.ec == std::errc{});
 	advance();
 
 	return number;
@@ -377,11 +378,10 @@ auto parser::parse_return_statement() -> std::optional<ast::statement>
 	advance("return");
 
 	ast::return_statement stmt;
-	if (!match(token_kind::semicolon))
-	{
+	if (match(token_kind::l_brace)) {
+		stmt.value = wrap(parse_struct_initializer());
+	} else if (!match(token_kind::semicolon)) {
 		stmt.value = wrap(parse_expression());
-		if (!stmt.value)
-			return {};
 	}
 
 	return stmt;
@@ -475,6 +475,8 @@ auto parser::parse_postfix_expression(ast::expression lhs) -> ast::expression
 	while (true) {
 		if (tok == token_kind::l_square)
 			lhs = parse_array_subscript(std::move(lhs));
+		if (tok == token_kind::dot)
+			lhs = parse_field_expression(std::move(lhs));
 		else
 			break;
 	}
@@ -504,6 +506,8 @@ auto parser::parse_unary_expression() -> std::optional<ast::expression>
 
 auto parser::parse_field_expression(ast::expression lhs) -> ast::expression
 {
+	advance(token_kind::dot);
+
 	auto name = parse_identifier();
 	if (!name)
 		return {};
@@ -536,8 +540,8 @@ auto parser::parse_binary_expression(ast::expression lhs, precedence min_prec) -
 		auto op = parse_binary_operator(tok);
 		assert(op && "token_precedence implemented incorrectly!");
 
-		if (op == ast::binary_operator::access)
-			return parse_field_expression(std::move(lhs));
+		// TODO: remove it from binops
+		assert (op != ast::binary_operator::access);
 
 		auto rhs = parse_postfix_expression();
 		if (!rhs) {

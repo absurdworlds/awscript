@@ -9,7 +9,6 @@
 #ifndef aw_script_parser_h
 #define aw_script_parser_h
 
-#include <memory>
 #include <optional>
 
 #include <aw/script/lexer/lexer.h>
