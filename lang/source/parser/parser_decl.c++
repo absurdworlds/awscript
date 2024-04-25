@@ -79,6 +79,9 @@ auto parser::parse_declaration(decl_context context) -> std::optional<ast::decla
 	if (match_id("class"sv))
 		return parse_class_declaration();
 
+	// skip token to avoid looping
+	advance();
+
 	return error(diag, diagnostic_id::expected_declaration, tok);
 }
 
