@@ -3,9 +3,9 @@
 
 #include <string_view>
 
-namespace keywords {
+namespace aw::script::keywords {
 using namespace std::string_view_literals;
-constexpr auto function = "function"sv;
-} // namespace keywords
+constexpr auto function = "func"sv;
+} // namespace aw::script::keywords
 
 #endif // aw_script_parser_keywords_h

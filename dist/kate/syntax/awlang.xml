@@ -15,12 +15,14 @@
       <item>for</item>
       <item>true</item>
       <item>false</item>
+      <item>return</item>
     </list>
     <contexts>
       <context name="File" attribute="Normal Text" lineEndContext="#stay">
 
         <DetectChar attribute="String" context="String" char="&quot;"/>
 
+        <WordDetect attribute="Keyword" context="Function" String="func" />
         <WordDetect attribute="Keyword" context="Function" String="function" />
         <WordDetect attribute="Keyword" context="Struct"   String="struct" />
         <WordDetect attribute="Keyword" context="Type"     String="as" />
