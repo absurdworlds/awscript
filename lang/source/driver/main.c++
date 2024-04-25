@@ -139,15 +139,33 @@ auto create_module_tree(
 	return mtree;
 }
 
-void compile_modules(backend& backend, const module_tree& mtree)
+auto compile_modules(backend& backend, const module_tree& mtree, const options& options)
+	-> std::vector<std::string>
 {
 	stopwatch _("backend");
 
+	backend.set_target();
+	backend.set_optimization_level(options.opt_level);
+
+	std::vector<std::string> objects;
 	for (const auto& [mod,_] : mtree.modules)
 	{
 		backend.create_module(mod);
 		backend.optimize_module();
+		if (options.dump_ir)
+			backend.dump_ir();
+
+		//TODO: write objects to a temporaty directory when mode == mode::link
+		//if (options.mode == mode::make_obj)
+		if (options.mode != mode::dry_run) {
+			auto dir_path = std::filesystem::path(mod.dir_path);
+			auto output = (dir_path/mod.name).replace_extension(".o").generic_string();
+			backend.write_object_file(output);
+			objects.push_back(output);
+		}
 	}
+
+	return objects;
 }
 
 int run_compiler(const options& options)
@@ -194,26 +212,7 @@ int run_compiler(const options& options)
 	if (!backend)
 		return EXIT_FAILURE;
 
-	backend->set_target();
-	backend->set_optimization_level(options.opt_level);
-
-	compile_modules(*backend, mtree);
-
-	if (options.mode == mode::dry_run)
-		return EXIT_SUCCESS;
-
-	//TODO: write objects to a temporaty directory when mode == mode::link
-	//if (options.mode == mode::make_obj)
-	std::vector<std::string> objects;
-	for (const auto& [mod,_] : mtree.modules)
-	{
-		auto dir_path = std::filesystem::path(mod.dir_path);
-		auto output = (dir_path/mod.name).replace_extension(".o").generic_string();
-		backend->write_object_file(output);
-		objects.push_back(output);
-		if (options.dump_ir)
-			backend->dump_ir();
-	}
+	auto objects = compile_modules(*backend, mtree, options);
 
 	std::string output_file = options.output_file;
 	if (output_file.empty()) {
