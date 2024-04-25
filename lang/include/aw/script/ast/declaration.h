@@ -102,6 +102,7 @@ struct declaration : public declaration_variant {
 	using declaration_variant::declaration_variant;
 	using declaration_variant::operator=;
 	token start_token;
+	std::string comment;
 };
 
 } // namespace aw::script::ast

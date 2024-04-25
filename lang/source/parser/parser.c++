@@ -11,6 +11,7 @@
 
 #include <aw/algorithm/in.h>
 #include <aw/types/support/enum.h>
+#include <aw/utility/string/trim.h>
 
 #include <charconv>
 
@@ -41,10 +42,14 @@ bool parser::advance()
 	return true; // TODO:
 }
 
+
 void parser::skip_comments()
 {
 	while (in(tok, token_kind::line_comment, token_kind::block_comment))
+	{
+		comments.push_back(tok.data);
 		tok = lex.next();
+	}
 }
 
 token parser::skip_illegal_tokens()
@@ -67,6 +72,31 @@ bool parser::advance(string_view identifier)
 	assert(tok == token_kind::identifier &&
 	       tok == identifier);
 	return advance();
+}
+
+auto parser::pop_comment() -> std::string
+{
+	std::string ret;
+	for (auto comment : comments)
+	{
+		if (comment.starts_with("//"))
+		{
+			if (!ret.empty())
+				ret += '\n';
+			comment.remove_prefix(2);
+		}
+
+		// TODO: go line-by-line and remove stars
+		if (comment.starts_with("/*")) {
+			comment.remove_suffix(2);
+			if (comment.ends_with("*/"))
+				comment.remove_suffix(2);
+		}
+		ret += string::trim(comment);
+	}
+
+	comments.clear();
+	return ret;
 }
 
 struct parser::save_point {
@@ -279,6 +309,9 @@ auto parser::parse_statement() -> std::optional<ast::statement>
 	const auto start_tok = tok;
 
 	auto stmt = parse_statement_inner();
+
+	if (stmt)
+		stmt->comment = pop_comment();
 
 	// skip a token to avoid looping forever
 	if (!stmt && start_tok == tok)

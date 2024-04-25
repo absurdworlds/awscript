@@ -22,7 +22,7 @@
 
 namespace aw::script::ast {
 
-class expression;
+struct expression;
 
 struct paren_expression {
 	std::unique_ptr<expression> inner;

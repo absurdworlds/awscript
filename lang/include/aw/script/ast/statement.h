@@ -72,6 +72,7 @@ struct statement : statement_variant
 {
 	using statement_variant::statement_variant;
 	using statement_variant::operator=;
+	std::string comment;
 };
 
 } // namespace aw::script::ast

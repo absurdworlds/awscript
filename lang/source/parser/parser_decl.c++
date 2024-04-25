@@ -31,12 +31,15 @@ auto parser::parse_declaration(decl_type type) -> std::optional<ast::declaration
 	decl_context context{
 		.type = type,
 		.start_token = tok,
+		.comment = pop_comment(),
 	};
 
 	auto decl = parse_declaration(context);
 	if (!decl)
 		return decl;
 	decl->start_token = context.start_token;
+	decl->comment = context.comment;
+
 	return decl;
 }
 

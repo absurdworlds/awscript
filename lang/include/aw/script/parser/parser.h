@@ -32,7 +32,7 @@ public:
 		diagnostics_engine& diag;
 	};
 
-	parser(dependencies deps);
+	explicit parser(dependencies deps);
 
 	~parser() = default;
 
@@ -49,6 +49,7 @@ private:
 
 	void restore_state(save_point sp);
 
+	auto pop_comment() -> std::string;
 	void skip_comments();
 	token skip_illegal_tokens();
 	bool match(token_kind expected);
@@ -79,9 +80,11 @@ private:
 
 	// Declaration parse context,
 	// Holds information necessary for giving correct diagnostics
+	// TODO: perhaps I'll need for for things like "private" and "public"
 	struct decl_context {
 		decl_type type;
 		token start_token;
+		std::string comment;
 	};
 
 	auto parse_declaration(decl_type type) -> std::optional<ast::declaration>;
@@ -148,6 +151,9 @@ private:
 private:
 	/*! Current lookahead (peek) token. */
 	token tok;
+
+	/*! Stored comments */
+	std::vector<std::string_view> comments;
 
 	/*! Lexer which provides the stream of tokens */
 	lexer& lex;
