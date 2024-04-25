@@ -90,6 +90,8 @@ struct dependency_scanner {
 
 	void visit_decl(const ast::function& func)
 	{
+		visit_type(func.return_type);
+
 		for (auto& var : func.params)
 			visit_decl(var);
 
