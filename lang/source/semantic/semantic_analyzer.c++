@@ -155,6 +155,8 @@ void semantic_analyzer::visit(context& ctx, middle::struct_decl& decl)
 		.decl = &decl
 	};
 
+	type.fields.resize(decl.members.size());
+
 	ctx.push_scope();
 	for (auto [i,field] : ipairs(decl.members)) {
 		visit(ctx, *field);
