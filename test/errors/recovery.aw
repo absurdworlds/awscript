@@ -1,4 +1,4 @@
-function expressions()
+func expressions()
 {
 	// error: missing_comma
 	// ast: (call test (1 2))

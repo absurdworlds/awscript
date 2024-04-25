@@ -1,5 +1,5 @@
 foreign import: C {
-function printf(var str: u8*, var...args);
+func printf(var str: u8*, var...args);
 }
 
 struct test {
@@ -8,7 +8,7 @@ struct test {
 	z: double;
 };
 
-function main()
+func main()
 {
 	var x: int = 1000;
 	var f: f32 = 123.456;

@@ -1,5 +1,5 @@
 foreign import: C {
-function printf(str: u8*, var...args);
+func printf(str: u8*, var...args);
 }
 
 struct vec3 {
@@ -8,7 +8,7 @@ struct vec3 {
 	z: f64;
 }
 
-function main()
+func main()
 {
 	const v: vec3 = {
 		.x = 1.0,

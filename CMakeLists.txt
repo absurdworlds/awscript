@@ -23,3 +23,4 @@ option(AWSCRIPT_MAKE_TESTS "Build test executables" ON)
 
 add_subdirectory(lang)
 add_subdirectory(tools)
+add_subdirectory(test)

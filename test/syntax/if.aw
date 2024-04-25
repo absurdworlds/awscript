@@ -1,8 +1,8 @@
 foreign import: C {
-function printf(var str: u8*, var...args)
+func printf(var str: u8*, var...args)
 }
 
-function main()
+func main()
 {
 	const x = 1
 	const y = 2

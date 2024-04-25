@@ -1,8 +1,8 @@
 foreign import: C {
-function printf(str: u8*, var...args);
+func printf(str: u8*, var...args);
 }
 
-function main()
+func main()
 {
 	var x: int = 5000;
 

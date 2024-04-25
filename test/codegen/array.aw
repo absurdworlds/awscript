@@ -1,9 +1,9 @@
 foreign import: C {
-function printf(str: u8*, var...args);
-function puts(str: u8*);
+func printf(str: u8*, var...args);
+func puts(str: u8*);
 }
 
-function main()
+func main()
 {
 	var s: u8[] = { 65, 66, 67, 0x20, 68, 0xA, 0 };
 	printf("%s", &s);

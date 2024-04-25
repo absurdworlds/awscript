@@ -16,9 +16,9 @@ Test(basic_function) {
 	aw::script::source_manager srcman;
 
 	auto id = srcman.add_buffer(R"(
-	function test_func(var x: int) : int;
+	func test_func(var x: int) : int;
 
-	function add(var x: int, var y: int) : int
+	func add(var x: int, var y: int) : int
 	{
 		-x;
 		return x + y;

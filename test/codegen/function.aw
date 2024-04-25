@@ -1,18 +1,18 @@
 foreign import: C {
-function printf(str: u8*, ...);
+func printf(str: u8*, ...);
 }
 
-function void(var i : int)
+func void(var i : int)
 {
 	printf("test, %d\n", i);
 }
 
-function int() : int
+func int() : int
 {
 	return 1;
 }
 
-function main()
+func main()
 {
 	void(int());
 }

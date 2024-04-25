@@ -1,11 +1,11 @@
 module subscript;
 
 foreign import: C {
-function printf(str: u8*, var...args);
-function puts(str: u8*);
+func printf(str: u8*, var...args);
+func puts(str: u8*);
 }
 
-function main()
+func main()
 {
 	var x: int[3] = { 1,2,3 };
 
