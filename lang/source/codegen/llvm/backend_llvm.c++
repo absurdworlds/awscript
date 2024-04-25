@@ -686,7 +686,8 @@ auto gen_op(
 		return builder.CreateLogicalOr(lhs, rhs, "ortmp");
 
 	case assignment:
-		return builder.CreateStore(rhs, lhs);
+		builder.CreateStore(rhs, lhs);
+		return lhs;
 	}
 
 	return nullptr;
