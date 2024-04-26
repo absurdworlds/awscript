@@ -266,22 +266,24 @@ auto parser::parse_type() -> std::optional<ast::type>
 	if (!name)
 		return {};
 
-	if (match(token_kind::ast)) {
-		return ast::pointer_type{
-			.pointee = *name
-		};
-	}
-
-	if (match(token_kind::l_square)) {
-		return ast::array_type{
-			.elem = *name,
-			.size = parse_array_size(),
-		};
-	}
-
-	return ast::regular_type{
-		.name = *name
+	ast::composite_type type{
+		.base { .name = *name }
 	};
+
+	while (true) {
+		if (match(token_kind::ast)) {
+			type.suffix.push_back(ast::pointer_suffix{});
+		} else if (match(token_kind::l_square)) {
+			type.suffix.push_back(ast::array_suffix{
+				.size = parse_array_size(),
+			});
+		} else break;
+	}
+
+	if (type.suffix.empty())
+		return type.base;
+
+	return type;
 }
 
 /********************** Statements **********************/

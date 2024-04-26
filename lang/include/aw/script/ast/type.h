@@ -18,26 +18,27 @@ struct regular_type {
 	type_name name;
 };
 
-struct reference_type {
-	type_name pointee;
-};
-
-struct pointer_type {
-	type_name pointee;
-};
-
-struct array_type {
-	type_name elem;
+struct pointer_suffix {};
+struct reference_suffix {};
+struct array_suffix {
 	std::optional<size_t> size;
 };
 
+using type_suffix = std::variant<
+	reference_suffix, // T&
+	pointer_suffix,   // T*
+	array_suffix      // T[] and T[N]
+>;
+
+struct composite_type {
+	regular_type base;
+	std::vector<type_suffix> suffix;
+};
 
 using type = std::variant<
 	unknown_type,   // unknown type, to be inferred later
 	regular_type,   // anything that doesn't fall into other categories
-	reference_type, // T&
-	pointer_type,   // T*
-	array_type      // T[] and T[N]
+	composite_type  // T&, T*, T[] and T[N]
 >;
 
 } // namespace aw::script::ast

@@ -22,39 +22,37 @@ auto context::create_type(const ast::type &type) -> ir::type*
 		return add_type(ir::type{ type_name(*ty) });
 	}
 
-	if (auto* arr = get_if<ast::array_type>(&type)) {
-		auto name = type_name(*arr);
+	if (auto* comp = get_if<ast::composite_type>(&type)) {
+		auto name = type_name(*comp);
 
 		if (auto existing_ty = find_type(name))
 			return existing_ty;
 
-		auto elem = find_type(type_name(arr->elem));
+		auto& suffix = comp->suffix.back();
+		auto copy = *comp;
+		copy.suffix.pop_back();
 
-		// TODO: convert unsized to array_slice
-		return add_type(ir::type{
-			.name = name,
-			.kind = ir::array_type{
-				.base_type = elem,
-				.size = arr->size,
-			}
-		});
-	}
+		auto base = find_type(type_name(copy));
 
-	if (auto ptr = get_if<ast::pointer_type>(&type)) {
-		auto name = type_name(*ptr);
+		if (auto* arr = get_if<ast::array_suffix>(&suffix)) {
+			return add_type(ir::type{
+				.name = name,
+				.kind = ir::array_type{
+					.base_type = base,
+					.size = arr->size,
+				}
+			});
+		}
 
-		if (auto existing_ty = find_type(name))
-			return existing_ty;
-
-		auto pointee = find_type(type_name(ptr->pointee));
-
-		return add_type(ir::type{
-			.name = name,
-			.kind = ir::pointer_type{
-				.base_type = pointee,
-				.is_mutable = false, // for now
-			}
-		});
+		if (auto ptr = get_if<ast::pointer_suffix>(&suffix)) {
+			return add_type(ir::type{
+				.name = name,
+				.kind = ir::pointer_type{
+					.base_type = base,
+					.is_mutable = false, // for now
+				}
+			});
+		}
 	}
 
 	// TODO

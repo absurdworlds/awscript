@@ -65,17 +65,9 @@ struct dependency_scanner {
 	{
 		visit_identifier(type.name);
 	}
-	void visit_type(const ast::reference_type& type)
+	void visit_type(const ast::composite_type& type)
 	{
-		visit_identifier(type.pointee);
-	}
-	void visit_type(const ast::pointer_type& type)
-	{
-		visit_identifier(type.pointee);
-	}
-	void visit_type(const ast::array_type& type)
-	{
-		visit_identifier(type.elem);
+		visit_type(type.base);
 	}
 
 	/*
