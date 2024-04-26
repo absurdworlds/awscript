@@ -32,6 +32,14 @@ set(RUNTIME_TESTS
 	codegen/pointer.aw
 )
 
+option(AWSCRIPT_NIY_TESTS "Run tests for NIY functionality" OFF)
+if (AWSCRIPT_NIY_TESTS)
+	list(APPEND TESTS
+		errors/linebreaks.aw)
+	list(APPEND NEGATIVE_TESTS
+		errors/linebreaks.aw)
+endif()
+
 foreach (test ${RUNTIME_TESTS})
 	get_filename_component(name ${test} NAME_WE)
 	add_test (
