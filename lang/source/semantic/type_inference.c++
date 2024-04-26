@@ -215,18 +215,24 @@ struct type_inference_visitor
 		return ctx.find_type("string_literal");
 	}
 
-	auto infer_type(list_literal& /*expr*/) -> type_hint
+	auto infer_type(list_literal& expr) -> type_hint
 	{
+		for (auto& subexpr : expr.fields)
+			infer_type(subexpr);
 		return nullptr;
 	}
 
-	auto infer_type(numbered_list_literal& /*expr*/) -> type_hint
+	auto infer_type(numbered_list_literal& expr) -> type_hint
 	{
+		for (auto& field : expr.fields)
+			infer_type(*field.value);
 		return nullptr;
 	}
 
-	auto infer_type(struct_literal& /*expr*/) -> type_hint
+	auto infer_type(struct_literal& expr) -> type_hint
 	{
+		for (auto& field : expr.fields)
+			infer_type(*field.value);
 		return nullptr;
 	}
 

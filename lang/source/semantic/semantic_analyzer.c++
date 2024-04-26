@@ -242,6 +242,7 @@ void semantic_analyzer::visit_stmt(context& ctx, middle::expression& expr)
 {
 	if (!expr.type)
 		expr.type = infer_type(ctx, diag, expr);
+	assert(expr.type);
 	visit_expr(ctx, expr);
 }
 
