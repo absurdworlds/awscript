@@ -1,4 +1,4 @@
-aw_add_test(awscript_test_lang
+aw_add_test(test_lang
 	SOURCES
 		lexer/lexer.c++
 		parser/comments.c++
@@ -6,7 +6,7 @@ aw_add_test(awscript_test_lang
 		semantic/resolve_deps.c++
 )
 
-target_link_libraries(awscript_test_lang
+target_link_libraries(test_lang
 	PRIVATE
 		awscript-lang
 		aw::string

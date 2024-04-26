@@ -19,8 +19,17 @@ endif()
 set(AW_IMPORT_MACROS ON)
 find_package(awlib)
 
-option(AWSCRIPT_MAKE_TESTS "Build test executables" ON)
+option(AWSCRIPT_MAKE_TESTS   "Build test executables" ON)
+option(AWSCRIPT_ENABLE_TESTS "Enable running the tests" ON)
+
+if (AWSCRIPT_ENABLE_TESTS)
+	enable_testing()
+endif()
+
 
 add_subdirectory(lang)
 add_subdirectory(tools)
-add_subdirectory(test)
+
+if (AWSCRIPT_ENABLE_TESTS)
+	add_subdirectory(test)
+endif()

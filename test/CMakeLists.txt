@@ -1,5 +1,3 @@
-enable_testing()
-
 file(GLOB_RECURSE SOURCES *.aw)
 
 add_custom_target(testfiles SOURCES ${SOURCES})
