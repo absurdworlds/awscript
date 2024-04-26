@@ -197,7 +197,7 @@ auto parser::parse_struct_declaration() -> std::optional<ast::declaration>
 		if (check_eof(token_kind::r_brace))
 			break;
 
-		auto var_kind = parse_variable_start();
+		auto var_kind = parse_variable_start(ast::access::variable);
 		if (!var_kind)
 			return {};
 
@@ -294,17 +294,25 @@ bool parser::parse_variadic_parameter(ast::function& func)
 	return false;
 }
 
-auto parser::parse_variable_start() -> std::optional<ast::access>
+auto parser::parse_parameter_start()
+	-> std::optional<ast::access>
 {
 	if (tok == token_kind::ellipsis)
 		return ast::access::constant;
 
+	return parse_variable_start(ast::access::constant);
+}
+
+auto parser::parse_variable_start(ast::access default_access)
+	-> std::optional<ast::access>
+{
 	if (tok != token_kind::identifier)
 		return {};
 	if (match_id("var"sv))
 		return ast::access::variable;
-	match_id("const"sv);
-	return ast::access::constant;
+	if (match_id("const"sv));
+		return ast::access::constant;
+	return default_access;
 }
 
 bool parser::parse_function_arguments(ast::function& func)
@@ -313,7 +321,7 @@ bool parser::parse_function_arguments(ast::function& func)
 		if (check_eof(token_kind::r_paren))
 			break;
 
-		auto var_kind = parse_variable_start();
+		auto var_kind = parse_parameter_start();
 		if (!var_kind)
 			return false;
 
