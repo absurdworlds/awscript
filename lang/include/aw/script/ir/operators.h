@@ -7,6 +7,8 @@ enum class unary_operator {
 	minus,
 	minus_fp,
 	plus,
+	increment,
+	decrement,
 	negation,
 	logical_not = negation,
 	reference, // TODO: replace with a type of expression

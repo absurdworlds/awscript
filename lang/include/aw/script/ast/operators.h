@@ -5,6 +5,8 @@ namespace aw::script::ast {
 enum class unary_operator {
 	minus,
 	plus,
+	increment,
+	decrement,
 	logical_negation,
 	binary_negation,
 	reference,

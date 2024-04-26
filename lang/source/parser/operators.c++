@@ -11,8 +11,12 @@ auto static token_to_unary_operator(token tok) -> std::optional<ast::unary_opera
 	switch (tok.kind) {
 	case token_kind::minus:
 		return unop::minus;
+	case token_kind::minus_minus:
+		return unop::decrement;
 	case token_kind::plus:
 		return unop::plus;
+	case token_kind::plus_plus:
+		return unop::increment;
 	case token_kind::bang:
 		return unop::logical_negation;
 	case token_kind::tilde:

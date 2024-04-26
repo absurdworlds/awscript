@@ -8,6 +8,7 @@
 
 #include <aw/utility/ranges/paired.h>
 #include <aw/utility/ranges/ipairs.h>
+#include <aw/algorithm/in.h>
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Verifier.h>
@@ -542,7 +543,6 @@ auto backend_llvm::gen(const value_ptr<middle::expression>& expr) -> llvm::Value
 	return expr ? gen(*expr) : nullptr;
 }
 
-
 auto backend_llvm::gen(const middle::expression& expr) -> llvm::Value*
 {
 	auto value = gen_expr(expr);
@@ -583,6 +583,12 @@ auto backend_llvm::gen_lvalue(const middle::expression& expr) -> llvm::Value*
 
 	auto* type = value->getType();
 	return type->isPointerTy() ? value : nullptr;
+}
+
+bool requires_lvalue(const ir::unary_operator op)
+{
+	using enum ir::unary_operator;
+	return in(op, reference, increment, decrement);
 }
 
 bool requires_lvalue(const ir::binary_operator op)
@@ -702,23 +708,44 @@ auto backend_llvm::gen(const middle::binary_expression& expr) -> llvm::Value*
 	return gen_op(builder, expr.op, lhs, rhs);
 }
 
+auto CreateIncrement(llvm::IRBuilder<>& builder, llvm::Type* type, llvm::Value* val) -> llvm::Value*
+{
+	const auto ci1 = ConstantInt::get(type, 1);
+	auto* before = builder.CreateLoad(type, val, val->getName() + "_val");
+	auto* after = builder.CreateAdd(before, ci1, val->getName() + "_inc");
+	return builder.CreateStore(after, val);
+}
+
+auto CreateDecrement(llvm::IRBuilder<>& builder, llvm::Type* type, llvm::Value* val) -> llvm::Value*
+{
+	const auto ci1 = ConstantInt::get(type, 1);
+	auto* before = builder.CreateLoad(type, val, val->getName() + "_val");
+	auto* after = builder.CreateSub(before, ci1, val->getName() + "_inc");
+	return builder.CreateStore(after, val);
+}
+
 auto backend_llvm::gen(const middle::unary_expression& expr) -> llvm::Value*
 {
-	auto* val = (expr.op == ir::unary_operator::reference) ?
-		gen_lvalue(expr.lhs) : gen(expr.lhs);
+	auto* val = requires_lvalue(expr.op) ? gen_lvalue(expr.lhs) : gen(expr.lhs);
 	if (!val)
 		return nullptr;
 	switch (expr.op) {
-	case ir::unary_operator::minus:
+	using enum ir::unary_operator;
+	case minus:
 		return builder.CreateNeg(val, "neg");
-	case ir::unary_operator::minus_fp:
+	case minus_fp:
 		return builder.CreateFNeg(val, "neg");
-	case ir::unary_operator::plus:
+	case plus:
 		return val;
-	case ir::unary_operator::negation:
+	case negation:
 		return builder.CreateNot(val, "not");
-	case ir::unary_operator::reference:
+	case reference:
 		return val;
+	case increment:
+		return CreateIncrement(builder, get_llvm_type(context, expr.lhs->type), val);
+	case decrement:
+		return CreateDecrement(builder, get_llvm_type(context, expr.lhs->type), val);
+		break;
 	};
 
 	return nullptr;

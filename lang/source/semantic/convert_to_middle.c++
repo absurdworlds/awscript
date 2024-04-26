@@ -25,6 +25,10 @@ auto convert_operator(ast::unary_operator op) -> ir::unary_operator
 		return unop::negation;
 	case reference:
 		return unop::reference;
+	case increment:
+		return unop::increment;
+	case decrement:
+		return unop::decrement;
 	}
 	assert(!"Corrupt value!");
 };
