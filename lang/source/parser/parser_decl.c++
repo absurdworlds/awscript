@@ -137,7 +137,12 @@ auto parser::parse_initializer_field() -> std::optional<ast::struct_literal::fie
 		expect(token_kind::equal);
 	}
 
-	result.value = wrap(parse_expression());
+	if (match(token_kind::l_brace)) {
+		result.value = wrap(parse_struct_initializer());
+	} else {
+		result.value = wrap(parse_expression());
+	}
+
 	if (!result.value)
 		return {};
 	return result;
