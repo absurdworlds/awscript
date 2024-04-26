@@ -62,6 +62,9 @@ int main(int argc, char** argv)
 				options.opt_level = aw::script::optimization_level::O2;
 			if (value == "3")
 				options.opt_level = aw::script::optimization_level::O3;
+		// TODO: remove this option, it should belong to a REPL executable
+		} else if (in(name, "eval")) {
+			options.eval = true;
 		}
 	}
 

@@ -13,6 +13,7 @@
 #include "aw/script/utility/ast_printer_default.h"
 
 #include <aw/io/file.h>
+#include <aw/io/process.h>
 #include <aw/types/array_view.h>
 #include <aw/utility/string/join.h>
 #include <aw/utility/on_scope_exit.h>
@@ -286,6 +287,11 @@ int run_compiler(const options& options)
 		for (const auto& object : objects)
 		{
 			std::filesystem::remove(object);
+		}
+
+		// TODO: remove
+		if (options.eval) {
+			io::run(output_file, {});
 		}
 	}
 

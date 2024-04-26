@@ -28,6 +28,22 @@ set(NEGATIVE_TESTS
 	errors/recovery.aw
 )
 
+set(RUNTIME_TESTS
+	codegen/pointer.aw
+)
+
+foreach (test ${RUNTIME_TESTS})
+	get_filename_component(name ${test} NAME_WE)
+	add_test (
+		NAME ${test}
+		COMMAND awscriptc --eval ${test} -o ${CMAKE_CURRENT_BINARY_DIR}/${name}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	)
+	set_property(TEST ${test} PROPERTY TIMEOUT 3)
+endforeach()
+
+set_property(TEST codegen/pointer.aw PROPERTY PASS_REGULAR_EXPRESSION "pass;passed!")
+
 foreach (test ${TESTS})
 	add_test (
 		NAME ${test}

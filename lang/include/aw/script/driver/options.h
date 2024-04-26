@@ -17,9 +17,11 @@
 namespace aw::script::driver {
 
 enum class mode {
+	// Generate code but don't touch filesystem
 	dry_run,
-	assemble,
+	// Make .o files
 	make_obj,
+	// Link into executable
 	link,
 };
 
@@ -33,6 +35,7 @@ struct options {
 	bool dump_sem = false;
 	bool dump_ir = false;
 	bool profile_compiler = false;
+	bool eval = false;
 };
 
 } // namespace aw::script::driver
