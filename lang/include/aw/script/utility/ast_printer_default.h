@@ -76,9 +76,11 @@ private:
 	void end();
 	void print_indent();
 	void print_inline(string_view text);
+	void print_comment(string_view text);
 
 	std::vector<scope_type> scope_stack;
 	state state = line_start;
+	bool print_comments = false;
 };
 
 } // namespace aw::script

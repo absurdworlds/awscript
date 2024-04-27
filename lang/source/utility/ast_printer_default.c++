@@ -18,6 +18,7 @@ ast_printer_default::~ast_printer_default()
 
 void ast_printer_default::print_declaration(const ast::declaration& decl)
 {
+	print_comment(decl.comment);
 	std::visit([this] (auto&& node) { print_decl(node); }, decl);
 	end_line();
 }
@@ -66,6 +67,20 @@ void ast_printer_default::print_inline(string_view text)
 		std::cout << ' ';
 	state = line_middle;
 	std::cout << text;
+}
+
+void ast_printer_default::print_comment(string_view text)
+{
+	if (!print_comments)
+		return;
+	// TODO: conceptually, it's better to make the comment optional<>
+	// and still print empty comments to signify that they're still there
+	// but I'm not sure if it's needed
+	if (text.empty())
+		return;
+	start("comment");
+	print_inline(text);
+	end();
 }
 
 void ast_printer_default::print_indent()
@@ -176,6 +191,7 @@ void ast_printer_default::print_type(const ast::type& type)
 
 void ast_printer_default::print(const ast::statement& stmt)
 {
+	print_comment(stmt.comment);
 	std::visit([this] (auto&& node) { print_stmt(node); }, stmt);
 }
 
