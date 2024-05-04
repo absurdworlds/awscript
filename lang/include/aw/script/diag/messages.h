@@ -3,6 +3,10 @@
 #endif
 
 DIAG(error, generic_error, "%0")
+
+DIAG(error, no_input_files, "No input files given.")
+DIAG(error, file_not_found, "File not found: %0.")
+
 DIAG(error, not_implemented_yet, "Not implemented yet: %0.")
 
 DIAG(error, illegal_token, "Unexpected token ‘%0’.")

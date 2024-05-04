@@ -373,7 +373,7 @@ struct convert_to_middle_visitor {
 		return stack;
 	}
 
-
+	// convert 0 < x < 1 into (0 < x) && (x < 1)
 	auto convert_chain_expr(const ast::binary_expression& in_expr) -> middle::binary_expression
 	{
 		auto stack = make_stack(in_expr);

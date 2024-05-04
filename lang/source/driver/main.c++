@@ -11,6 +11,7 @@
 #include "aw/script/semantic/module_tree.h"
 #include "aw/script/semantic/semantic_analyzer.h"
 #include "aw/script/utility/ast_printer_default.h"
+#include "aw/script/diag/error_t.h"
 
 #include <aw/io/file.h>
 #include <aw/io/process.h>
@@ -24,6 +25,7 @@
 #include <chrono>
 
 namespace aw::script::driver {
+
 using clock = std::chrono::steady_clock;
 struct timing {
 	clock::time_point start;
@@ -64,8 +66,11 @@ auto parse_file(
 	source_manager& srcman,
 	diagnostics_engine& diag,
 	std::string_view input)
-	-> ast::module
+	-> std::optional<ast::module>
 {
+	if (!std::filesystem::exists(input))
+		return error(diag, diagnostic_id::file_not_found, location{}, input);
+
 	lexer lexer(srcman.get_buffer(srcman.add_file(input)));
 
 	aw::script::parser parser({
@@ -99,7 +104,9 @@ auto parse_files(
 
 	for (const auto& input : file_list)
 	{
-		modules.push_back(parse_file(srcman, diag, input));
+		auto module = parse_file(srcman, diag, input);
+		if (module.has_value())
+			modules.push_back(std::move(module).value());
 	}
 
 	return modules;
@@ -121,7 +128,7 @@ void resolve_dependencies(
 {
 	auto deps = get_module_dependencies(diag, module);
 
-	for (auto dep : deps) {
+	for (const auto& dep : deps) {
 		if (r.map.find(dep.module_id) != r.map.end())
 			continue;
 		auto path = std::filesystem::path(module.path).parent_path().generic_string();
@@ -133,10 +140,12 @@ void resolve_dependencies(
 		path += dep.module_id.name;
 		path += ".aw";
 		auto mod = parse_file(srcman, diag, path);
+		if (!mod.has_value())
+			continue;
 
-		resolve_dependencies(r, srcman, diag, mod);
+		resolve_dependencies(r, srcman, diag, mod.value());
 
-		r.deps.push_back(std::move(mod));
+		r.deps.push_back(std::move(mod).value());
 	}
 }
 
@@ -234,16 +243,15 @@ int run_compiler(const options& options)
 		}
 	});
 
-	if (options.input_files.empty())
-	{
-		// TODO: use diagnostics_engine?
-		std::cerr << "No input files given.\n";
-		return EXIT_FAILURE;
-	}
-
 	source_manager srcman;
 
 	diagnostics_engine diag(srcman);
+
+	if (options.input_files.empty())
+	{
+		error(diag, diagnostic_id::no_input_files, location{});
+		return EXIT_FAILURE;
+	}
 
 	std::vector<ast::module> in_modules = parse_files(srcman, diag, options.input_files);
 

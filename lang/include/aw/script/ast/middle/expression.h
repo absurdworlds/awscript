@@ -16,10 +16,10 @@
 #include <aw/script/ir/operators.h>
 #include <aw/script/utility/value_ptr.h>
 
-#include <memory>
 #include <variant>
 #include <vector>
 
+// TODO: replace pointers with numeric ids
 namespace aw::script::middle {
 
 struct expression;
@@ -133,9 +133,16 @@ using expression_variant = std::variant<
 	struct_literal
 >;
 
+enum class expr_category {
+	lvalue,
+	rvalue,
+};
+
 struct expression : expression_variant
 {
 	ir::type* type = nullptr;
+
+	expr_category category;
 
 	using expression_variant::expression_variant;
 	using expression_variant::operator=;
